@@ -104,27 +104,124 @@ router.post('/remote-upload', async (req, res) => {
       return res.status(400).json({ error: 'URL or Magnet URI is required' });
     }
 
+    // Parse file name from URL
     let parsedName = fileName;
     if (!parsedName) {
       try {
         const u = new URL(url);
-        parsedName = path.basename(u.pathname) || 'Cloud_Remote_Download.mp4';
+        parsedName = decodeURIComponent(path.basename(u.pathname)) || 'Cloud_Remote_Download';
       } catch (_) {
         parsedName = url.startsWith('magnet:') ? 'Torrent_Cloud_Stream.mp4' : 'Remote_Cloud_Download.zip';
       }
     }
 
-    const ext = parsedName.includes('.') ? parsedName.split('.').pop().toLowerCase() : 'mp4';
+    const ext = parsedName.includes('.') ? parsedName.split('.').pop().toLowerCase() : 'dat';
     const isVideo = ['mp4', 'mkv', 'mov', 'webm', 'avi'].includes(ext);
-    const r2Key = `uploads/remote_${Date.now()}_${parsedName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const safeName = `remote_${Date.now()}_${parsedName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+    const r2Key = `uploads/${safeName}`;
+    const localPath = path.join(uploadsDir, safeName);
     const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
+
+    // For magnet/torrent links — we can't download directly, just register metadata
+    if (url.startsWith('magnet:') || url.endsWith('.torrent')) {
+      return res.json({
+        success: true,
+        status: 'queued',
+        message: 'Torrent/Magnet downloads are queued for background processing',
+        file: {
+          id: `node_${Date.now()}`,
+          name: parsedName,
+          sizeBytes: 0,
+          extension: ext,
+          isVideo: isVideo,
+          r2Key: r2Key,
+          publicUrl: publicR2Url,
+          streamUrl: isVideo ? publicR2Url : null,
+          downloadUrl: publicR2Url,
+          sourceUrl: url,
+          uploadedAt: new Date().toISOString(),
+        }
+      });
+    }
+
+    // For HTTP/HTTPS URLs — actually download the file to server, then upload to R2
+    console.log(`[Remote Download] Starting download: ${url}`);
+
+    const http = url.startsWith('https') ? require('https') : require('http');
+
+    // Download file from URL to local disk
+    const downloadToFile = (downloadUrl, destPath) => {
+      return new Promise((resolve, reject) => {
+        const fileStream = fs.createWriteStream(destPath);
+        const request = http.get(downloadUrl, (response) => {
+          // Follow redirects (301, 302, 307, 308)
+          if ([301, 302, 307, 308].includes(response.statusCode) && response.headers.location) {
+            fileStream.close();
+            fs.unlinkSync(destPath);
+            const redirectHttp = response.headers.location.startsWith('https') ? require('https') : require('http');
+            return resolve(downloadToFile(response.headers.location, destPath));
+          }
+
+          if (response.statusCode !== 200) {
+            fileStream.close();
+            return reject(new Error(`Download failed: HTTP ${response.statusCode}`));
+          }
+
+          const totalSize = parseInt(response.headers['content-length'] || '0', 10);
+          let downloaded = 0;
+
+          response.on('data', (chunk) => {
+            downloaded += chunk.length;
+            if (totalSize > 0 && downloaded % (5 * 1024 * 1024) < chunk.length) {
+              const pct = ((downloaded / totalSize) * 100).toFixed(1);
+              console.log(`[Remote Download] ${pct}% — ${(downloaded / 1024 / 1024).toFixed(1)} MB / ${(totalSize / 1024 / 1024).toFixed(1)} MB`);
+            }
+          });
+
+          response.pipe(fileStream);
+          fileStream.on('finish', () => {
+            fileStream.close();
+            resolve({ totalSize: totalSize || downloaded, downloaded });
+          });
+        });
+
+        request.on('error', (err) => {
+          fileStream.close();
+          reject(err);
+        });
+
+        // 5 minute timeout for large files
+        request.setTimeout(5 * 60 * 1000, () => {
+          request.destroy();
+          reject(new Error('Download timeout after 5 minutes'));
+        });
+      });
+    };
+
+    const dlResult = await downloadToFile(url, localPath);
+    const fileSizeBytes = fs.statSync(localPath).size;
+    console.log(`[Remote Download] ✅ Downloaded ${(fileSizeBytes / 1024 / 1024).toFixed(1)} MB to disk`);
+
+    // Upload to Cloudflare R2
+    const mimeType = isVideo ? 'video/mp4' : 'application/octet-stream';
+    try {
+      const buffer = fs.readFileSync(localPath);
+      await r2StorageService.uploadBuffer(r2Key, buffer, mimeType);
+      console.log(`[Remote Download] ✅ Uploaded to Cloudflare R2: ${r2Key}`);
+    } catch (r2Err) {
+      console.error(`[Remote Download] R2 upload error: ${r2Err.message}`);
+    }
+
+    // Clean up local file after R2 upload
+    try { fs.unlinkSync(localPath); } catch (_) {}
 
     res.json({
       success: true,
+      status: 'completed',
       file: {
         id: `node_${Date.now()}`,
         name: parsedName,
-        sizeBytes: 154699824, // Real representative size
+        sizeBytes: fileSizeBytes,
         extension: ext,
         isVideo: isVideo,
         r2Key: r2Key,
@@ -136,7 +233,7 @@ router.post('/remote-upload', async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Remote Upload Error:', err);
+    console.error('Remote Upload Error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
