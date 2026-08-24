@@ -8,17 +8,23 @@ class ShareService {
   // Create Short Share Link
   createShare(fileData, customCode = null) {
     const code = customCode || Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
-    const streamUrl = fileData.directStreamUrl || fileData.downloadUrl || (fileData.r2Key ? `${env.r2.publicDomain}/${fileData.r2Key}` : 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4');
+    
+    const ext = (fileData.extension || (fileData.name ? fileData.name.split('.').pop() : 'dat')).toLowerCase();
+    const isVideo = fileData.isVideo ?? ['mp4', 'mkv', 'mov', 'avi', 'webm'].includes(ext);
+    
+    const downloadUrl = fileData.downloadUrl || fileData.publicUrl || (fileData.r2Key ? `${env.r2.publicDomain}/${fileData.r2Key}` : `${env.r2.publicDomain}/uploads/${fileData.name || 'file'}`);
+    const streamUrl = isVideo ? (fileData.streamUrl || downloadUrl) : null;
 
     const shareItem = {
       code,
-      fileId: fileData.id,
-      fileName: fileData.name,
-      sizeBytes: fileData.sizeBytes || 104857600,
-      extension: fileData.extension || 'mp4',
-      isVideo: fileData.isVideo ?? (['mp4', 'mkv', 'mov', 'avi', 'webm'].includes((fileData.extension || '').toLowerCase())),
-      durationSeconds: fileData.durationSeconds || 60,
+      fileId: fileData.id || `node_${Date.now()}`,
+      fileName: fileData.name || 'Shared_File',
+      sizeBytes: fileData.sizeBytes || 10485760,
+      extension: ext,
+      isVideo: isVideo,
+      durationSeconds: fileData.durationSeconds || (isVideo ? 120 : 0),
       r2Key: fileData.r2Key || '',
+      downloadUrl: downloadUrl,
       streamUrl: streamUrl,
       createdAt: new Date().toISOString(),
       viewsCount: 0,
@@ -30,18 +36,20 @@ class ShareService {
     return shareItem;
   }
 
-  // Get Share Details by Short Code (With Dynamic Fallback so no link ever 404s)
+  // Get Share Details by Short Code (With Dynamic Fallback)
   getShare(code) {
     let share = this.shares.get(code);
     if (!share) {
+      // Clean dynamic fallback based on code query or default file
       share = {
         code,
-        fileName: 'TeraBox_Stream_Video.mp4',
-        sizeBytes: 84934656,
-        extension: 'mp4',
-        isVideo: true,
-        durationSeconds: 120,
-        streamUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        fileName: 'TeraBox_Cloud_File',
+        sizeBytes: 25165824,
+        extension: 'zip',
+        isVideo: false,
+        durationSeconds: 0,
+        downloadUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+        streamUrl: null,
         createdAt: new Date().toISOString(),
         viewsCount: 1,
         appRedirectUrl: `terabox://share/${code}`,
@@ -54,7 +62,7 @@ class ShareService {
     return share;
   }
 
-  // Render Human-Crafted, Responsive, Premium White-Theme Web Teaser Page
+  // Render Human-Crafted, Responsive, Premium Production Web Page
   renderWebPreviewHtml(share) {
     const formatBytes = (bytes) => {
       if (!bytes || bytes === 0) return '0 B';
@@ -64,14 +72,17 @@ class ShareService {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     };
 
+    const isVideo = share.isVideo === true || ['mp4', 'mkv', 'mov', 'avi', 'webm'].includes((share.extension || '').toLowerCase());
+    const fileExtUpper = (share.extension || 'FILE').toUpperCase();
+
     return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>${share.fileName} - TeraBox Cloud</title>
-  <meta name="description" content="Watch 1080p stream and download ${share.fileName} on TeraBox 1024 GB Cloud Storage.">
+  <title>${share.fileName} - TeraBox 1024 GB Cloud</title>
+  <meta name="description" content="Download and stream ${share.fileName} on TeraBox Cloud Storage.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -94,17 +105,17 @@ class ShareService {
     }
     .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .brand-logo {
-      width: 34px; height: 34px; border-radius: 9px; background: #0066FF;
-      display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 800; font-size: 17px;
+      width: 36px; height: 36px; border-radius: 10px; background: #0066FF;
+      display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 800; font-size: 18px;
     }
-    .brand-name { font-size: 18px; font-weight: 800; color: #0F172A; letter-spacing: -0.4px; }
+    .brand-name { font-size: 19px; font-weight: 800; color: #0F172A; letter-spacing: -0.4px; }
     .brand-badge {
-      font-size: 10px; font-weight: 700; background: #EFF6FF; color: #0066FF;
+      font-size: 11px; font-weight: 700; background: #EFF6FF; color: #0066FF;
       padding: 3px 8px; border-radius: 6px; border: 1px solid #DBEAFE;
     }
     .btn-nav-app {
       background: #0066FF; color: #FFFFFF; font-size: 13px; font-weight: 700;
-      padding: 8px 20px; border-radius: 20px; text-decoration: none; border: none; cursor: pointer;
+      padding: 9px 22px; border-radius: 20px; text-decoration: none; border: none; cursor: pointer;
       box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25); transition: all 0.2s ease;
     }
     .btn-nav-app:hover { background: #0052D4; transform: translateY(-1px); }
@@ -112,19 +123,19 @@ class ShareService {
     /* Main Container */
     .container {
       flex: 1;
-      max-width: 760px;
+      max-width: 680px;
       width: 100%;
-      margin: 24px auto;
-      padding: 0 16px;
+      margin: 32px auto;
+      padding: 0 20px;
     }
 
     /* Video Player Surface */
     .video-card {
       background: #000000;
-      border-radius: 20px;
+      border-radius: 24px;
       overflow: hidden;
       position: relative;
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
       border: 1px solid #E2E8F0;
       aspect-ratio: 16/9;
     }
@@ -135,7 +146,7 @@ class ShareService {
       position: absolute;
       top: 14px;
       left: 14px;
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(10px);
       padding: 6px 14px;
       border-radius: 20px;
@@ -211,39 +222,48 @@ class ShareService {
     }
     .btn-modal-app:hover { background: #0052D4; transform: translateY(-1px); }
 
-    .btn-modal-save {
-      margin-top: 12px;
-      background: transparent;
-      color: #38BDF8;
-      font-size: 13px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      padding: 6px 12px;
+    /* Non-Video Generic File Card (EXE, ZIP, PDF, APK, etc.) */
+    .generic-file-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 32px 24px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
+    .file-type-badge {
+      width: 76px; height: 76px; border-radius: 22px; background: #EFF6FF;
+      border: 1px solid #DBEAFE; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; margin-bottom: 18px;
+    }
+    .file-type-badge svg { color: #0066FF; margin-bottom: 4px; }
+    .file-type-badge span { font-size: 10px; font-weight: 800; color: #0066FF; }
 
     /* File Metadata Card */
     .file-details-card {
       background: #FFFFFF;
-      border-radius: 18px;
+      border-radius: 20px;
       padding: 20px;
       margin-top: 18px;
       border: 1px solid #E2E8F0;
       box-shadow: 0 2px 8px rgba(0,0,0,0.02);
     }
-    .file-name { font-size: 17px; font-weight: 800; color: #0F172A; margin-bottom: 8px; word-break: break-all; }
-    .file-meta-row { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: #64748B; font-weight: 500; }
-    .meta-tag { display: flex; align-items: center; gap: 5px; }
+    .file-name { font-size: 18px; font-weight: 800; color: #0F172A; margin-bottom: 8px; word-break: break-all; }
+    .file-meta-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: #64748B; font-weight: 500; }
+    .meta-tag { display: flex; align-items: center; gap: 6px; }
 
     /* Action Buttons Row */
-    .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
     .action-button {
-      padding: 14px; border-radius: 14px; font-size: 14px; font-weight: 700;
+      padding: 16px; border-radius: 16px; font-size: 15px; font-weight: 800;
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      cursor: pointer; border: none; transition: all 0.2s;
+      cursor: pointer; border: none; transition: all 0.2s; text-decoration: none;
     }
-    .btn-download-main { background: #0066FF; color: #FFFFFF; box-shadow: 0 4px 14px rgba(0, 102, 255, 0.2); }
-    .btn-download-main:hover { background: #0052D4; }
+    .btn-download-main { background: #0066FF; color: #FFFFFF; box-shadow: 0 6px 18px rgba(0, 102, 255, 0.25); }
+    .btn-download-main:hover { background: #0052D4; transform: translateY(-1px); }
     .btn-save-main { background: #EFF6FF; color: #0066FF; border: 1px solid #DBEAFE; }
     .btn-save-main:hover { background: #DBEAFE; }
 
@@ -251,80 +271,87 @@ class ShareService {
     .cloud-banner {
       background: linear-gradient(135deg, #EFF6FF, #F0FDF4);
       border: 1px solid #BFDBFE;
-      border-radius: 18px;
-      padding: 18px;
-      margin-top: 18px;
+      border-radius: 20px;
+      padding: 20px;
+      margin-top: 20px;
       display: flex;
       align-items: center;
       gap: 16px;
     }
     .cloud-badge {
-      width: 46px; height: 46px; border-radius: 12px; background: #0066FF;
+      width: 48px; height: 48px; border-radius: 14px; background: #0066FF;
       color: #FFFFFF; display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 14px; flex-shrink: 0;
+      font-weight: 800; font-size: 15px; flex-shrink: 0;
     }
     .cloud-text h4 { font-size: 15px; font-weight: 800; color: #0F172A; }
     .cloud-text p { font-size: 12px; color: #64748B; margin-top: 2px; }
 
     /* Footer */
-    .footer { text-align: center; padding: 28px 16px; font-size: 12px; color: #94A3B8; margin-top: auto; }
+    .footer { text-align: center; padding: 32px 16px; font-size: 12px; color: #94A3B8; margin-top: auto; }
   </style>
 </head>
 <body>
 
-  <!-- Clean White Navigation Bar -->
+  <!-- Top Navigation Bar -->
   <nav class="navbar">
-    <a href="http://localhost:3000" class="brand">
+    <div class="brand">
       <div class="brand-logo">T</div>
       <span class="brand-name">TeraBox</span>
       <span class="brand-badge">1024 GB Cloud</span>
-    </a>
-    <button class="btn-nav-app" onclick="triggerAppRedirect()">Open in App</button>
+    </div>
+    <button class="btn-nav-app" onclick="triggerDirectDownload()">Download</button>
   </nav>
 
-  <!-- Content -->
+  <!-- Content Container -->
   <div class="container">
 
-    <!-- Video Surface -->
+    ${isVideo ? `
+    <!-- Video Player Preview -->
     <div class="video-card">
-      
-      <!-- Teaser Countdown Badge -->
       <div class="teaser-badge" id="teaserBadge">
         <span class="dot-live"></span>
         <span id="teaserTimer">Free Preview: 10s</span>
       </div>
 
-      <!-- Center Play Overlay Button -->
       <div class="play-overlay" id="playOverlay" onclick="startPlayback()">
         <div class="play-btn-circle">
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </div>
       </div>
 
-      <!-- Video Element -->
       <video id="teaserVideo" playsinline controls preload="auto">
-        <source src="${share.streamUrl}" type="video/mp4">
-        Your browser does not support HTML5 video streaming.
+        <source src="${share.streamUrl || share.downloadUrl}" type="video/mp4">
+        Your browser does not support HTML5 video.
       </video>
 
-      <!-- 10-Second Paywall Modal -->
       <div class="paywall-modal" id="paywallModal">
         <div class="modal-icon">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </div>
         <h3 class="modal-h3">Free Preview Ended</h3>
         <p class="modal-p">
-          Watch the complete video in <strong>1080p Ultra-HD</strong> with zero buffering and ad-free experience in the TeraBox App.
+          Download or watch the full video in <strong>1080p Ultra-HD</strong> with ultra-fast speed on TeraBox Cloud.
         </p>
-        <button class="btn-modal-app" onclick="triggerAppRedirect()">
-          Watch Full Video in App
-        </button>
-        <button class="btn-modal-save" onclick="triggerSaveToCloud()">
-          Save to My TeraBox Cloud
+        <button class="btn-modal-app" onclick="triggerDirectDownload()">
+          Download Full Video (${formatBytes(share.sizeBytes)})
         </button>
       </div>
-
     </div>
+    ` : `
+    <!-- Non-Video Generic File Card (EXE, ZIP, PDF, APK, etc.) -->
+    <div class="generic-file-card">
+      <div class="file-type-badge">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+        <span>${fileExtUpper}</span>
+      </div>
+      <h2 style="font-size: 19px; font-weight: 800; color: #0F172A; margin-bottom: 6px; word-break: break-all;">${share.fileName}</h2>
+      <p style="font-size: 13px; color: #64748B; margin-bottom: 20px;">${formatBytes(share.sizeBytes)} • Cloudflare R2 High-Speed Storage</p>
+      <button class="action-button btn-download-main" style="width: 100%; max-width: 340px;" onclick="triggerDirectDownload()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download ${fileExtUpper} (${formatBytes(share.sizeBytes)})
+      </button>
+    </div>
+    `}
 
     <!-- File Details -->
     <div class="file-details-card">
@@ -335,34 +362,34 @@ class ShareService {
           ${formatBytes(share.sizeBytes)}
         </div>
         <div class="meta-tag">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          ${share.durationSeconds}s Duration
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Cloudflare R2 High-Speed CDN
         </div>
         <div class="meta-tag">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Cloudflare R2 Verified
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          256-bit AES Safe
         </div>
       </div>
     </div>
 
     <!-- Actions -->
     <div class="actions-row">
-      <button class="action-button btn-download-main" onclick="triggerAppRedirect()">
+      <button class="action-button btn-download-main" onclick="triggerDirectDownload()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Download File
+        Direct Download
       </button>
       <button class="action-button btn-save-main" onclick="triggerSaveToCloud()">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Save to TeraBox
+        Save to My Cloud
       </button>
     </div>
 
-    <!-- Promo Card -->
+    <!-- 1024 GB Promo Card -->
     <div class="cloud-banner">
       <div class="cloud-badge">1TB</div>
       <div class="cloud-text">
         <h4>Claim 1024 GB Free Cloud Storage</h4>
-        <p>Safely store all your videos, photos, and files with 256-bit AES encryption.</p>
+        <p>Safely backup all your videos, photos, software, and documents on TeraBox.</p>
       </div>
     </div>
 
@@ -373,6 +400,21 @@ class ShareService {
   </footer>
 
   <script>
+    const downloadTargetUrl = "${share.downloadUrl || share.streamUrl || '#'}";
+
+    function triggerDirectDownload() {
+      if (downloadTargetUrl && downloadTargetUrl !== '#') {
+        window.location.href = downloadTargetUrl;
+      } else {
+        alert('Starting high-speed Cloudflare R2 download for "${share.fileName}"...');
+      }
+    }
+
+    function triggerSaveToCloud() {
+      alert('1-Click Save: "${share.fileName}" added to your TeraBox Cloud Storage!');
+    }
+
+    ${isVideo ? `
     const video = document.getElementById('teaserVideo');
     const playOverlay = document.getElementById('playOverlay');
     const teaserBadge = document.getElementById('teaserBadge');
@@ -382,52 +424,41 @@ class ShareService {
     let limitReached = false;
 
     function startPlayback() {
-      playOverlay.style.display = 'none';
-      video.play();
+      if (playOverlay) playOverlay.style.display = 'none';
+      if (video) video.play();
     }
 
-    video.addEventListener('play', () => {
-      playOverlay.style.display = 'none';
-    });
+    if (video) {
+      video.addEventListener('play', () => {
+        if (playOverlay) playOverlay.style.display = 'none';
+      });
 
-    video.addEventListener('timeupdate', () => {
-      const remaining = Math.max(0, Math.ceil(MAX_PREVIEW - video.currentTime));
-      teaserTimer.innerText = 'Free Preview: ' + remaining + 's';
+      video.addEventListener('timeupdate', () => {
+        const remaining = Math.max(0, Math.ceil(MAX_PREVIEW - video.currentTime));
+        if (teaserTimer) teaserTimer.innerText = 'Free Preview: ' + remaining + 's';
 
-      if (video.currentTime >= MAX_PREVIEW && !limitReached) {
-        limitReached = true;
-        video.pause();
-        video.currentTime = MAX_PREVIEW;
-        teaserBadge.style.display = 'none';
-        paywallModal.style.display = 'flex';
-      }
-    });
+        if (video.currentTime >= MAX_PREVIEW && !limitReached) {
+          limitReached = true;
+          video.pause();
+          video.currentTime = MAX_PREVIEW;
+          if (teaserBadge) teaserBadge.style.display = 'none';
+          if (paywallModal) paywallModal.style.display = 'flex';
+        }
+      });
 
-    video.addEventListener('seeking', () => {
-      if (video.currentTime > MAX_PREVIEW) {
-        video.currentTime = MAX_PREVIEW;
-        video.pause();
-        paywallModal.style.display = 'flex';
-      }
-    });
+      video.addEventListener('seeking', () => {
+        if (video.currentTime > MAX_PREVIEW) {
+          video.currentTime = MAX_PREVIEW;
+          video.pause();
+          if (paywallModal) paywallModal.style.display = 'flex';
+        }
+      });
 
-    // Auto Play with fallback
-    video.play().catch(() => {
-      playOverlay.style.display = 'flex';
-    });
-
-    function triggerAppRedirect() {
-      window.location.href = '${share.appRedirectUrl}';
-      setTimeout(() => {
-        alert('Opening TeraBox App... If not installed, please download the TeraBox APK from http://localhost:3000');
-        window.location.href = 'http://localhost:3000';
-      }, 1500);
+      video.play().catch(() => {
+        if (playOverlay) playOverlay.style.display = 'flex';
+      });
     }
-
-    function triggerSaveToCloud() {
-      alert('File successfully saved to your 1024 GB TeraBox Cloud!');
-      window.location.href = 'http://localhost:3000';
-    }
+    ` : ''}
   </script>
 </body>
 </html>

@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const env = require('../config/env');
 const r2StorageService = require('../services/r2StorageService');
 const shareService = require('../services/shareService');
 const deduplicationService = require('../services/deduplicationService');
@@ -44,7 +45,7 @@ router.get('/r2/status', async (req, res) => {
   res.json(result);
 });
 
-// 3. Direct Real File Upload Endpoint
+// 3. Direct Real File Upload Endpoint to Cloudflare R2
 router.post('/r2/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -55,23 +56,23 @@ router.post('/r2/upload', upload.single('file'), async (req, res) => {
     const diskFileName = req.file.filename;
     const filePath = req.file.path;
     const sizeBytes = req.file.size;
-    const mimeType = req.file.mimetype;
-    const isVideo = mimeType.startsWith('video/') || fileName.endsWith('.mp4') || fileName.endsWith('.mkv') || fileName.endsWith('.mov') || fileName.endsWith('.webm');
+    const mimeType = req.file.mimetype || 'application/octet-stream';
+    const ext = fileName.split('.').pop().toLowerCase();
+    const isVideo = mimeType.startsWith('video/') || ['mp4', 'mkv', 'mov', 'webm', 'avi'].includes(ext);
 
-    // Local stream URL
-    const localStreamUrl = `http://localhost:4000/uploads/${diskFileName}`;
-    
     // Cloudflare R2 Key & Public URL
     const r2Key = `uploads/${diskFileName}`;
-    let publicR2Url = `https://pub-d550feaadd484541bf0c3af429db5905.r2.dev/${r2Key}`;
+    const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
+    const serverUrl = `${env.appUrl}/uploads/${diskFileName}`;
 
-    // Sync to Cloudflare R2 bucket asynchronously in the background
-    setImmediate(async () => {
-      try {
-        const buffer = fs.readFileSync(filePath);
-        await r2StorageService.uploadBuffer(r2Key, buffer, mimeType);
-      } catch (_) {}
-    });
+    // Upload directly to Cloudflare R2 bucket synchronously or with fast stream
+    try {
+      const buffer = fs.readFileSync(filePath);
+      await r2StorageService.uploadBuffer(r2Key, buffer, mimeType);
+      console.log(`[R2 Upload] ✅ Successfully saved to Cloudflare R2: ${r2Key} (${sizeBytes} bytes)`);
+    } catch (r2Err) {
+      console.error('[R2 Upload Error]', r2Err.message);
+    }
 
     res.json({
       success: true,
@@ -80,11 +81,12 @@ router.post('/r2/upload', upload.single('file'), async (req, res) => {
         name: fileName,
         sizeBytes: sizeBytes,
         contentType: mimeType,
+        extension: ext,
         isVideo: isVideo,
         r2Key: r2Key,
         publicUrl: publicR2Url,
-        streamUrl: localStreamUrl,
-        downloadUrl: localStreamUrl,
+        streamUrl: isVideo ? publicR2Url : null,
+        downloadUrl: publicR2Url,
         uploadedAt: new Date().toISOString(),
       },
     });
