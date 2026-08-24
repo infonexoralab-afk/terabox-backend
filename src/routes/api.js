@@ -13,6 +13,11 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const chunksDir = path.join(__dirname, '../../uploads/chunks');
+if (!fs.existsSync(chunksDir)) {
+  fs.mkdirSync(chunksDir, { recursive: true });
+}
+
 // Disk Storage for real file preservation
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -63,7 +68,6 @@ router.post('/r2/upload', upload.single('file'), async (req, res) => {
     // Cloudflare R2 Key & Public URL
     const r2Key = `uploads/${diskFileName}`;
     const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
-    const serverUrl = `${env.appUrl}/uploads/${diskFileName}`;
 
     // Upload directly to Cloudflare R2 bucket synchronously or with fast stream
     try {
@@ -96,12 +100,113 @@ router.post('/r2/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// 4. Remote Cloud Upload Ingestion (Direct URL / Magnet Stream)
+// 4. Resumable Chunk Upload - Receives individual 4 MB slice
+router.post('/upload/chunk', upload.single('chunk'), async (req, res) => {
+  try {
+    const { uploadId, chunkIndex, totalChunks, fileName } = req.body;
+    if (!uploadId || chunkIndex === undefined) {
+      return res.status(400).json({ error: 'uploadId and chunkIndex are required' });
+    }
+
+    const uploadChunkDir = path.join(chunksDir, uploadId);
+    if (!fs.existsSync(uploadChunkDir)) {
+      fs.mkdirSync(uploadChunkDir, { recursive: true });
+    }
+
+    if (req.file) {
+      const targetChunkPath = path.join(uploadChunkDir, `part_${chunkIndex}`);
+      if (fs.existsSync(targetChunkPath)) {
+        try { fs.unlinkSync(targetChunkPath); } catch (_) {}
+      }
+      fs.renameSync(req.file.path, targetChunkPath);
+    }
+
+    console.log(`[Resumable Upload] Chunk ${chunkIndex}/${totalChunks} received for uploadId: ${uploadId}`);
+
+    res.json({
+      success: true,
+      uploadId,
+      chunkIndex: parseInt(chunkIndex, 10),
+      totalChunks: parseInt(totalChunks, 10),
+    });
+  } catch (err) {
+    console.error('[Chunk Upload Error]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5. Complete & Assemble Resumable Upload into Cloudflare R2
+router.post('/upload/complete', async (req, res) => {
+  try {
+    const { uploadId, fileName, totalChunks, sizeBytes, mimeType } = req.body;
+    if (!uploadId || !fileName || !totalChunks) {
+      return res.status(400).json({ error: 'uploadId, fileName, and totalChunks are required' });
+    }
+
+    const uploadChunkDir = path.join(chunksDir, uploadId);
+    if (!fs.existsSync(uploadChunkDir)) {
+      return res.status(404).json({ error: 'Upload chunk directory not found' });
+    }
+
+    const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const diskFileName = `${Date.now()}_${safeName}`;
+    const mergedFilePath = path.join(uploadsDir, diskFileName);
+    const writeStream = fs.createWriteStream(mergedFilePath);
+
+    for (let i = 0; i < parseInt(totalChunks, 10); i++) {
+      const chunkPath = path.join(uploadChunkDir, `part_${i}`);
+      if (fs.existsSync(chunkPath)) {
+        const chunkData = fs.readFileSync(chunkPath);
+        writeStream.write(chunkData);
+        try { fs.unlinkSync(chunkPath); } catch (_) {}
+      }
+    }
+    writeStream.end();
+
+    await new Promise((resolve, reject) => {
+      writeStream.on('finish', resolve);
+      writeStream.on('error', reject);
+    });
+
+    try { fs.rmdirSync(uploadChunkDir); } catch (_) {}
+
+    const ext = fileName.split('.').pop().toLowerCase();
+    const isVideo = (mimeType && mimeType.startsWith('video/')) || ['mp4', 'mkv', 'mov', 'webm', 'avi'].includes(ext);
+    const r2Key = `uploads/${diskFileName}`;
+    const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
+
+    // Upload assembled binary directly to Cloudflare R2
+    const finalBuffer = fs.readFileSync(mergedFilePath);
+    await r2StorageService.uploadBuffer(r2Key, finalBuffer, mimeType || 'application/octet-stream');
+    console.log(`[Resumable Complete] ✅ Assembled & uploaded ${fileName} (${finalBuffer.length} bytes) to Cloudflare R2!`);
+
+    res.json({
+      success: true,
+      file: {
+        id: `node_${Date.now()}`,
+        name: fileName,
+        sizeBytes: finalBuffer.length,
+        extension: ext,
+        isVideo: isVideo,
+        r2Key: r2Key,
+        publicUrl: publicR2Url,
+        streamUrl: isVideo ? publicR2Url : null,
+        downloadUrl: publicR2Url,
+        uploadedAt: new Date().toISOString(),
+      }
+    });
+  } catch (err) {
+    console.error('[Upload Complete Error]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 6. Direct HTTP/HTTPS URL Remote Cloud Download Ingestion
 router.post('/remote-upload', async (req, res) => {
   try {
     const { url, fileName } = req.body;
     if (!url) {
-      return res.status(400).json({ error: 'URL or Magnet URI is required' });
+      return res.status(400).json({ error: 'Direct file URL is required' });
     }
 
     // Parse file name from URL
@@ -111,7 +216,7 @@ router.post('/remote-upload', async (req, res) => {
         const u = new URL(url);
         parsedName = decodeURIComponent(path.basename(u.pathname)) || 'Cloud_Remote_Download';
       } catch (_) {
-        parsedName = url.startsWith('magnet:') ? 'Torrent_Cloud_Stream.mp4' : 'Remote_Cloud_Download.zip';
+        parsedName = 'Remote_Cloud_Download.zip';
       }
     }
 
@@ -122,29 +227,6 @@ router.post('/remote-upload', async (req, res) => {
     const localPath = path.join(uploadsDir, safeName);
     const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
 
-    // For magnet/torrent links — we can't download directly, just register metadata
-    if (url.startsWith('magnet:') || url.endsWith('.torrent')) {
-      return res.json({
-        success: true,
-        status: 'queued',
-        message: 'Torrent/Magnet downloads are queued for background processing',
-        file: {
-          id: `node_${Date.now()}`,
-          name: parsedName,
-          sizeBytes: 0,
-          extension: ext,
-          isVideo: isVideo,
-          r2Key: r2Key,
-          publicUrl: publicR2Url,
-          streamUrl: isVideo ? publicR2Url : null,
-          downloadUrl: publicR2Url,
-          sourceUrl: url,
-          uploadedAt: new Date().toISOString(),
-        }
-      });
-    }
-
-    // For HTTP/HTTPS URLs — actually download the file to server, then upload to R2
     console.log(`[Remote Download] Starting download: ${url}`);
 
     const http = url.startsWith('https') ? require('https') : require('http');
@@ -158,7 +240,6 @@ router.post('/remote-upload', async (req, res) => {
           if ([301, 302, 307, 308].includes(response.statusCode) && response.headers.location) {
             fileStream.close();
             fs.unlinkSync(destPath);
-            const redirectHttp = response.headers.location.startsWith('https') ? require('https') : require('http');
             return resolve(downloadToFile(response.headers.location, destPath));
           }
 
@@ -172,10 +253,6 @@ router.post('/remote-upload', async (req, res) => {
 
           response.on('data', (chunk) => {
             downloaded += chunk.length;
-            if (totalSize > 0 && downloaded % (5 * 1024 * 1024) < chunk.length) {
-              const pct = ((downloaded / totalSize) * 100).toFixed(1);
-              console.log(`[Remote Download] ${pct}% — ${(downloaded / 1024 / 1024).toFixed(1)} MB / ${(totalSize / 1024 / 1024).toFixed(1)} MB`);
-            }
           });
 
           response.pipe(fileStream);
@@ -238,7 +315,7 @@ router.post('/remote-upload', async (req, res) => {
   }
 });
 
-// 5. Create Short Share Link (For Viral Video Preview & File Download)
+// 7. Create Short Share Link (For Viral Video Preview & File Download)
 router.post('/share/create', (req, res) => {
   try {
     const fileData = req.body;
@@ -257,7 +334,7 @@ router.post('/share/create', (req, res) => {
   }
 });
 
-// 6. Get Share Link Metadata
+// 8. Get Share Link Metadata
 router.get('/share/:code', (req, res) => {
   const share = shareService.getShare(req.params.code);
   if (!share) {
