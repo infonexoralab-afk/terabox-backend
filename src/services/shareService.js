@@ -36,29 +36,15 @@ class ShareService {
     return shareItem;
   }
 
-  // Get Share Details by Short Code (With Dynamic Fallback)
+  // Get Share Details by Short Code
   getShare(code) {
     let share = this.shares.get(code);
     if (!share) {
-      // Clean dynamic fallback based on code query or default file
-      share = {
-        code,
-        fileName: 'TeraBox_Cloud_File',
-        sizeBytes: 25165824,
-        extension: 'zip',
-        isVideo: false,
-        durationSeconds: 0,
-        downloadUrl: 'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
-        streamUrl: null,
-        createdAt: new Date().toISOString(),
-        viewsCount: 1,
-        appRedirectUrl: `terabox://share/${code}`,
-        shareUrl: `${env.appUrl}/s/${code}`,
-      };
-      this.shares.set(code, share);
-    } else {
-      share.viewsCount++;
+      // Share not found (server may have restarted and lost in-memory data)
+      // Return null so the route handler can show a proper "not found" page
+      return null;
     }
+    share.viewsCount++;
     return share;
   }
 

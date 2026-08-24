@@ -40,9 +40,14 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 🌐 Public Share Link Web Preview (5-10 Second Video Teaser + App Interstitial)
+// 🌐 Public Share Link Web Preview (Video Teaser + File Download)
 app.get('/s/:code', (req, res) => {
   const share = shareService.getShare(req.params.code);
+  if (!share) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(404).send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Link Expired - TeraBox</title><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif}body{background:#F8FAFC;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.card{background:#FFF;border-radius:24px;padding:48px 32px;text-align:center;max-width:440px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.06);border:1px solid #E2E8F0}.icon{width:72px;height:72px;border-radius:20px;background:#FEF2F2;border:1px solid #FECACA;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}h2{font-size:22px;font-weight:800;color:#0F172A;margin-bottom:8px}p{font-size:14px;color:#64748B;line-height:1.6;margin-bottom:24px}a{display:inline-block;background:#0066FF;color:#FFF;padding:14px 32px;border-radius:16px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 6px 18px rgba(0,102,255,0.25)}</style></head><body><div class="card"><div class="icon">🔗</div><h2>Share Link Not Found</h2><p>This share link has expired or the server was restarted. Please ask the sender to generate a new share link from their TeraBox app.</p><a href="/">Go to TeraBox Home</a></div></body></html>`);
+    return;
+  }
   const html = shareService.renderWebPreviewHtml(share);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(html);
