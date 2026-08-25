@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const env = require('../config/env');
+const r2StorageService = require('./r2StorageService');
 
 const dataDir = path.join(__dirname, '../../data');
 if (!fs.existsSync(dataDir)) {
@@ -25,7 +26,7 @@ class ShareService {
               this.shares.set(item.code, item);
             }
           }
-          console.log(`[ShareService] Loaded ${this.shares.size} persistent shares from disk.`);
+          console.log(`[ShareService] Loaded ${this.shares.size} persistent shares from local disk.`);
         }
       }
     } catch (err) {
@@ -43,7 +44,7 @@ class ShareService {
   }
 
   // Create Short Share Link
-  createShare(fileData, customCode = null) {
+  async createShare(fileData, customCode = null) {
     const code = customCode || Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
     
     const ext = (fileData.extension || (fileData.name ? fileData.name.split('.').pop() : 'dat')).toLowerCase();
@@ -79,22 +80,63 @@ class ShareService {
 
     this.shares.set(code, shareItem);
     this._saveSharesToDisk();
+
+    // Upload to Cloudflare R2 for stateless container persistence
+    try {
+      const r2Key = `shares/${code}.json`;
+      console.log(`[ShareService] Saving share ${code} permanently to Cloudflare R2...`);
+      await r2StorageService.uploadBuffer(
+        r2Key,
+        Buffer.from(JSON.stringify(shareItem, null, 2), 'utf8'),
+        'application/json'
+      );
+      console.log(`[ShareService] ✅ Share ${code} saved permanently to R2.`);
+    } catch (err) {
+      console.error(`[ShareService] ⚠️ Failed to save share ${code} to R2:`, err.message);
+    }
+
     return shareItem;
   }
 
-  // Get Share Details by Short Code (with disk reload fallback)
-  getShare(code) {
+  // Get Share Details by Short Code (with R2 cloud fallback)
+  async getShare(code) {
     let share = this.shares.get(code);
     if (!share) {
-      // Try reloading from disk in case another process/instance wrote it
+      // Try reloading from local disk
       this._loadSharesFromDisk();
       share = this.shares.get(code);
     }
+    
+    // If still not found, fetch from Cloudflare R2 bucket! (Survives container rebuild/restart)
+    if (!share) {
+      try {
+        console.log(`[ShareService] Share ${code} not in memory. Fetching from Cloudflare R2...`);
+        const r2Share = await r2StorageService.downloadJson(`shares/${code}.json`);
+        if (r2Share) {
+          console.log(`[ShareService] ✅ Successfully restored share ${code} from R2!`);
+          share = r2Share;
+          this.shares.set(code, share);
+          this._saveSharesToDisk();
+        }
+      } catch (err) {
+        console.error(`[ShareService] Failed to fetch share ${code} from R2:`, err.message);
+      }
+    }
+
     if (!share) {
       return null;
     }
+
     share.viewsCount++;
     this._saveSharesToDisk();
+
+    // Async update views count in Cloudflare R2 in the background
+    r2StorageService.uploadBuffer(
+      `shares/${code}.json`,
+      Buffer.from(JSON.stringify(share, null, 2), 'utf8'),
+      'application/json'
+    ).catch(err => console.warn(`[ShareService] Failed to update views count in R2:`, err.message));
+
     return share;
   }
 

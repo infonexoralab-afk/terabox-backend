@@ -49,6 +49,24 @@ class R2StorageService {
     };
   }
 
+  // Download file content as a parsed JSON object directly from R2
+  async downloadJson(key) {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      });
+      const response = await this.client.send(command);
+      const str = await response.Body.transformToString();
+      return JSON.parse(str);
+    } catch (err) {
+      if (err.name === 'NoSuchKey' || err.code === 'NoSuchKey') {
+        return null;
+      }
+      throw err;
+    }
+  }
+
   // S3 Multipart Upload — streams file from disk to R2 in 10MB parts
   // NEVER loads entire file into memory. Safe for files up to 5TB.
   async uploadFileStreaming(key, filePath, contentType = 'application/octet-stream') {

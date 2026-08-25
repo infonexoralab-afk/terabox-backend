@@ -1,0 +1,18 @@
+[
+  {
+    "code": "TEST_MT8JB3T7",
+    "fileId": "node_1787654458123",
+    "fileName": "test_video.mp4",
+    "sizeBytes": 2097152,
+    "extension": "mp4",
+    "isVideo": true,
+    "durationSeconds": 120,
+    "r2Key": "",
+    "downloadUrl": "https://pub-d550feaadd484541bf0c3af429db5905.r2.dev/uploads/1787654456096_test_video.mp4",
+    "streamUrl": "https://pub-d550feaadd484541bf0c3af429db5905.r2.dev/uploads/1787654456096_test_video.mp4",
+    "createdAt": "2026-08-25T10:40:58.123Z",
+    "viewsCount": 1,
+    "appRedirectUrl": "terabox://share/TEST_MT8JB3T7",
+    "shareUrl": "https://terabox-cloud-api.onrender.com/s/TEST_MT8JB3T7"
+  }
+]

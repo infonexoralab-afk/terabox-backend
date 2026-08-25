@@ -375,7 +375,7 @@ router.post('/share/create', (req, res) => {
     }
 
     const customCode = fileData.code || fileData.shortCode;
-    const share = shareService.createShare(fileData, customCode);
+    const share = await shareService.createShare(fileData, customCode);
     res.json({
       success: true,
       share,
@@ -386,8 +386,8 @@ router.post('/share/create', (req, res) => {
 });
 
 // 8. Get Share Link Metadata
-router.get('/share/:code', (req, res) => {
-  const share = shareService.getShare(req.params.code);
+router.get('/share/:code', async (req, res) => {
+  const share = await shareService.getShare(req.params.code);
   if (!share) {
     return res.status(404).json({ error: 'Share link not found or expired' });
   }
