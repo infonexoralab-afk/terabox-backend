@@ -53,6 +53,11 @@ class ShareService {
     if (!downloadUrl && fileData.r2Key) {
       downloadUrl = `${env.r2.publicDomain}/${fileData.r2Key}`;
     }
+    // If still no download URL, construct from sanitized filename
+    if (!downloadUrl || downloadUrl.trim().length === 0) {
+      const safeName = (fileData.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+      downloadUrl = `${env.r2.publicDomain}/uploads/${safeName}`;
+    }
     const streamUrl = isVideo ? (fileData.streamUrl || downloadUrl) : null;
 
     const shareItem = {
