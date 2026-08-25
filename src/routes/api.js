@@ -50,6 +50,34 @@ router.get('/r2/status', async (req, res) => {
   res.json(result);
 });
 
+// 2b. Direct Pre-signed S3 Upload URL for Cloudflare R2
+router.post('/r2/presigned-upload', async (req, res) => {
+  try {
+    const { fileName, mimeType, sizeBytes } = req.body;
+    if (!fileName) {
+      return res.status(400).json({ error: 'fileName is required' });
+    }
+    const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const r2Key = `uploads/${Date.now()}_${safeName}`;
+    const contentType = mimeType || 'application/octet-stream';
+
+    const presigned = await r2StorageService.getPresignedUploadUrl(r2Key, contentType, 7200); // 2 hours
+
+    res.json({
+      success: true,
+      uploadUrl: presigned.uploadUrl,
+      r2Key: r2Key,
+      publicUrl: presigned.publicUrl,
+      downloadUrl: presigned.publicUrl,
+      fileName: fileName,
+      contentType: contentType,
+    });
+  } catch (err) {
+    console.error('[Presigned Upload Error]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 3. Direct Real File Upload Endpoint to Cloudflare R2
 router.post('/r2/upload', upload.single('file'), async (req, res) => {
   try {
