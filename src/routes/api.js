@@ -367,7 +367,7 @@ router.post('/remote-upload', async (req, res) => {
 });
 
 // 7. Create Short Share Link (For Viral Video Preview & File Download)
-router.post('/share/create', (req, res) => {
+router.post('/share/create', async (req, res) => {
   try {
     const fileData = req.body;
     if (!fileData || !fileData.name) {
