@@ -12,7 +12,10 @@ class ShareService {
     const ext = (fileData.extension || (fileData.name ? fileData.name.split('.').pop() : 'dat')).toLowerCase();
     const isVideo = fileData.isVideo ?? ['mp4', 'mkv', 'mov', 'avi', 'webm'].includes(ext);
     
-    const downloadUrl = fileData.downloadUrl || fileData.publicUrl || (fileData.r2Key ? `${env.r2.publicDomain}/${fileData.r2Key}` : `${env.r2.publicDomain}/uploads/${fileData.name || 'file'}`);
+    let downloadUrl = (fileData.downloadUrl && fileData.downloadUrl.trim().length > 0) ? fileData.downloadUrl : (fileData.publicUrl || '');
+    if (!downloadUrl && fileData.r2Key) {
+      downloadUrl = `${env.r2.publicDomain}/${fileData.r2Key}`;
+    }
     const streamUrl = isVideo ? (fileData.streamUrl || downloadUrl) : null;
 
     const shareItem = {
