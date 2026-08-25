@@ -1,8 +1,45 @@
+const fs = require('fs');
+const path = require('path');
 const env = require('../config/env');
+
+const dataDir = path.join(__dirname, '../../data');
+if (!fs.existsSync(dataDir)) {
+  try { fs.mkdirSync(dataDir, { recursive: true }); } catch (_) {}
+}
+const sharesFilePath = path.join(dataDir, 'shares.json');
 
 class ShareService {
   constructor() {
     this.shares = new Map();
+    this._loadSharesFromDisk();
+  }
+
+  _loadSharesFromDisk() {
+    try {
+      if (fs.existsSync(sharesFilePath)) {
+        const raw = fs.readFileSync(sharesFilePath, 'utf8');
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          for (const item of list) {
+            if (item && item.code) {
+              this.shares.set(item.code, item);
+            }
+          }
+          console.log(`[ShareService] Loaded ${this.shares.size} persistent shares from disk.`);
+        }
+      }
+    } catch (err) {
+      console.warn(`[ShareService] Could not load shares from disk:`, err.message);
+    }
+  }
+
+  _saveSharesToDisk() {
+    try {
+      const list = Array.from(this.shares.values());
+      fs.writeFileSync(sharesFilePath, JSON.stringify(list, null, 2), 'utf8');
+    } catch (err) {
+      console.warn(`[ShareService] Could not save shares to disk:`, err.message);
+    }
   }
 
   // Create Short Share Link
@@ -36,18 +73,23 @@ class ShareService {
     };
 
     this.shares.set(code, shareItem);
+    this._saveSharesToDisk();
     return shareItem;
   }
 
-  // Get Share Details by Short Code
+  // Get Share Details by Short Code (with disk reload fallback)
   getShare(code) {
     let share = this.shares.get(code);
     if (!share) {
-      // Share not found (server may have restarted and lost in-memory data)
-      // Return null so the route handler can show a proper "not found" page
+      // Try reloading from disk in case another process/instance wrote it
+      this._loadSharesFromDisk();
+      share = this.shares.get(code);
+    }
+    if (!share) {
       return null;
     }
     share.viewsCount++;
+    this._saveSharesToDisk();
     return share;
   }
 
