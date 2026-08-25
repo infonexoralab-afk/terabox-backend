@@ -374,8 +374,13 @@ router.post('/share/create', async (req, res) => {
       return res.status(400).json({ error: 'Invalid file data' });
     }
 
+    const host = req.get('host');
+    // Handle proxy protocols on Render/Heroku
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const requestAppUrl = `${protocol}://${host}`;
+
     const customCode = fileData.code || fileData.shortCode;
-    const share = await shareService.createShare(fileData, customCode);
+    const share = await shareService.createShare(fileData, customCode, requestAppUrl);
     res.json({
       success: true,
       share,

@@ -44,7 +44,7 @@ class ShareService {
   }
 
   // Create Short Share Link
-  async createShare(fileData, customCode = null) {
+  async createShare(fileData, customCode = null, requestAppUrl = null) {
     const code = customCode || Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
     
     const ext = (fileData.extension || (fileData.name ? fileData.name.split('.').pop() : 'dat')).toLowerCase();
@@ -61,6 +61,8 @@ class ShareService {
     }
     const streamUrl = isVideo ? (fileData.streamUrl || downloadUrl) : null;
 
+    const baseAppUrl = requestAppUrl || env.appUrl;
+
     const shareItem = {
       code,
       fileId: fileData.id || `node_${Date.now()}`,
@@ -75,7 +77,7 @@ class ShareService {
       createdAt: new Date().toISOString(),
       viewsCount: 0,
       appRedirectUrl: `terabox://share/${code}`,
-      shareUrl: `${env.appUrl}/s/${code}`,
+      shareUrl: `${baseAppUrl}/s/${code}`,
     };
 
     this.shares.set(code, shareItem);
