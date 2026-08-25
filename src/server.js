@@ -16,8 +16,8 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 app.use(cors({ origin: '*' }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve static uploads with full CORS and streaming headers
 app.use('/uploads', express.static(uploadsDir, {
@@ -56,7 +56,7 @@ app.get('/s/:code', (req, res) => {
 // API Routes
 app.use('/api', apiRoutes);
 
-app.listen(env.port, async () => {
+const server = app.listen(env.port, async () => {
   console.log(`[TeraBox Server] Running on http://localhost:${env.port}`);
   console.log(`[TeraBox Server] Storage Engine: Cloudflare R2 (${env.r2.bucketName})`);
   
@@ -68,3 +68,8 @@ app.listen(env.port, async () => {
     console.log(`[TeraBox Server] ⚠️ R2 Status: ${r2Check.error || 'Configured with public domain ' + env.r2.publicDomain}`);
   }
 });
+
+// Set generous timeouts for large file uploads (10 minutes)
+server.timeout = 600000; // 10 min total request timeout
+server.keepAliveTimeout = 120000; // 2 min keep-alive
+server.headersTimeout = 620000; // slightly more than server.timeout

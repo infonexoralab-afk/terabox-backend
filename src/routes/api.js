@@ -69,14 +69,17 @@ router.post('/r2/upload', upload.single('file'), async (req, res) => {
     const r2Key = `uploads/${diskFileName}`;
     const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
 
-    // Upload directly to Cloudflare R2 bucket synchronously or with fast stream
+    // Upload to Cloudflare R2 (smart: PutObject for small, Multipart for large)
     try {
-      const buffer = fs.readFileSync(filePath);
-      await r2StorageService.uploadBuffer(r2Key, buffer, mimeType);
+      await r2StorageService.uploadFile(r2Key, filePath, mimeType);
       console.log(`[R2 Upload] ✅ Successfully saved to Cloudflare R2: ${r2Key} (${sizeBytes} bytes)`);
     } catch (r2Err) {
       console.error('[R2 Upload Error]', r2Err.message);
+      return res.status(500).json({ error: `R2 upload failed: ${r2Err.message}` });
     }
+
+    // Cleanup local file after successful R2 upload
+    try { fs.unlinkSync(filePath); } catch (_) {}
 
     res.json({
       success: true,
@@ -151,23 +154,37 @@ router.post('/upload/complete', async (req, res) => {
     const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
     const diskFileName = `${Date.now()}_${safeName}`;
     const mergedFilePath = path.join(uploadsDir, diskFileName);
+
+    // Phase 1: Assemble chunks using STREAMING (no readFileSync)
+    console.log(`[Resumable Complete] Assembling ${totalChunks} chunks for: ${fileName}`);
     const writeStream = fs.createWriteStream(mergedFilePath);
 
     for (let i = 0; i < parseInt(totalChunks, 10); i++) {
       const chunkPath = path.join(uploadChunkDir, `part_${i}`);
       if (fs.existsSync(chunkPath)) {
-        const chunkData = fs.readFileSync(chunkPath);
-        writeStream.write(chunkData);
-        try { fs.unlinkSync(chunkPath); } catch (_) {}
+        // Stream each chunk instead of readFileSync — prevents memory spikes
+        await new Promise((resolve, reject) => {
+          const readStream = fs.createReadStream(chunkPath);
+          readStream.on('error', reject);
+          readStream.on('end', () => {
+            // Delete chunk immediately after streaming to free disk space
+            try { fs.unlinkSync(chunkPath); } catch (_) {}
+            resolve();
+          });
+          readStream.pipe(writeStream, { end: false });
+        });
+      } else {
+        console.warn(`[Resumable Complete] Missing chunk ${i} for uploadId: ${uploadId}`);
       }
     }
-    writeStream.end();
 
+    writeStream.end();
     await new Promise((resolve, reject) => {
       writeStream.on('finish', resolve);
       writeStream.on('error', reject);
     });
 
+    // Cleanup chunk directory
     try { fs.rmdirSync(uploadChunkDir); } catch (_) {}
 
     const ext = fileName.split('.').pop().toLowerCase();
@@ -175,17 +192,23 @@ router.post('/upload/complete', async (req, res) => {
     const r2Key = `uploads/${diskFileName}`;
     const publicR2Url = `${env.r2.publicDomain}/${r2Key}`;
 
-    // Upload assembled binary directly to Cloudflare R2
-    const finalBuffer = fs.readFileSync(mergedFilePath);
-    await r2StorageService.uploadBuffer(r2Key, finalBuffer, mimeType || 'application/octet-stream');
-    console.log(`[Resumable Complete] ✅ Assembled & uploaded ${fileName} (${finalBuffer.length} bytes) to Cloudflare R2!`);
+    // Phase 2: Upload to R2 using smart method (Multipart for large files, PutObject for small)
+    // This NEVER loads the entire file into memory — streams 10MB parts to R2
+    const mergedSize = fs.statSync(mergedFilePath).size;
+    console.log(`[Resumable Complete] Uploading ${fileName} (${(mergedSize / 1024 / 1024).toFixed(1)} MB) to Cloudflare R2...`);
+
+    await r2StorageService.uploadFile(r2Key, mergedFilePath, mimeType || 'application/octet-stream');
+    console.log(`[Resumable Complete] ✅ Successfully uploaded ${fileName} (${(mergedSize / 1024 / 1024).toFixed(1)} MB) to Cloudflare R2!`);
+
+    // Cleanup: delete merged file from local disk to save space
+    try { fs.unlinkSync(mergedFilePath); } catch (_) {}
 
     res.json({
       success: true,
       file: {
         id: `node_${Date.now()}`,
         name: fileName,
-        sizeBytes: finalBuffer.length,
+        sizeBytes: mergedSize,
         extension: ext,
         isVideo: isVideo,
         r2Key: r2Key,

@@ -58,8 +58,17 @@ class ShareService {
       return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
     };
 
-    const isVideo = share.isVideo === true || ['mp4', 'mkv', 'mov', 'avi', 'webm'].includes((share.extension || '').toLowerCase());
+    const ext = (share.extension || '').toLowerCase();
+    const isVideo = share.isVideo === true || ['mp4', 'mkv', 'mov', 'avi', 'webm'].includes(ext);
     const fileExtUpper = (share.extension || 'FILE').toUpperCase();
+    const mimeMap = {
+      'mp4': 'video/mp4',
+      'mov': 'video/quicktime',
+      'webm': 'video/webm',
+      'mkv': 'video/x-matroska',
+      'avi': 'video/x-msvideo',
+    };
+    const videoMimeType = mimeMap[ext] || 'video/mp4';
 
     return `
 <!DOCTYPE html>
@@ -305,8 +314,9 @@ class ShareService {
         </div>
       </div>
 
-      <video id="teaserVideo" playsinline controls preload="auto">
-        <source src="${share.streamUrl || share.downloadUrl}" type="video/mp4">
+      <video id="teaserVideo" playsinline controls preload="metadata">
+        <source src="${share.streamUrl || share.downloadUrl}" type="${videoMimeType}">
+        <source src="${share.streamUrl || share.downloadUrl}">
         Your browser does not support HTML5 video.
       </video>
 
