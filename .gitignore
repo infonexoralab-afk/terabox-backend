@@ -9,3 +9,5 @@ yarn-error.log*
 uploads/*
 !uploads/.gitkeep
 .DS_Store
+
+.vercel

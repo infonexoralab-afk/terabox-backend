@@ -1,4 +1,13 @@
+const fs = require('fs');
+const path = require('path');
 const env = require('../config/env');
+
+const isVercel = process.env.VERCEL === '1';
+const dataDir = isVercel ? '/tmp/data' : path.join(__dirname, '../../data');
+if (!fs.existsSync(dataDir)) {
+  try { fs.mkdirSync(dataDir, { recursive: true }); } catch (_) {}
+}
+const webmastersFilePath = path.join(dataDir, 'webmasters.json');
 
 class WebmasterService {
   constructor() {
@@ -6,25 +15,70 @@ class WebmasterService {
     this.ipViewHistory = new Map(); // IP:NodeId -> timestamp (for 24h deduplication)
     this.withdrawals = [];
 
-    this._initSampleWebmaster();
+    this._loadWebmastersFromDisk();
   }
 
-  _initSampleWebmaster() {
-    this.profiles.set('TBX9942', {
-      userId: 'usr_terabox_001',
-      referralCode: 'TBX9942',
-      currentPlan: 'videoPlays', // newUsers, videoPlays, vipReferral, paidContent
-      walletBalanceUsd: 148.75,
-      totalWithdrawnUsd: 420.00,
-      stats: [
-        { date: '2026-08-23', clicks: 4600, videoPlays: 9800, newUsers: 51, earningsUsd: 19.60 },
-        { date: '2026-08-24', clicks: 5200, videoPlays: 11200, newUsers: 64, earningsUsd: 22.40 },
-      ],
-    });
+  _loadWebmastersFromDisk() {
+    try {
+      if (fs.existsSync(webmastersFilePath)) {
+        const raw = fs.readFileSync(webmastersFilePath, 'utf8');
+        const list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+          for (const item of list) {
+            if (item && item.referralCode) {
+              this.profiles.set(item.referralCode, item);
+              if (item.withdrawals) {
+                this.withdrawals.push(...item.withdrawals);
+              }
+            }
+          }
+          // Remove duplicates from withdrawals list
+          const seen = new Set();
+          this.withdrawals = this.withdrawals.filter(w => {
+            const duplicate = seen.has(w.id);
+            seen.add(w.id);
+            return !duplicate;
+          });
+          console.log(`[WebmasterService] Loaded ${this.profiles.size} persistent profiles from disk.`);
+        }
+      }
+    } catch (err) {
+      console.warn(`[WebmasterService] Could not load webmasters from disk:`, err.message);
+    }
   }
 
-  getProfile(referralCode) {
-    return this.profiles.get(referralCode) || null;
+  _saveWebmastersToDisk() {
+    try {
+      const list = Array.from(this.profiles.values());
+      fs.writeFileSync(webmastersFilePath, JSON.stringify(list, null, 2), 'utf8');
+    } catch (err) {
+      console.warn(`[WebmasterService] Could not save webmasters to disk:`, err.message);
+    }
+  }
+
+  getProfile(identifier) {
+    if (!identifier) return null;
+    const clean = identifier.toString().trim();
+    if (this.profiles.has(clean)) {
+      return this.profiles.get(clean);
+    }
+    // Search by email, userId, or referralCode
+    for (const p of this.profiles.values()) {
+      if (p.referralCode === clean || p.userId === clean || (p.email && p.email.toLowerCase() === clean.toLowerCase())) {
+        return p;
+      }
+    }
+    // Try reloading from disk if not yet in memory
+    this._loadWebmastersFromDisk();
+    if (this.profiles.has(clean)) {
+      return this.profiles.get(clean);
+    }
+    for (const p of this.profiles.values()) {
+      if (p.referralCode === clean || p.userId === clean || (p.email && p.email.toLowerCase() === clean.toLowerCase())) {
+        return p;
+      }
+    }
+    return null;
   }
 
   // Record a Video View with Anti-Fraud 24hr IP deduplication
@@ -49,6 +103,7 @@ class WebmasterService {
       profile.walletBalanceUsd += earnPerView;
     }
 
+    this._saveWebmastersToDisk();
     return { counted: true, balance: profile.walletBalanceUsd };
   }
 
@@ -61,6 +116,8 @@ class WebmasterService {
       const earnPerUser = env.webmaster.ratePer100NewUsers / 100;
       profile.walletBalanceUsd += earnPerUser;
     }
+
+    this._saveWebmastersToDisk();
   }
 
   // Switch Plan
@@ -68,6 +125,7 @@ class WebmasterService {
     const profile = this.profiles.get(referralCode);
     if (profile) {
       profile.currentPlan = newPlan;
+      this._saveWebmastersToDisk();
       return true;
     }
     return false;
@@ -98,6 +156,10 @@ class WebmasterService {
     };
 
     this.withdrawals.unshift(record);
+    profile.withdrawals ??= [];
+    profile.withdrawals.unshift(record);
+
+    this._saveWebmastersToDisk();
     return record;
   }
 
@@ -112,6 +174,30 @@ class WebmasterService {
       monetizedUrl,
       caption: `${caption || 'Shared Video'}\n\n📥 Fast Download / Stream:\n${monetizedUrl}`,
     };
+  }
+
+  // Delete Webmaster profile and withdrawals upon account erasure
+  deleteWebmaster(userId, email, referralCode) {
+    try {
+      const cleanEmail = (email || '').trim().toLowerCase();
+      for (const [code, p] of this.profiles.entries()) {
+        if ((userId && p.userId === userId) ||
+            (cleanEmail && (p.email || '').toLowerCase() === cleanEmail) ||
+            (referralCode && p.referralCode === referralCode)) {
+          this.profiles.delete(code);
+        }
+      }
+      this.withdrawals = this.withdrawals.filter(w => {
+        if (userId && w.userId === userId) return false;
+        if (cleanEmail && (w.email || '').toLowerCase() === cleanEmail) return false;
+        return true;
+      });
+      this._saveWebmastersToDisk();
+      return true;
+    } catch (err) {
+      console.warn('[WebmasterService] Error deleting webmaster:', err.message);
+      return false;
+    }
   }
 }
 

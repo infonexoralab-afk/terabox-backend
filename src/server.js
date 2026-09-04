@@ -1,4 +1,3 @@
-// Triggering Render Blueprint Auto-Deploy Sync
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -7,13 +6,16 @@ const env = require('./config/env');
 const apiRoutes = require('./routes/api');
 const shareService = require('./services/shareService');
 const r2StorageService = require('./services/r2StorageService');
+const webmasterService = require('./services/webmasterService');
+const fraudDetectionService = require('./services/fraudDetectionService');
 
 const app = express();
 
-// Ensure uploads folder exists
-const uploadsDir = path.join(__dirname, '../uploads');
+// Ensure uploads folder exists (using /tmp on Vercel to bypass read-only filesystem limit)
+const isVercel = process.env.VERCEL === '1';
+const uploadsDir = isVercel ? '/tmp/uploads' : path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+  try { fs.mkdirSync(uploadsDir, { recursive: true }); } catch (_) {}
 }
 
 app.use(cors({ origin: '*' }));
@@ -49,6 +51,57 @@ app.get('/s/:code', async (req, res) => {
     res.status(404).send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Link Expired - TeraBox</title><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif}body{background:#F8FAFC;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.card{background:#FFF;border-radius:24px;padding:48px 32px;text-align:center;max-width:440px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.06);border:1px solid #E2E8F0}.icon{width:72px;height:72px;border-radius:20px;background:#FEF2F2;border:1px solid #FECACA;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}h2{font-size:22px;font-weight:800;color:#0F172A;margin-bottom:8px}p{font-size:14px;color:#64748B;line-height:1.6;margin-bottom:24px}a{display:inline-block;background:#0066FF;color:#FFF;padding:14px 32px;border-radius:16px;font-weight:700;font-size:14px;text-decoration:none;box-shadow:0 6px 18px rgba(0,102,255,0.25)}</style></head><body><div class="card"><div class="icon">🔗</div><h2>Share Link Not Found</h2><p>This share link has expired or the server was restarted. Please ask the sender to generate a new share link from their TeraBox app.</p><a href="/">Go to TeraBox Home</a></div></body></html>`);
     return;
   }
+
+  // 1. Record 24-Hour Unique Click immediately on HTTP Page Load
+  try {
+    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+    const country = fraudDetectionService.detectCountry(req);
+    const botCheck = fraudDetectionService.isDatacenterOrBot(req, clientIp);
+    const clickDedup = fraudDetectionService.checkClickDeduplication({
+      clientIp,
+      shareCode: share.code,
+      fingerprint: req.headers['user-agent'] || '',
+      isRepeatSession: false,
+    });
+
+    let refCode = share.referralCode || req.query.ref;
+    if (!refCode && (share.creatorUserId || share.userId)) {
+      const uid = (share.creatorUserId || share.userId).toString().trim();
+      for (const [code, p] of webmasterService.profiles.entries()) {
+        if (p.userId === uid || p.email === uid || p.referralCode === uid || code === uid) {
+          refCode = code;
+          share.referralCode = code;
+          break;
+        }
+      }
+    }
+
+    if (refCode && !botCheck.isBot && clickDedup.allowed) {
+      const profile = webmasterService.getProfile(refCode);
+      if (profile) {
+        const todayStr = new Date().toISOString().substring(0, 10);
+        profile.stats ??= [];
+        let todayStat = profile.stats.find(s => s.date === todayStr);
+        if (!todayStat) {
+          todayStat = { date: todayStr, clicks: 0, videoPlays: 0, newUsers: 0, earningsUsd: 0.0, countryBreakdown: {} };
+          profile.stats.push(todayStat);
+        }
+        todayStat.clicks = (todayStat.clicks || 0) + 1;
+        todayStat.countryBreakdown ??= {};
+        todayStat.countryBreakdown[country] = (todayStat.countryBreakdown[country] || 0) + 1;
+
+        profile.sharedLinks ??= [];
+        let link = profile.sharedLinks.find(l => l.shortCode === share.code || l.id === share.code);
+        if (link) {
+          link.clicks = (link.clicks || 0) + 1;
+        }
+        webmasterService._saveWebmastersToDisk();
+      }
+    }
+  } catch (err) {
+    console.warn('[Server] Note on HTTP page click tracking:', err.message);
+  }
+
   const html = shareService.renderWebPreviewHtml(share);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(html);
@@ -57,20 +110,41 @@ app.get('/s/:code', async (req, res) => {
 // API Routes
 app.use('/api', apiRoutes);
 
-const server = app.listen(env.port, async () => {
-  console.log(`[TeraBox Server] Running on http://localhost:${env.port}`);
-  console.log(`[TeraBox Server] Storage Engine: Cloudflare R2 (${env.r2.bucketName})`);
-  
-  // Test R2 connection on startup
-  const r2Check = await r2StorageService.testConnection();
-  if (r2Check.success) {
-    console.log(`[TeraBox Server] ✅ Cloudflare R2 Connected Successfully!`);
-  } else {
-    console.log(`[TeraBox Server] ⚠️ R2 Status: ${r2Check.error || 'Configured with public domain ' + env.r2.publicDomain}`);
-  }
-});
+// Serve Flutter Web App static files (production inside public/ folder or development path)
+let webDir = path.join(__dirname, '../public');
+if (!fs.existsSync(webDir)) {
+  webDir = path.join(__dirname, '../../terabox_client/build/web');
+}
+if (fs.existsSync(webDir)) {
+  app.use(express.static(webDir));
+  // Support SPA routing fallback for index.html
+  app.get('*', (req, res, next) => {
+    // Only fallback if the request is not an /api route or /s/:code route or /uploads
+    if (req.path.startsWith('/api') || req.path.startsWith('/s/') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+    res.sendFile(path.join(webDir, 'index.html'));
+  });
+}
 
-// Set generous timeouts for large file uploads (10 minutes)
-server.timeout = 600000; // 10 min total request timeout
-server.keepAliveTimeout = 120000; // 2 min keep-alive
-server.headersTimeout = 620000; // slightly more than server.timeout
+if (process.env.VERCEL !== '1') {
+  const server = app.listen(env.port, async () => {
+    console.log(`[TeraBox Server] Running on http://localhost:${env.port}`);
+    console.log(`[TeraBox Server] Storage Engine: Cloudflare R2 (${env.r2.bucketName})`);
+
+    // Test R2 connection on startup
+    const r2Check = await r2StorageService.testConnection();
+    if (r2Check.success) {
+      console.log(`[TeraBox Server] ✅ Cloudflare R2 Connected Successfully!`);
+    } else {
+      console.log(`[TeraBox Server] ⚠️ R2 Status: ${r2Check.error || 'Configured with public domain ' + env.r2.publicDomain}`);
+    }
+  });
+
+  // Set generous timeouts for large file uploads (10 minutes)
+  server.timeout = 600000; // 10 min total request timeout
+  server.keepAliveTimeout = 120000; // 2 min keep-alive
+  server.headersTimeout = 620000; // slightly more than server.timeout
+}
+
+module.exports = app;

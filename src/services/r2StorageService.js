@@ -10,12 +10,8 @@ class R2StorageService {
     this.bucketName = env.r2.bucketName;
     this.publicDomain = env.r2.publicDomain;
 
-    const httpsAgent = new https.Agent({
-      family: 4, // Strict IPv4 for rock-solid stability on Windows
-      keepAlive: true,
-    });
-
-    this.client = new S3Client({
+    const isVercel = process.env.VERCEL === '1';
+    const clientConfig = {
       region: 'auto',
       endpoint: `https://${env.r2.accountId}.r2.cloudflarestorage.com`,
       credentials: {
@@ -23,12 +19,21 @@ class R2StorageService {
         secretAccessKey: env.r2.secretAccessKey,
       },
       forcePathStyle: true,
-      requestHandler: new NodeHttpHandler({
+    };
+
+    if (!isVercel) {
+      const httpsAgent = new https.Agent({
+        family: 4, // Strict IPv4 for rock-solid stability on Windows
+        keepAlive: true,
+      });
+      clientConfig.requestHandler = new NodeHttpHandler({
         httpsAgent,
         connectionTimeout: 30000,
         socketTimeout: 300000, // 5 min socket timeout for large uploads
-      }),
-    });
+      });
+    }
+
+    this.client = new S3Client(clientConfig);
   }
 
   // Upload Buffer directly to R2 (for small files < 50MB)
@@ -65,6 +70,12 @@ class R2StorageService {
       }
       throw err;
     }
+  }
+
+  // Upload JSON metadata helper
+  async uploadJson(key, data) {
+    const buffer = Buffer.from(JSON.stringify(data));
+    return await this.uploadBuffer(key, buffer, 'application/json');
   }
 
   // S3 Multipart Upload — streams file from disk to R2 in 10MB parts
