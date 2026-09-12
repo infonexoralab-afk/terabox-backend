@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const EventEmitter = require('events');
 const env = require('../config/env');
 const r2StorageService = require('./r2StorageService');
 
@@ -10,8 +11,9 @@ if (!fs.existsSync(dataDir)) {
 }
 const sharesFilePath = path.join(dataDir, 'shares.json');
 
-class ShareService {
+class ShareService extends EventEmitter {
   constructor() {
+    super();
     this.shares = new Map();
     this._loadSharesFromDisk();
   }
@@ -46,9 +48,34 @@ class ShareService {
 
   // Create Short Share Link
   async createShare(fileData, customCode = null, requestAppUrl = null) {
+    const rawName = fileData.name || fileData.fileName || 'Shared_File';
+    const currentUserId = fileData.userId || fileData.creatorUserId || '';
+
+    // Check if an existing share already exists for this exact file by this user
+    let existingShare = null;
+    if (customCode && this.shares.has(customCode)) {
+      existingShare = this.shares.get(customCode);
+    } else if (fileData.id && currentUserId) {
+      for (const s of this.shares.values()) {
+        if (s.fileId === fileData.id && (s.userId === currentUserId || s.creatorUserId === currentUserId)) {
+          existingShare = s;
+          break;
+        }
+      }
+    }
+
+    if (existingShare) {
+      if (fileData.referralCode) {
+        existingShare.referralCode = fileData.referralCode;
+        const baseAppUrl = requestAppUrl || env.appUrl;
+        existingShare.shareUrl = `${baseAppUrl}/s/${existingShare.code}?ref=${fileData.referralCode}`;
+      }
+      this._saveSharesToDisk();
+      return existingShare;
+    }
+
     const code = customCode || Math.random().toString(36).substring(2, 8) + Math.random().toString(36).substring(2, 4);
     
-    const rawName = fileData.name || fileData.fileName || 'Shared_File';
     const isFolder = fileData.isFolder === true || (fileData.children && fileData.children.length > 0) || !rawName.includes('.') || fileData.extension === 'folder' || fileData.extension === 'directory';
     const ext = isFolder ? '' : (fileData.extension || (rawName.includes('.') ? rawName.split('.').pop() : 'dat')).toLowerCase();
     const isVideo = !isFolder && (fileData.isVideo ?? ['mp4', 'mkv', 'mov', 'avi', 'webm', 'flv', 'ts', 'm4v', '3gp', 'wmv', 'mpg', 'mpeg', 'vob'].includes(ext));
@@ -109,26 +136,79 @@ class ShareService {
     return shareItem;
   }
 
-  // Get Share Details by Short Code
-  async getShare(code) {
-    let share = this.shares.get(code);
+  // Helper to extract clean alphanumeric shortCode from any raw string/URL
+  normalizeCode(raw) {
+    if (!raw) return '';
+    let str = String(raw).trim();
+    if (str.includes('/s/')) str = str.split('/s/')[1];
+    if (str.includes('/share/')) str = str.split('/share/')[1];
+    if (str.includes('?')) str = str.split('?')[0];
+    if (str.includes('#')) str = str.split('#')[0];
+    return str.trim();
+  }
+
+  // Get Share Details by Short Code / URL / fileId
+  async getShare(rawCode) {
+    if (!rawCode) return null;
+    const cleanCode = this.normalizeCode(rawCode);
+    
+    // 1. Direct Map Key Lookup
+    let share = this.shares.get(cleanCode) || this.shares.get(rawCode);
+    
+    // 2. Search In-Memory by Multi-Field (fileId, shortCode, id, targetNodeId)
+    if (!share) {
+      for (const s of this.shares.values()) {
+        if (
+          s.code === cleanCode ||
+          s.code === rawCode ||
+          s.shortCode === cleanCode ||
+          s.fileId === cleanCode ||
+          s.fileId === rawCode ||
+          s.targetNodeId === cleanCode ||
+          s.id === cleanCode
+        ) {
+          share = s;
+          break;
+        }
+      }
+    }
+
+    // 3. Search Local Disk Persistence
     if (!share) {
       this._loadSharesFromDisk();
-      share = this.shares.get(code);
+      share = this.shares.get(cleanCode) || this.shares.get(rawCode);
+      if (!share) {
+        for (const s of this.shares.values()) {
+          if (
+            s.code === cleanCode ||
+            s.code === rawCode ||
+            s.shortCode === cleanCode ||
+            s.fileId === cleanCode ||
+            s.fileId === rawCode ||
+            s.targetNodeId === cleanCode ||
+            s.id === cleanCode
+          ) {
+            share = s;
+            break;
+          }
+        }
+      }
     }
     
-    if (!share) {
+    // 4. Fetch from Cloudflare R2 Cloud
+    if (!share && cleanCode) {
       try {
-        console.log(`[ShareService] Share ${code} not in memory. Fetching from Cloudflare R2...`);
-        const r2Share = await r2StorageService.downloadJson(`shares/${code}.json`);
+        console.log(`[ShareService] Share ${cleanCode} not in local cache. Fetching from Cloudflare R2...`);
+        const r2Share = await r2StorageService.downloadJson(`shares/${cleanCode}.json`);
         if (r2Share) {
-          console.log(`[ShareService] ✅ Successfully restored share ${code} from R2!`);
+          console.log(`[ShareService] ✅ Successfully restored share ${cleanCode} from R2!`);
           share = r2Share;
-          this.shares.set(code, share);
+          this.shares.set(cleanCode, share);
+          this.shares.set(share.code || cleanCode, share);
           this._saveSharesToDisk();
         }
       } catch (err) {
-        console.error(`[ShareService] Failed to fetch share ${code} from R2:`, err.message);
+        console.error(`[ShareService] Failed to fetch share ${cleanCode} from R2:`, err.message);
       }
     }
 
@@ -136,20 +216,24 @@ class ShareService {
       return null;
     }
 
-    share.viewsCount++;
-    this._saveSharesToDisk();
-
-    r2StorageService.uploadBuffer(
-      `shares/${code}.json`,
-      Buffer.from(JSON.stringify(share, null, 2), 'utf8'),
-      'application/json'
-    ).catch(err => console.warn(`[ShareService] Failed to update views count in R2:`, err.message));
-
     return share;
   }
 
+  // Record an actual verified human view on the public share preview landing page
+  recordShareView(rawCode) {
+    const cleanCode = (rawCode || '').trim();
+    const share = this.shares.get(cleanCode);
+    if (share && !share.isBanned) {
+      share.viewsCount = (share.viewsCount || 0) + 1;
+      this._saveSharesToDisk();
+      return share.viewsCount;
+    }
+    return 0;
+  }
+
   // Render Human-Crafted, Responsive, Exact TeraBox Web Share Page
-  renderWebPreviewHtml(share) {
+  renderWebPreviewHtml(share, explicitRefCode = '') {
+    const activeRefCode = (explicitRefCode || share.referralCode || '').trim().toUpperCase();
     const formatBytes = (bytes) => {
       if (!bytes || bytes === 0) return '0 B';
       const k = 1024;
@@ -192,10 +276,45 @@ class ShareService {
     const displaySize = formatBytes(share.sizeBytes || 0);
     const displayDuration = share.durationSeconds && share.durationSeconds > 0 ? formatDuration(share.durationSeconds) : '';
     const creatorDisplay = formatCreatorName(share.creatorName);
+    const directFileUrl = share.downloadUrl || share.streamUrl || (share.r2Key ? `${env.r2.publicDomain}/${share.r2Key}` : '');
     
     const d = new Date(share.uploadedAt || share.createdAt || Date.now());
     const uploadDate = `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
-    const directFileUrl = share.streamUrl || share.downloadUrl || '';
+    if (share.isBanned) {
+      return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Content Unavailable - DMCA Notice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }
+    body { background:#F8FAFC; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .card { background:#FFFFFF; border:1px solid #E2E8F0; border-radius:24px; padding:44px 32px; max-width:440px; width:100%; text-align:center; }
+    .icon-badge { width:64px; height:64px; border-radius:18px; background:#FEF2F2; border:1px solid #FECACA; color:#DC2626; display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+    h1 { font-size:20px; font-weight:800; color:#0F172A; margin-bottom:10px; }
+    p { font-size:13.5px; color:#64748B; line-height:1.6; margin-bottom:24px; }
+    .notice-box { background:#F1F5F9; border-radius:12px; padding:12px 16px; font-size:12px; color:#475569; margin-bottom:24px; text-align:left; font-family:monospace; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; background:#0066FF; color:#FFF; padding:12px 28px; border-radius:12px; font-weight:700; font-size:13.5px; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-badge">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h1>Content Unavailable</h1>
+    <p>This file or link is no longer accessible due to a copyright infringement notice or Trust & Safety policy violation.</p>
+    <div class="notice-box">
+      <div>Reference: ${share.code}</div>
+      <div>Reason: ${share.banReason || 'DMCA Takedown Notice'}</div>
+    </div>
+    <a href="/" class="btn">Go to TeraBox</a>
+  </div>
+</body>
+</html>`;
+    }
 
     return `
 <!DOCTYPE html>
@@ -252,36 +371,60 @@ class ShareService {
     .btn-bottom-dl { flex: 1; height: 46px; background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 12px; color: #0066FF; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: none !important; }
     .btn-bottom-watch { flex: 1; height: 46px; background: #0066FF; border: none; border-radius: 12px; color: #FFFFFF; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: none !important; }
 
-    .report-modal-overlay, .policy-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; z-index: 200; }
-    .report-modal-card, .policy-modal-card { background: #FFFFFF; border-radius: 24px 24px 0 0; max-width: 500px; width: 100%; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -10px 30px rgba(0,0,0,0.15); animation: slideUp 0.25s ease-out; }
+    .report-modal-overlay, .policy-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; z-index: 200; }
+    .report-modal-card, .policy-modal-card { background: #FFFFFF; border-radius: 24px 24px 0 0; max-width: 500px; width: 100%; max-height: 90vh; max-height: 90dvh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
     
-    .modal-top-header { padding: 14px 20px 8px 20px; flex-shrink: 0; }
-    .modal-drag-handle { width: 36px; height: 4px; background: #CBD5E1; border-radius: 9999px; margin: 0 auto 12px auto; }
+    .modal-top-header { padding: 14px 20px 10px 20px; flex-shrink: 0; border-bottom: 1px solid #F1F5F9; }
+    .modal-drag-handle { width: 36px; height: 4px; background: #CBD5E1; border-radius: 9999px; margin: 0 auto 10px auto; }
     .modal-title-row { display: flex; justify-content: space-between; align-items: center; }
-    .modal-main-title { font-size: 15px; font-weight: 800; color: #0F172A; }
-    .btn-modal-close { background: none; border: none; color: #94A3B8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
-    .modal-scrollable-body { padding: 12px 20px 20px 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
+    .modal-main-title { font-size: 15.5px; font-weight: 800; color: #0F172A; letter-spacing: -0.2px; }
+    .btn-modal-close { background: #F1F5F9; border: none; color: #64748B; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.15s ease; }
+    .btn-modal-close:hover { background: #E2E8F0; color: #0F172A; }
     
-    .btn-report-piracy { width: 100%; height: 42px; background: #EFF6FF; border: 1.5px solid #BFDBFE; color: #0066FF; font-weight: 700; font-size: 13.5px; border-radius: 12px; margin-bottom: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .radio-reasons-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-    .radio-item-label { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #1E293B; font-weight: 500; cursor: pointer; padding: 6px 0; }
-    .radio-item-label input[type="radio"] { width: 18px; height: 18px; accent-color: #0066FF; cursor: pointer; }
-    .btn-submit-report { width: 100%; height: 46px; background: #0066FF; color: #FFFFFF; font-weight: 700; font-size: 14px; border: none; border-radius: 12px; cursor: pointer; }
+    .modal-scrollable-body { padding: 16px 20px 24px 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
     
-    .policy-para { font-size: 13px; color: #334155; line-height: 1.6; margin-bottom: 12px; }
-    .statutory-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-top: 10px; font-size: 12.5px; line-height: 1.55; color: #1E293B; }
+    /* Responsive Form Elements */
+    .form-section-title { font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 10px 0; }
+    .form-section-title:first-of-type { margin-top: 0; }
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; width: 100%; }
+    .form-label { font-size: 11.5px; font-weight: 700; color: #334155; }
+    .form-input, .form-select, .form-textarea { width: 100%; height: 42px; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 0 14px; font-size: 13px; color: #0F172A; background: #F8FAFC; transition: all 0.2s ease; outline: none; }
+    .form-textarea { height: 60px; padding: 10px 14px; resize: none; font-family: inherit; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #0066FF; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12); }
+    .form-row-2 { display: flex; gap: 10px; width: 100%; }
+    .form-row-2 > .form-group { flex: 1; }
+    @media (max-width: 600px) {
+      .form-row-2 { flex-direction: column; gap: 0; }
+    }
+
+    /* Custom Styled Legal Declarations Checkboxes */
+    .legal-checkbox-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .legal-check-card { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; cursor: pointer; transition: all 0.15s ease; text-align: left; }
+    .legal-check-card:hover { border-color: #CBD5E1; background: #F1F5F9; }
+    .legal-check-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: #16A34A; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+    .legal-check-card-content { display: flex; flex-direction: column; gap: 2px; }
+    .legal-check-title { font-size: 11.5px; font-weight: 700; color: #0F172A; }
+    .legal-check-desc { font-size: 11px; color: #475569; line-height: 1.4; }
+
+    .btn-submit-report { width: 100%; height: 46px; background: #0066FF; color: #FFFFFF; font-weight: 700; font-size: 14px; border: none; border-radius: 12px; cursor: pointer; transition: all 0.15s ease; }
+    .btn-submit-report:hover { background: #0052CC; }
+    .btn-submit-report:disabled { background: #94A3B8; cursor: not-allowed; }
+    
+    /* Statutory Policy Card Styles */
+    .policy-para { font-size: 12.5px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
+    .statutory-card { background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.55; color: #1E293B; }
     .statutory-card-header { font-weight: 800; font-size: 13px; color: #0F172A; margin-bottom: 8px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px; }
-    .statutory-numbered-item { margin-bottom: 8px; }
-    .nested-legal-statements { margin-top: 6px; padding-left: 8px; font-size: 12px; color: #475569; }
-    .nested-statement-item { margin-bottom: 4px; }
-    .grievance-contact-card { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 10px; padding: 10px 12px; margin-top: 10px; font-size: 12px; color: #1E3A8A; }
-    .grievance-contact-card-title { font-weight: 800; margin-bottom: 2px; }
+    .grievance-contact-card { background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: #1E3A8A; line-height: 1.5; }
+    .grievance-contact-card-title { font-weight: 800; font-size: 12.5px; color: #1E3A8A; margin-bottom: 4px; }
     .grievance-email-link { color: #0066FF; font-weight: 700; text-decoration: none; }
+    .grievance-email-link:hover { text-decoration: underline; }
     
     .modal-bottom-actions { padding: 12px 20px calc(14px + env(safe-area-inset-bottom, 0px)) 20px; border-top: 1px solid #F1F5F9; display: flex; gap: 10px; flex-shrink: 0; background: #FFFFFF; }
-    .btn-report-direct { flex: 1.2; height: 44px; background: #0066FF; color: #FFFFFF; border: none; border-radius: 9999px; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn-understood { flex: 1; height: 44px; background: #F1F5F9; color: #334155; border: none; border-radius: 9999px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-report-direct { flex: 1.2; height: 44px; background: #0066FF; color: #FFFFFF; border: none; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+    .btn-report-direct:hover { background: #0052CC; }
+    .btn-understood { flex: 1; height: 44px; background: #F1F5F9; color: #334155; border: none; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+    .btn-understood:hover { background: #E2E8F0; }
   </style>
 </head>
 <body>
@@ -418,132 +561,187 @@ class ShareService {
     </div>
   </div>
 
-  <!-- Report Modal -->
+  <!-- Statutory DMCA & Grievance Notice Modal -->
   <div class="report-modal-overlay" id="reportModalOverlay" onclick="closeReportModalOnOutside(event)">
     <div class="report-modal-card">
       <div class="modal-top-header">
         <div class="modal-drag-handle"></div>
         <div class="modal-title-row">
-          <div class="modal-main-title">Report</div>
+          <div class="modal-main-title">Notice of Copyright Infringement</div>
           <button class="btn-modal-close" onclick="closeReportModal()" aria-label="Close">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </div>
+      
       <div class="modal-scrollable-body" id="mainReportView">
-        <button type="button" class="btn-report-piracy" onclick="openPolicyModal()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span>Report piracy</span>
-        </button>
-        <form onsubmit="submitHarmfulReport(event)">
-          <div class="radio-reasons-list">
-            <label class="radio-item-label">
-              <input type="radio" name="harmfulReason" value="Infringement on intellectual property" checked />
-              <span>Infringement on intellectual property</span>
+        <div style="background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12px; color:#1E3A8A; line-height:1.45;">
+          <strong>Statutory Requirement:</strong> Under Rule 75 of Indian Copyright Rules 2013 and DMCA (17 U.S.C. § 512), all complaints must include verified claimant identity and proof of ownership. False claims carry legal liability.
+        </div>
+
+        <form id="dmcaNoticeForm" onsubmit="submitStatutoryWebNotice(event)">
+          <div class="form-section-title">1. Claimant &amp; Rights Holder Identity</div>
+          
+          <div class="form-group">
+            <label class="form-label" for="web_legalName">Full Legal Name *</label>
+            <input type="text" id="web_legalName" class="form-input" placeholder="e.g. Rahul Sharma or Yash Raj Films Legal" required />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="web_org">Organization / Studio / Label (Optional)</label>
+              <input type="text" id="web_org" class="form-input" placeholder="e.g. Zee Entertainment, Sony Music" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="web_relationship">Legal Capacity / Relationship *</label>
+              <select id="web_relationship" class="form-select">
+                <option value="Copyright Owner">Copyright Owner</option>
+                <option value="Authorized Legal Counsel">Authorized Legal Counsel</option>
+                <option value="Exclusive Licensee">Exclusive Licensee</option>
+                <option value="Producer / Studio Representative">Producer / Studio Representative</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-label" for="web_email">Official Email Address *</label>
+              <input type="email" id="web_email" class="form-input" placeholder="legal@domain.com" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="web_phone">Direct Contact Phone Number *</label>
+              <input type="tel" id="web_phone" class="form-input" placeholder="+91 98765 43210" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="web_address">Physical Postal Mailing Address *</label>
+            <textarea id="web_address" class="form-textarea" placeholder="Complete postal address with PIN / Zip Code &amp; City" required></textarea>
+          </div>
+
+          <div class="form-section-title">2. Copyrighted Work &amp; Ownership Evidence</div>
+          
+          <div class="form-group">
+            <label class="form-label" for="web_workTitle">Title of Original Copyrighted Work *</label>
+            <input type="text" id="web_workTitle" class="form-input" placeholder="e.g. Official Movie Title, Song Name, or Course Name" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="web_proofUrl">Proof of Ownership URL or Reg Certificate Number *</label>
+            <input type="text" id="web_proofUrl" class="form-input" placeholder="Official YouTube link, publisher URL, or ROC / USCO Reg Number" required />
+          </div>
+
+          <div class="form-section-title">3. Statutory Sworn Declarations &amp; Signature</div>
+
+          <div class="legal-checkbox-container">
+            <label class="legal-check-card">
+              <input type="checkbox" id="web_declGoodFaith" required />
+              <div class="legal-check-card-content">
+                <span class="legal-check-title">Good Faith Affirmation</span>
+                <span class="legal-check-desc">I have a good faith belief that use of the material is not authorized by the copyright owner, its agent, or the law (Section 52 Indian Copyright Act &amp; 17 U.S.C. § 512).</span>
+              </div>
             </label>
-            <label class="radio-item-label">
-              <input type="radio" name="harmfulReason" value="Pornography or vulgar content" />
-              <span>Pornography or vulgar content</span>
+
+            <label class="legal-check-card">
+              <input type="checkbox" id="web_declPerjury" required />
+              <div class="legal-check-card-content">
+                <span class="legal-check-title">Statement Under Penalty of Perjury</span>
+                <span class="legal-check-desc">I swear, under penalty of perjury and applicable laws of India (including Bharatiya Nyaya Sanhita / IPC), that the information is accurate and I am the owner or authorized agent.</span>
+              </div>
             </label>
-            <label class="radio-item-label">
-              <input type="radio" name="harmfulReason" value="Violence, terrorism, or illegal activities" />
-              <span>Violence, terrorism, or illegal activities</span>
-            </label>
-            <label class="radio-item-label">
-              <input type="radio" name="harmfulReason" value="Personal privacy violation" />
-              <span>Personal privacy violation</span>
-            </label>
-            <label class="radio-item-label">
-              <input type="radio" name="harmfulReason" value="Malware, virus, or scam" />
-              <span>Malware, virus, or scam</span>
-            </label>
-            <label class="radio-item-label">
-              <input type="radio" name="harmfulReason" value="Other harmful violations" />
-              <span>Other harmful violations</span>
+
+            <label class="legal-check-card">
+              <input type="checkbox" id="web_declLiability" required />
+              <div class="legal-check-card-content">
+                <span class="legal-check-title">Acknowledgement of Legal Liability</span>
+                <span class="legal-check-desc">I acknowledge that submitting false, fraudulent, or bad-faith takedown notices creates civil liability for damages and criminal prosecution.</span>
+              </div>
             </label>
           </div>
-          <button type="submit" class="btn-submit-report" id="btnSubmitHarmful">Submit</button>
+
+          <div class="form-group">
+            <label class="form-label" for="web_signature">Electronic Signature (Type Full Legal Name) *</label>
+            <input type="text" id="web_signature" class="form-input" style="font-weight:700;" placeholder="Type your full legal name to execute this notice" required />
+          </div>
+
+          <div id="web_reportError" style="display:none; color:#DC2626; font-size:12px; font-weight:700; margin-bottom:12px; background:#FEF2F2; border:1px solid #FECACA; padding:8px 12px; border-radius:8px;"></div>
+
+          <button type="submit" class="btn-submit-report" id="btnSubmitWebDmca">Submit Legal Takedown Notice</button>
         </form>
       </div>
 
-      <div class="modal-scrollable-body" id="reportSuccessBox" style="display:none; text-align:center; padding: 24px 0;">
-        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#10B981" stroke-width="2" style="margin: 0 auto 12px auto;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <h3 style="font-size:17px; font-weight:700; color:#0F172A; margin-bottom:8px;">Report Submitted</h3>
-        <p style="font-size:13.5px; color:#64748B; margin-bottom:20px;">Thank you. The content has been flagged for rapid review.</p>
-        <button class="btn-submit-report" onclick="closeReportModal()">OK</button>
+      <div class="modal-scrollable-body" id="reportSuccessBox" style="display:none; text-align:center; padding: 28px 20px;">
+        <svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="#16A34A" stroke-width="2" style="margin: 0 auto 14px auto;"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+        <h3 style="font-size:18px; font-weight:800; color:#0F172A; margin-bottom:8px;">Statutory Notice Registered</h3>
+        <p style="font-size:13px; color:#475569; margin-bottom:16px; line-height:1.45;">Your complaint has been formally lodged under Rule 75 of Indian Copyright Rules 2013 and DMCA. The Grievance Redressal Desk has been notified.</p>
+        <div style="background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:12px; padding:12px; margin-bottom:20px;">
+          <div style="font-size:11px; color:#64748B; font-weight:800; letter-spacing:0.5px;">COMPLIANCE TRACKING TICKET ID</div>
+          <div id="successTicketId" style="font-size:15px; font-weight:800; color:#0066FF; font-family:monospace; margin-top:4px;">DMCA-IN-2026-XXXX</div>
+        </div>
+        <button class="btn-submit-report" onclick="closeReportModal()">Done</button>
       </div>
     </div>
   </div>
 
-  <!-- Copyright Policy Modal -->
+  <!-- Statutory Copyright & Grievance Policy Modal (Image 4 Bug Fix) -->
   <div class="policy-modal-overlay" id="policyModalOverlay" onclick="closePolicyModalOnOutside(event)">
     <div class="policy-modal-card">
       <div class="modal-top-header">
         <div class="modal-drag-handle"></div>
         <div class="modal-title-row">
-          <div class="modal-main-title">TeraBox Policy for Notice of Alleged Infringement</div>
+          <div class="modal-main-title">Copyright &amp; Grievance Policy</div>
           <button class="btn-modal-close" onclick="closePolicyModal()" aria-label="Close">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       </div>
 
       <div class="modal-scrollable-body">
-        <div class="policy-para">
-          TeraBox ("TeraBox") respects the intellectual property rights of creators and copyright owners and expects all users to do the same. In compliance with Section 79 of the <strong>Information Technology Act, 2000</strong>, the <strong>Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021</strong> of India, the <strong>Indian Copyright Act, 1957</strong>, and global DMCA standards, TeraBox functions as an intermediary and provides a designated Grievance &amp; Copyright mechanism to expeditiously process takedown requests.
-        </div>
-        <div class="policy-para">
-          If you are a copyright owner or authorized legal representative, please report alleged copyright infringements committed on or through TeraBox by completing the following statutory <strong>Notice of Alleged Infringement</strong> and submitting it to our designated Grievance &amp; Copyright Officer. Upon receipt of a valid notice, TeraBox will take prompt action within <strong>36 hours</strong>, including disabling access to or permanently removing the infringing material.
+        <div style="background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:#1E3A8A; line-height:1.45;">
+          <strong>Statutory Policy:</strong> TeraBox strictly adheres to the Indian Copyright Act 1957, Information Technology (Intermediary Guidelines) Rules 2021 (Rule 3), Digital Millennium Copyright Act (17 U.S.C. § 512), and Google Play Developer Policies.
         </div>
 
         <div class="statutory-card">
-          <div class="statutory-card-header">Statutory Notice of Alleged Infringement<br>("Takedown Notice")</div>
-          
-          <div class="statutory-numbered-item">
-            <strong>1. Identification of Copyrighted Work:</strong> Identify the copyrighted work (film, video, music, software, literature, etc.) claimed to have been infringed, or provide a representative list if multiple works are involved.
+          <div class="statutory-card-header">1. Zero-Tolerance Anti-Piracy Policy</div>
+          <div class="policy-para" style="margin-bottom:0;">
+            TeraBox operates as a neutral intermediary under Section 79 of the Information Technology Act 2000. Unauthorized distribution of protected cinematographic films, music, software, literature, or broadcast signals is strictly prohibited. We maintain automated content hashing and 24/7 proactive compliance review.
           </div>
-          
-          <div class="statutory-numbered-item">
-            <strong>2. Identification of Infringing Link / File:</strong> Identify the exact TeraBox URL/link (e.g. https://.../s/...) or unique file identifier to which access is to be disabled.
-          </div>
-          
-          <div class="statutory-numbered-item">
-            <strong>3. Contact Details of Claimant:</strong> Provide your full legal name, company/production house affiliation (if applicable), physical address in India or overseas, telephone number, and official email address.
-          </div>
-          
-          <div class="statutory-numbered-item">
-            <strong>4. Mandatory Legal Statements:</strong> Include all of the following statements in the body of your Notice:
-            <div class="nested-legal-statements">
-              <div class="nested-statement-item">
-                &bull; <em>Good Faith Statement:</em> I hereby state that I have a good faith belief that the sharing or distribution of the copyrighted material at the link specified is not authorized by the copyright owner, its agent, or under applicable law (including fair dealing under Section 52 of the Indian Copyright Act, 1957).
-              </div>
-              <div class="nested-statement-item">
-                &bull; <em>Accuracy &amp; Authority Statement:</em> I hereby state that the information in this Notice is accurate and, under penalty of perjury and applicable laws of India, that I am the owner, or authorized to act on behalf of the owner, of the exclusive right that is allegedly infringed.
-              </div>
-              <div class="nested-statement-item">
-                &bull; <em>Intermediary Liability Acknowledgment:</em> I acknowledge that submitting false, malicious, or bad-faith takedown notices may subject me to civil damages and criminal liability under the Information Technology Act, 2000 and the Indian Penal Code.
-              </div>
-            </div>
-          </div>
-          
-          <div class="statutory-numbered-item">
-            <strong>5. Legal Signature:</strong> Provide your full legal name and an electronic or physical signature (pursuant to Section 5 of the Information Technology Act, 2000).
-          </div>
+        </div>
 
-          <div class="grievance-contact-card">
-            <div class="grievance-contact-card-title">Resident Grievance &amp; Copyright Compliance Officer (India)</div>
-            <div>Designated under Rule 3(2) of the Information Technology Rules, 2021</div>
-            <div style="margin-top:4px;">
-              Email: <a href="mailto:grievance@terabox.com" class="grievance-email-link">grievance@terabox.com</a> &amp; <a href="mailto:copyrightresponse@terabox.com" class="grievance-email-link">copyrightresponse@terabox.com</a>
-            </div>
-            <div style="margin-top:2px;">Turnaround Time: Acknowledgment within 24 hours &bull; Action within 36 hours</div>
+        <div class="statutory-card">
+          <div class="statutory-card-header">2. Statutory Notice Requirements</div>
+          <div class="policy-para" style="margin-bottom:6px;">
+            Under Rule 75 of Indian Copyright Rules 2013, all takedown notices must contain:
+          </div>
+          <ul style="padding-left:18px; font-size:11.5px; color:#334155; line-height:1.55;">
+            <li>Full verified legal identity and official contact details of the copyright owner or authorized counsel.</li>
+            <li>Clear title and description of the original copyrighted work.</li>
+            <li>Documentary proof of ownership (Registration certificate, publisher URL, or copyright registry number).</li>
+            <li>Specific link/share code of the allegedly infringing material.</li>
+            <li>Sworn statement under penalty of perjury and electronic digital signature.</li>
+          </ul>
+        </div>
+
+        <div class="statutory-card">
+          <div class="statutory-card-header">3. Repeat Infringer 3-Strike Termination</div>
+          <div class="policy-para" style="margin-bottom:0;">
+            Accounts receiving 3 validated statutory copyright strikes within a 90-day period are permanently terminated and all stored files purged without notice.
+          </div>
+        </div>
+
+        <div class="grievance-contact-card">
+          <div class="grievance-contact-card-title">Grievance &amp; Compliance Officer</div>
+          <div>Designated under Rule 3(2) of Information Technology Rules 2021.</div>
+          <div style="margin-top:4px;">
+            <strong>Email:</strong> <a href="mailto:grievance-compliance@terabox.app" class="grievance-email-link">grievance-compliance@terabox.app</a><br/>
+            <strong>Statutory SLA:</strong> 24 to 36 Hours for Takedown &amp; Grievance Redressal.
           </div>
         </div>
       </div>
 
       <div class="modal-bottom-actions">
-        <button class="btn-report-direct" onclick="submitDirectPiracyReport()">Report Piracy Directly</button>
-        <button class="btn-understood" onclick="closePolicyModal()">Understood</button>
+        <button class="btn-report-direct" onclick="openReportModal()">Report Infringement</button>
+        <button class="btn-understood" onclick="closePolicyModal()">I Understand</button>
       </div>
     </div>
   </div>
@@ -554,8 +752,10 @@ class ShareService {
     var directDownloadUrl = "${directFileUrl}";
     var activeSessionNonce = null;
     var activeClientToken = null;
-    var requiredWatchSecs = 5;
+    var requiredWatchSecs = 30;
     var hasVerifiedView = false;
+    var activePlayedSeconds = 0;
+    var playInterval = null;
 
     // 1. Auto-record unique link click & initiate Proof-of-Watch session immediately on page load
     (function initSessionTracking() {
@@ -571,18 +771,43 @@ class ShareService {
           if (data && data.success) {
             activeSessionNonce = data.nonce;
             activeClientToken = data.clientToken;
-            requiredWatchSecs = data.requiredWatchSeconds || 5;
+            requiredWatchSecs = data.requiredWatchSeconds || 30;
           }
         })
         .catch(function(err) {
           console.warn('[Webmaster Tracking] Session init note:', err);
         });
       } catch (_) {}
+
+      // Attach second-wise playback tracker to HTML5 video element on web preview
+      var videoEl = document.querySelector('video');
+      if (videoEl) {
+        videoEl.addEventListener('play', function() {
+          if (!playInterval) {
+            playInterval = setInterval(function() {
+              if (!videoEl.paused && !videoEl.ended) {
+                activePlayedSeconds++;
+                if (!hasVerifiedView && activePlayedSeconds >= (requiredWatchSecs || 30)) {
+                  verifyAndRecordView(activePlayedSeconds);
+                }
+              }
+            }, 1000);
+          }
+        });
+        videoEl.addEventListener('pause', function() {
+          if (playInterval) { clearInterval(playInterval); playInterval = null; }
+        });
+        videoEl.addEventListener('ended', function() {
+          if (playInterval) { clearInterval(playInterval); playInterval = null; }
+        });
+      }
     })();
 
-    // 2. Verified View Tracking (Credits videoPlays and CPM wallet balance)
-    function verifyAndRecordView() {
+    // 2. Verified View Tracking (Credits videoPlays only when required watch-time is fully achieved)
+    function verifyAndRecordView(playedSecs) {
       if (hasVerifiedView || !activeSessionNonce) return;
+      var actualSecs = playedSecs || activePlayedSeconds;
+      if (actualSecs < (requiredWatchSecs || 30)) return;
       hasVerifiedView = true;
       try {
         var fp = 'web_' + (navigator.userAgent || '').replace(/[^a-zA-Z0-9]/g, '').substring(0, 30) + '_' + (window.screen ? window.screen.width + 'x' + window.screen.height : '800x600');
@@ -592,7 +817,7 @@ class ShareService {
           body: JSON.stringify({
             code: shareCode,
             nonce: activeSessionNonce,
-            watchSeconds: requiredWatchSecs || 5,
+            watchSeconds: actualSecs,
             videoDuration: ${share.durationSeconds || 120},
             clientToken: activeClientToken,
             fingerprint: fp
@@ -602,11 +827,15 @@ class ShareService {
     }
 
     function watchInApp() {
-      verifyAndRecordView();
       var isAndroid = /Android/i.test(navigator.userAgent);
       var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-      var playStoreUrl = "https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client";
-      var appIntentUrl = "intent://share/" + shareCode + "#Intent;scheme=terabox;package=com.teracloud.app.terabox_client;S.browser_fallback_url=" + encodeURIComponent(playStoreUrl) + ";end;";
+      var refParam = "${activeRefCode}";
+      var playStoreUrl = refParam
+        ? "https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client&referrer=" + encodeURIComponent("utm_source=terabox_referral&utm_content=" + refParam)
+        : "https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client";
+      var deepLinkPath = "share/" + shareCode + (refParam ? "?ref=" + encodeURIComponent(refParam) : "");
+      var appIntentUrl = "intent://" + deepLinkPath + "#Intent;scheme=terabox;package=com.teracloud.app.terabox_client;S.browser_fallback_url=" + encodeURIComponent(playStoreUrl) + ";end;";
+      var iosDeepLink = "terabox://" + deepLinkPath;
 
       if (isAndroid) {
         var start = Date.now();
@@ -617,14 +846,13 @@ class ShareService {
           }
         }, 1500);
       } else if (isIOS) {
-        window.location.href = "terabox://share/" + shareCode;
+        window.location.href = iosDeepLink;
       } else {
-        window.location.href = "terabox://share/" + shareCode;
+        window.location.href = iosDeepLink;
       }
     }
 
     function downloadFileDirectly() {
-      verifyAndRecordView();
       if (isMediaFile) {
         watchInApp();
         return;
@@ -681,6 +909,8 @@ class ShareService {
     }
 
     function openPolicyModal() {
+      var menu = document.getElementById('dropdownMenu');
+      if (menu) menu.style.display = 'none';
       closeReportModal();
       var modal = document.getElementById('policyModalOverlay');
       if (modal) modal.style.display = 'flex';
@@ -695,59 +925,80 @@ class ShareService {
       if (event.target.id === 'policyModalOverlay') closePolicyModal();
     }
 
-    function submitHarmfulReport(event) {
+    function submitStatutoryWebNotice(event) {
       event.preventDefault();
-      var selected = document.querySelector('input[name="harmfulReason"]:checked');
-      var reasonVal = selected ? selected.value : 'General Report';
-      var btn = document.getElementById('btnSubmitHarmful');
+      var errEl = document.getElementById('web_reportError');
+      errEl.style.display = 'none';
+
+      var legalName = document.getElementById('web_legalName').value.trim();
+      var org = document.getElementById('web_org').value.trim();
+      var relationship = document.getElementById('web_relationship').value;
+      var email = document.getElementById('web_email').value.trim();
+      var phone = document.getElementById('web_phone').value.trim();
+      var address = document.getElementById('web_address').value.trim();
+      var workTitle = document.getElementById('web_workTitle').value.trim();
+      var proofUrl = document.getElementById('web_proofUrl').value.trim();
+      var declGoodFaith = document.getElementById('web_declGoodFaith').checked;
+      var declPerjury = document.getElementById('web_declPerjury').checked;
+      var declLiability = document.getElementById('web_declLiability').checked;
+      var signature = document.getElementById('web_signature').value.trim();
+
+      if (!legalName || !email || !phone || !address || !workTitle || !proofUrl || !signature) {
+        errEl.innerText = 'Please complete all required fields (*).';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (!declGoodFaith || !declPerjury || !declLiability) {
+        errEl.innerText = 'You must agree to all statutory legal declarations.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      var btn = document.getElementById('btnSubmitWebDmca');
       btn.disabled = true;
-      btn.innerText = 'Submitting...';
+      btn.innerText = 'Verifying & Submitting Notice...';
 
       fetch('/api/report/takedown', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           shareCode: shareCode,
-          reason: reasonVal,
-          reporterName: 'Web User',
-          reporterEmail: 'abuse@terabox.com',
-          proofDetails: reasonVal
+          reason: 'Copyright Infringement / DMCA',
+          legalName: legalName,
+          organization: org,
+          relationship: relationship,
+          email: email,
+          phone: phone,
+          address: address,
+          country: 'India',
+          workTitle: workTitle,
+          workCategory: 'Video / Media Content',
+          ownershipProofUrl: proofUrl,
+          declarationGoodFaith: declGoodFaith,
+          declarationPerjury: declPerjury,
+          declarationLegalLiability: declLiability,
+          electronicSignature: signature
         })
       })
       .then(function(res) { return res.json(); })
-      .then(function() {
+      .then(function(data) {
         btn.disabled = false;
-        btn.innerText = 'Submit';
-        document.getElementById('mainReportView').style.display = 'none';
-        document.getElementById('reportSuccessBox').style.display = 'block';
+        btn.innerText = 'Submit Legal Takedown Notice';
+        if (data && data.success) {
+          document.getElementById('mainReportView').style.display = 'none';
+          document.getElementById('successTicketId').innerText = data.reportId || data.ticketNumber || 'DMCA-IN-2026-SUBMITTED';
+          document.getElementById('reportSuccessBox').style.display = 'block';
+        } else {
+          errEl.innerText = (data && data.error) ? data.error : 'Submission failed. Please check details.';
+          errEl.style.display = 'block';
+        }
       })
-      .catch(function() {
+      .catch(function(err) {
         btn.disabled = false;
-        btn.innerText = 'Submit';
-        alert('Report submitted successfully.');
-        closeReportModal();
-      });
-    }
-
-    function submitDirectPiracyReport() {
-      fetch('/api/report/takedown', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          shareCode: shareCode,
-          reason: 'Copyright Piracy Takedown',
-          reporterName: 'Copyright Owner',
-          reporterEmail: 'grievance@terabox.com',
-          proofDetails: 'Statutory Notice filed via Web Interface'
-        })
-      })
-      .then(function() {
-        alert('Statutory Takedown Notice registered. Acknowledgment sent to grievance desk.');
-        closePolicyModal();
-      })
-      .catch(function() {
-        alert('Notice submitted successfully.');
-        closePolicyModal();
+        btn.innerText = 'Submit Legal Takedown Notice';
+        errEl.innerText = 'Network error submitting legal notice. Please try again.';
+        errEl.style.display = 'block';
       });
     }
   </script>

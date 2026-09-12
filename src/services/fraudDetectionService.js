@@ -261,16 +261,25 @@ class FraudDetectionService {
   }
 
   /**
-   * 7. Get Global Flat CPM Payout Rate ($4.00 CPM for all countries)
+   * 7. Get Global Flat CPM Payout Rate (Real-Time Admin Dynamic Rate)
+   * Exact Formula: 1,000 Verified Views = Admin CPM Rate. Payout Per View = Admin CPM / 1000.
    */
   getCpmTier(countryCode) {
     const cc = (countryCode || 'GLOBAL').toUpperCase();
+    let cpmRate = 4.00;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      cpmRate = parseFloat(systemConfigStore.get('global_cpm_rate_usd', 4.00)) || 4.00;
+    } catch (_) {
+      cpmRate = 4.00;
+    }
+    const ratePerView = Math.round((cpmRate / 1000) * 100000) / 100000;
     return {
       tier: 1,
       country: cc,
-      cpmRateUsd: 4.00,
-      ratePerViewUsd: 0.0040,
-      name: 'Global Flat Rate ($4.00 CPM)',
+      cpmRateUsd: cpmRate,
+      ratePerViewUsd: ratePerView,
+      name: `Global Flat Rate ($${cpmRate.toFixed(2)} CPM)`,
     };
   }
 

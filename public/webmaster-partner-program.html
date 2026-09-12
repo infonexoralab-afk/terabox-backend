@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TeraBox Webmaster Partner Program</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0066FF;
+      --primary-dark: #0052CC;
+      --primary-light: #EFF6FF;
+      --emerald: #059669;
+      --emerald-light: #ECFDF5;
+      --emerald-dark: #047857;
+      --amber: #D97706;
+      --amber-light: #FEF3C7;
+      --slate-900: #0F172A;
+      --slate-800: #1E293B;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748B;
+      --slate-400: #94A3B8;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50: #F8FAFC;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: var(--slate-50);
+      color: var(--slate-900);
+      padding: 16px;
+      padding-bottom: 36px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Top Brand Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFFFFF;
+      border: 1px solid var(--slate-200);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+    .brand-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+    .official-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--emerald-dark);
+      background: var(--emerald-light);
+      border: 1px solid #A7F3D0;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* 1. Hero Overview Card */
+    .hero-card {
+      background: linear-gradient(135deg, #0056D6 0%, #0066FF 100%);
+      border-radius: 18px;
+      padding: 22px 18px;
+      color: #FFFFFF;
+      margin-bottom: 18px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: none !important;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .badge-amber {
+      background: #F59E0B;
+      color: #FFFFFF;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .badge-glass {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .hero-title {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+    .hero-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.45;
+    }
+
+    /* 2. Section Headings */
+    .sec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .sec-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.2px;
+    }
+    .sec-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+    }
+    .sec-desc {
+      font-size: 11px;
+      color: var(--slate-500);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    /* 3. Plans Grid */
+    .plan-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .plan-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 14px;
+      border: 1.5px solid var(--slate-200);
+      display: flex;
+      flex-direction: column;
+    }
+    .plan-card.cpa { border-color: rgba(0, 102, 255, 0.35); }
+    .plan-card.cpm { border-color: rgba(5, 150, 105, 0.35); }
+    .plan-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .plan-pill {
+      font-size: 9px;
+      font-weight: 800;
+      color: #FFFFFF;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .plan-card.cpa .plan-pill { background-color: var(--primary); }
+    .plan-card.cpm .plan-pill { background-color: var(--emerald); }
+    .plan-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .plan-card.cpa .plan-name { color: var(--primary); }
+    .plan-card.cpm .plan-name { color: var(--emerald); }
+    .plan-rate {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--slate-900);
+      letter-spacing: -0.5px;
+    }
+    .plan-unit {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--slate-500);
+      margin-bottom: 6px;
+    }
+    .plan-desc {
+      font-size: 10.5px;
+      color: var(--slate-400);
+      line-height: 1.35;
+    }
+
+    /* 4. Policy & Rules Box */
+    .card-box {
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid var(--slate-200);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .rule-item {
+      display: flex;
+      padding: 12px 14px;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .rule-item + .rule-item {
+      border-top: 1px solid var(--slate-100);
+    }
+    .rule-icon-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rule-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 2px;
+    }
+    .rule-desc {
+      font-size: 11px;
+      color: var(--slate-500);
+      line-height: 1.4;
+      font-weight: 500;
+    }
+
+    /* 5. Legal Compliance Box */
+    .legal-box {
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1px solid var(--slate-200);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .legal-item + .legal-item {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--slate-100);
+    }
+    .legal-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--slate-900);
+      margin-bottom: 2px;
+    }
+    .legal-sub {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 3px;
+    }
+    .legal-desc {
+      font-size: 10.5px;
+      color: var(--slate-500);
+      line-height: 1.35;
+    }
+
+    svg {
+      width: 15px;
+      height: 15px;
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Top Brand Bar -->
+    <div class="top-bar">
+      <div class="brand-pill">
+        <span class="brand-dot"></span>
+        <span>TeraBox Creator Program</span>
+      </div>
+      <div class="official-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span>Verified Partner</span>
+      </div>
+    </div>
+
+    <!-- 1. Hero Overview Header -->
+    <div class="hero-card">
+      <div class="hero-badges">
+        <div class="badge-amber">CREATOR REWARDS</div>
+        <div class="badge-glass">FAST PAYOUTS</div>
+      </div>
+      <div class="hero-title">Become a TeraBox Partner</div>
+      <div class="hero-subtitle">
+        Share your videos and files. Earn money every time people watch your videos or join TeraBox through your links.
+      </div>
+    </div>
+
+    <!-- 2. Included Earning Streams -->
+    <div class="sec-header">
+      <div class="sec-title">Two Ways to Earn</div>
+      <div class="sec-badge" style="background: var(--emerald-light); color: var(--emerald-dark); border: 1px solid #A7F3D0;">Both Active</div>
+    </div>
+    <div class="sec-desc">You earn from both video plays and new user invites automatically on every link you share.</div>
+
+    <div class="plan-grid">
+      <!-- CPA Plan -->
+      <div class="plan-card cpa">
+        <div class="plan-header">
+          <svg style="color: #0066FF;" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span class="plan-pill">ACTIVE</span>
+        </div>
+        <div class="plan-name">New User Rewards</div>
+        <div class="plan-rate" id="cpaRateVal">$0.05</div>
+        <div class="plan-unit">per new user</div>
+        <div class="plan-desc">Earn $0.05 whenever a new user installs TeraBox from your shared link.</div>
+      </div>
+
+      <!-- CPM Plan -->
+      <div class="plan-card cpm">
+        <div class="plan-header">
+          <svg style="color: #059669;" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <span class="plan-pill">ACTIVE</span>
+        </div>
+        <div class="plan-name">Video Play Rewards</div>
+        <div class="plan-rate" id="cpmRateVal">$4.00</div>
+        <div class="plan-unit">per 1,000 views</div>
+        <div class="plan-desc">Earn $4.00 for every 1,000 video views from your viewers.</div>
+      </div>
+    </div>
+
+    <!-- 3. Verification Policies & Rules -->
+    <div class="sec-header">
+      <div class="sec-title">Simple Program Rules</div>
+    </div>
+    <div class="sec-desc">A few basic rules to keep earnings fair and payouts fast for everyone.</div>
+
+    <div class="card-box">
+      <div class="rule-item">
+        <div class="rule-icon-box" style="background: rgba(0, 102, 255, 0.1); color: #0066FF;">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        </div>
+        <div>
+          <div class="rule-title">Unique Daily Views</div>
+          <div class="rule-desc">Views and clicks are counted once per person each day to ensure fair tracking.</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-icon-box" style="background: rgba(5, 150, 105, 0.1); color: #059669;">
+          <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+        </div>
+        <div>
+          <div class="rule-title">Watch Time Requirement</div>
+          <div class="rule-desc">Viewers need to watch your video for at least 30 seconds to count as a valid play.</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-icon-box" style="background: rgba(220, 38, 38, 0.1); color: #DC2626;">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <div>
+          <div class="rule-title">Real Viewer Traffic Only</div>
+          <div class="rule-desc">Only genuine views from real people count. Automated bots, fake clicks, and VPN manipulation are not allowed.</div>
+        </div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-icon-box" style="background: rgba(217, 119, 6, 0.1); color: #D97706;">
+          <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        </div>
+        <div>
+          <div class="rule-title">Easy Withdrawals</div>
+          <div class="rule-desc">Withdraw your earnings anytime once your balance reaches 1 dollar. We support UPI, Bank Transfer, and USDT.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Legal Compliance Notice -->
+    <div class="sec-header">
+      <div class="sec-title">Legal Guidelines and Content Safety</div>
+    </div>
+    <div class="sec-desc">Standard rules to protect your account and our creator community.</div>
+
+    <div class="legal-box">
+      <div class="legal-item">
+        <div class="legal-title">Copyright and Content Ownership</div>
+        <div class="legal-sub">Platform Content Policy</div>
+        <div class="legal-desc">
+          You must own the rights to the files and videos you share. Please do not upload copyrighted material without permission.
+        </div>
+      </div>
+
+      <div class="legal-item">
+        <div class="legal-title">Privacy and Data Protection</div>
+        <div class="legal-sub">Your Data is Safe</div>
+        <div class="legal-desc">
+          We keep all creator statistics safe, secure, and private. We never share your personal information with third parties.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dynamically read query parameters or live status API
+    (function init() {
+      const params = new URLSearchParams(window.location.search);
+      const cpm = params.get('cpm');
+      const cpa = params.get('cpa');
+
+      if (cpm) {
+        document.getElementById('cpmRateVal').textContent = '$' + parseFloat(cpm).toFixed(2);
+      }
+      if (cpa) {
+        document.getElementById('cpaRateVal').textContent = '$' + parseFloat(cpa).toFixed(2);
+      }
+
+      // Fetch live rates if not provided in URL
+      if (!cpm || !cpa) {
+        fetch('/api/webmaster/status')
+          .then(r => r.json())
+          .then(data => {
+            if (data.cpmRateUsd) document.getElementById('cpmRateVal').textContent = '$' + parseFloat(data.cpmRateUsd).toFixed(2);
+            if (data.cpaRewardUsd) document.getElementById('cpaRateVal').textContent = '$' + parseFloat(data.cpaRewardUsd).toFixed(2);
+          })
+          .catch(() => {});
+      }
+    })();
+  </script>
+</body>
+</html>

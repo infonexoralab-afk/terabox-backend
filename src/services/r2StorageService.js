@@ -1,4 +1,4 @@
-const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, ListObjectsV2Command, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const { NodeHttpHandler } = require('@smithy/node-http-handler');
 const https = require('https');
@@ -218,6 +218,22 @@ class R2StorageService {
     return `https://${this.bucketName}.${env.r2.accountId}.r2.cloudflarestorage.com/${key}`;
   }
 
+  // Sanitize user email or identifier to create clean folder structure in Cloudflare R2
+  sanitizeUserFolder(userIdentifier) {
+    if (!userIdentifier || typeof userIdentifier !== 'string') return 'public_uploads';
+    const clean = userIdentifier.trim().toLowerCase();
+    if (clean.length === 0) return 'public_uploads';
+    // Clean alphanumeric characters (e.g. daksh@gmail.com -> daksh_gmail.com)
+    return clean.replace(/[^a-z0-9._-]/g, '_');
+  }
+
+  // Generate structured User-Wise R2 Key: users/{user_email}/{timestamp}_{safeFileName}
+  generateUserR2Key(userIdentifier, fileName) {
+    const userFolder = this.sanitizeUserFolder(userIdentifier);
+    const safeName = (fileName || 'file.dat').replace(/[^a-zA-Z0-9._-]/g, '_');
+    return `users/${userFolder}/${Date.now()}_${safeName}`;
+  }
+
   // Delete Object from R2
   async deleteObject(key) {
     const command = new DeleteObjectCommand({
@@ -225,6 +241,99 @@ class R2StorageService {
       Key: key,
     });
     return await this.client.send(command);
+  }
+
+  // Delete all files and complete folder for a user from Cloudflare R2
+  async deleteUserFolder(userIdentifier) {
+    if (!userIdentifier) return { success: false, deletedCount: 0 };
+    const folderName = this.sanitizeUserFolder(userIdentifier);
+    const prefix = `users/${folderName}/`;
+    let deletedCount = 0;
+    let continuationToken = undefined;
+
+    console.log(`[R2] Starting full purge of user folder: ${prefix}`);
+
+    try {
+      do {
+        const listCmd = new ListObjectsV2Command({
+          Bucket: this.bucketName,
+          Prefix: prefix,
+          MaxKeys: 1000,
+          ContinuationToken: continuationToken,
+        });
+        const listRes = await this.client.send(listCmd);
+        const objects = listRes.Contents || [];
+
+        if (objects.length > 0) {
+          const deleteCmd = new DeleteObjectsCommand({
+            Bucket: this.bucketName,
+            Delete: {
+              Objects: objects.map(o => ({ Key: o.Key })),
+              Quiet: true,
+            },
+          });
+          await this.client.send(deleteCmd);
+          deletedCount += objects.length;
+          console.log(`[R2] Deleted batch of ${objects.length} objects from ${prefix}`);
+        }
+
+        continuationToken = listRes.IsTruncated ? listRes.NextContinuationToken : undefined;
+      } while (continuationToken);
+
+      console.log(`[R2] Successfully purged user folder ${prefix}. Total objects deleted: ${deletedCount}`);
+      return { success: true, folder: prefix, deletedCount };
+    } catch (err) {
+      console.error(`[R2] Error deleting user folder ${prefix}:`, err.message);
+      return { success: false, folder: prefix, error: err.message, deletedCount };
+    }
+  }
+
+  // Get storage telemetry and user folder metrics from R2
+  async getStorageTelemetry() {
+    try {
+      const command = new ListObjectsV2Command({
+        Bucket: this.bucketName,
+        MaxKeys: 1000,
+      });
+      const res = await this.client.send(command);
+      const objects = res.Contents || [];
+      
+      const userFoldersSet = new Set();
+      let totalBytes = 0;
+
+      objects.forEach(obj => {
+        totalBytes += (obj.Size || 0);
+        if (obj.Key && obj.Key.startsWith('users/')) {
+          const parts = obj.Key.split('/');
+          if (parts.length >= 2) {
+            userFoldersSet.add(parts[1]);
+          }
+        }
+      });
+
+      return {
+        success: true,
+        bucketName: this.bucketName,
+        publicDomain: this.publicDomain,
+        totalObjects: objects.length,
+        totalStorageBytes: totalBytes,
+        totalStorageGb: Math.round((totalBytes / (1024 * 1024 * 1024)) * 100) / 100,
+        userFoldersCount: userFoldersSet.size,
+        userFolders: Array.from(userFoldersSet),
+      };
+    } catch (err) {
+      return {
+        success: false,
+        bucketName: this.bucketName,
+        publicDomain: this.publicDomain,
+        totalObjects: 0,
+        totalStorageBytes: 0,
+        totalStorageGb: 0,
+        userFoldersCount: 0,
+        userFolders: [],
+        error: err.message,
+      };
+    }
   }
 
   // Verify R2 connection

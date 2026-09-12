@@ -1,0 +1,3048 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TeraBox Webmaster Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link rel="stylesheet" href="webmaster.css?v=7.2">
+  <style id="critical-navigation-styles">
+    /* ══════════════════════════════════════════════════════════
+       CRITICAL NAVIGATION SYSTEM v4.0 — Premium Mobile Dock
+       Flutter SafeArea handles bottom inset, NO env() needed
+       ══════════════════════════════════════════════════════════ */
+    .bottom-nav-bar {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 999999 !important;
+      background: #FFFFFF !important;
+      border-top: 1px solid rgba(226, 232, 240, 0.9) !important;
+      box-shadow: none !important;
+      user-select: none !important;
+      -webkit-user-select: none !important;
+      height: auto !important;
+      display: none;
+    }
+
+    .bottom-nav-inner {
+      max-width: 560px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      height: 56px;
+      padding: 4px 8px 6px;
+      box-sizing: border-box;
+    }
+
+    .bottom-nav-item {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: transparent !important;
+      border: none !important;
+      outline: none !important;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      position: relative;
+      transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .bnav-icon-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 30px;
+      border-radius: 15px;
+      transition: background 0.18s ease;
+      box-shadow: none !important;
+    }
+
+    .bnav-icon {
+      width: 22px;
+      height: 22px;
+      color: #64748B;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      display: block;
+      flex-shrink: 0;
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+
+    .bnav-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #64748B;
+      letter-spacing: -0.1px;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      margin-top: 0;
+      display: block;
+      transition: color 0.15s ease, font-weight 0.15s ease;
+    }
+
+    /* Active Navigation State — Material 3 Dynamic Pill */
+    .bottom-nav-item.active .bnav-icon-box {
+      background: #EFF6FF !important;
+      box-shadow: none !important;
+      border: 1px solid rgba(0, 102, 255, 0.18) !important;
+    }
+
+    .bottom-nav-item.active .bnav-icon {
+      color: #0066FF !important;
+      stroke: #0066FF !important;
+      stroke-width: 2 !important;
+      transform: translateY(-0.5px);
+    }
+
+    .bottom-nav-item.active .bnav-label {
+      color: #0066FF !important;
+      font-weight: 800 !important;
+    }
+
+    .bottom-nav-item:active {
+      transform: scale(0.92);
+    }
+
+    /* Dynamic Count Badge */
+    .bnav-badge {
+      position: absolute;
+      top: -3px;
+      right: 2px;
+      background: #0066FF;
+      color: #FFFFFF;
+      font-size: 8px;
+      font-weight: 900;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 3px;
+      border: 1.5px solid #FFFFFF;
+      box-shadow: none !important;
+      line-height: 1;
+    }
+
+    /* Screen Content Bottom Clearance (no env() — Flutter handles safe area) */
+    .screen-body-container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 14px 16px 72px !important;
+    }
+
+    /* Clean Drawer Styles */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 1000000;
+      display: flex;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+
+    .drawer-overlay.active,
+    .drawer-overlay[style*="display: flex"] {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer-panel {
+      width: min(300px, 82vw);
+      background: #FFFFFF;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: none !important;
+      border-right: 1px solid #E2E8F0 !important;
+      transform: translateX(-100%);
+      transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+
+    .drawer-overlay.active .drawer-panel,
+    .drawer-overlay[style*="display: flex"] .drawer-panel {
+      transform: translateX(0);
+    }
+
+    .drawer-title {
+      font-size: 15px !important;
+      font-weight: 850 !important;
+      color: #0F172A !important;
+      letter-spacing: -0.2px !important;
+    }
+
+    .drawer-sub {
+      font-size: 11.5px !important;
+      font-weight: 650 !important;
+      color: #475569 !important;
+    }
+
+    .drawer-sec-label {
+      font-size: 10.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.6px !important;
+      color: #64748B !important;
+    }
+
+    .drawer-tile {
+      font-weight: 650 !important;
+      color: #334155 !important;
+    }
+
+    .dt-label {
+      font-size: 13.5px !important;
+      font-weight: 700 !important;
+      color: #1E293B !important;
+    }
+
+    .drawer-tile.active .dt-label {
+      color: #0066FF !important;
+      font-weight: 850 !important;
+    }
+
+    .dt-badge-live {
+      font-weight: 800 !important;
+    }
+
+    .dt-badge-cpa {
+      font-weight: 800 !important;
+    }
+
+    .drawer-user-name {
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      color: #0F172A !important;
+    }
+
+    .drawer-user-ref {
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      color: #334155 !important;
+    }
+  </style>
+</head>
+
+<body class="loading-state">
+
+  <!-- Fullscreen Loading Spinner -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="spinner-box">
+      <div class="loader-ring"></div>
+      <p class="loader-text">Loading Webmaster Center...</p>
+    </div>
+  </div>
+
+  <!-- Admin Maintenance Notice -->
+  <div id="maintenanceBanner" class="maintenance-box" style="display: none;">
+    <div class="mb-icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <div class="mb-content">
+      <h3 id="maintenanceTitle">Creator Program Upgrades in Progress</h3>
+      <p id="maintenanceSubtitle">Scheduled Maintenance</p>
+      <span id="maintenanceMessage">The Webmaster Monetization Center is currently undergoing scheduled platform
+        upgrades.</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SIDE DRAWER NAVIGATION (Clean Human-Designed Navigation)    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="drawerOverlay" class="drawer-overlay" style="display: none;">
+    <div class="drawer-panel">
+      <!-- Clean Minimalist Header -->
+      <div class="drawer-header">
+        <div class="drawer-brand-row">
+          <div class="drawer-header-text">
+            <h3 class="drawer-title">TeraBox Webmaster</h3>
+            <span class="drawer-sub">Creator Partner Program</span>
+          </div>
+        </div>
+        <button id="btnCloseDrawer" class="drawer-close-btn" title="Close Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Drawer Menu List -->
+      <div class="drawer-menu-list">
+        <div class="drawer-sec-label">MONETIZATION HUB</div>
+
+        <button class="drawer-tile active" data-navigate="screen-dashboard">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12.2L11.13 3.07C11.61 2.59 12.39 2.59 12.87 3.07L22 12.2" />
+              <path d="M4 10.5V19.5C4 20.6 4.9 21.5 6 21.5H18C19.1 21.5 20 20.6 20 19.5V10.5" />
+              <path d="M9.5 21.5V15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5V21.5" />
+            </svg>
+          </div>
+          <span class="dt-label">Home Overview</span>
+          <span class="dt-badge-live">Live</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-shared-links">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.2 9.8L9.8 14.2" />
+              <path d="M16.5 12.5L18.7 10.3C20.4 8.6 20.4 5.9 18.7 4.3C17 2.6 14.3 2.6 12.7 4.3L10.5 6.5" />
+              <path d="M7.5 11.5L5.3 13.7C3.6 15.4 3.6 18.1 5.3 19.7C7 21.4 9.7 21.4 11.3 19.7L13.5 17.5" />
+            </svg>
+          </div>
+          <span class="dt-label">My Shared Links</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-referral-program">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" />
+              <path d="M2.04 19C2.54 15.63 5.46 13.06 9 13.06C12.54 13.06 15.46 15.63 15.96 19" />
+              <path d="M16 11C17.66 11 19 9.66 19 8C19 6.34 17.66 5 16 5" />
+              <path d="M19 16.5C20.4 16.85 21.5 18 21.8 19.5" />
+            </svg>
+          </div>
+          <span class="dt-label">User Referral Program</span>
+          <span class="dt-badge-cpa" id="drawerCpaBadge">+$0.05</span>
+        </button>
+
+        <div class="drawer-sec-label">FINANCIALS & POLICY</div>
+
+        <button class="drawer-tile" data-navigate="screen-withdrawal-history">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M18 19.5H6C3.79 19.5 2 17.71 2 15.5V8.5C2 6.29 3.79 4.5 6 4.5H18C20.21 4.5 22 6.29 22 8.5V15.5C22 17.71 20.21 19.5 18 19.5Z" />
+              <path d="M16.5 12H19.5" />
+              <path d="M2 9H22" />
+            </svg>
+          </div>
+          <span class="dt-label">Withdrawal History</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-reward-details">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M20 7V17C20 20 18.5 21.5 15.5 21.5H8.5C5.5 21.5 4 20 4 17V7C4 4 5.5 2.5 8.5 2.5H15.5C18.5 2.5 20 4 20 7Z" />
+              <path d="M8 7.5H16" />
+              <path d="M8 12H16" />
+              <path d="M8 16.5H13" />
+            </svg>
+          </div>
+          <span class="dt-label">Reward Details</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-pay-rates">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 6L13.5 14.5L8.5 9.5L2 16" />
+              <path d="M16 6H22V12" />
+            </svg>
+          </div>
+          <span class="dt-label">Pay Rate & Rules</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-terms-conditions">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path
+                d="M10.49 2.23L5.49 4.11C4.35 4.54 3.41 5.9 3.41 7.12V14.55C3.41 15.73 4.19 17.28 5.14 17.99L9.44 21.22C10.85 22.28 13.16 22.28 14.57 21.22L18.87 17.99C19.82 17.28 20.6 15.73 20.6 14.55V7.12C20.6 5.89 19.66 4.53 18.52 4.11L13.52 2.23C12.68 1.92 11.32 1.92 10.49 2.23Z" />
+              <path d="M9.05 11.87L10.66 13.48L14.96 9.18" />
+            </svg>
+          </div>
+          <span class="dt-label">Terms & Policy</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-community-guidelines">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+          </div>
+          <span class="dt-label">Community Guidelines</span>
+        </button>
+
+        <button class="drawer-tile" data-navigate="screen-program-rules">
+          <div class="dt-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
+          </div>
+          <span class="dt-label">Program Rules</span>
+        </button>
+      </div>
+
+      <!-- Drawer Footer User Card -->
+      <div class="drawer-footer-card">
+        <div class="user-avatar-circle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="4.5" />
+            <path d="M20 21v-1.5a4.5 4.5 0 0 0-4.5-4.5h-7a4.5 4.5 0 0 0-4.5 4.5V21" />
+          </svg>
+        </div>
+        <div class="user-details-box">
+          <span id="drawerUserEmail" class="drawer-user-name">Creator</span>
+          <span id="drawerUserRef" class="drawer-user-ref">Ref: TBX5367</span>
+        </div>
+        <button id="btnDrawerLogout" class="drawer-logout-btn" title="Switch Account">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M8.9 7.56C9.21 3.96 11.06 2.49 15.11 2.49H15.24C19.71 2.49 21.5 4.28 21.5 8.75V15.27C21.5 19.74 19.71 21.53 15.24 21.53H15.11C11.09 21.53 9.24 20.08 8.91 16.54" />
+            <path d="M15 12H3.62" />
+            <path d="M5.85 8.65L2.5 12L5.85 15.35" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 0A: PARTNER ENROLLMENT (WebmasterEnrollmentScreen) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-connect-account" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <div style="width: 40px;"></div>
+        <div class="appbar-titles" style="text-align: center;">
+          <h1 class="appbar-title">Webmaster Partner Program</h1>
+          <span class="appbar-sub">Monetization Program</span>
+        </div>
+        <div class="appbar-actions">
+          <button class="appbar-btn btn-app-close" title="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container enroll-screen-body">
+      <!-- Top Hero Card (Exact Gradient: #0F172A -> #1E3A8A -> #0066FF) -->
+      <div class="hero-card" style="margin-bottom: 20px;">
+        <div class="hero-badges">
+          <span class="badge-amber">CREATOR REWARDS</span>
+          <span class="badge-glass">FAST PAYOUTS</span>
+        </div>
+        <h2 class="hero-title">Become a TeraBox Partner</h2>
+        <p class="hero-subtitle">Share your videos and files. Earn money every time people watch your videos or join
+          TeraBox through your links.</p>
+      </div>
+
+      <!-- Included Earning Streams -->
+      <div class="sec-header">
+        <h3 class="sec-title">Two Ways to Earn</h3>
+        <span class="sec-badge green">Both Active</span>
+      </div>
+      <p class="sec-desc">You earn from both video plays and new user invites automatically on every link you share.</p>
+
+      <div class="dual-plan-cards-grid" style="margin-top: 12px; margin-bottom: 22px;">
+        <!-- New Users Plan -->
+        <div class="partner-plan-box cpa">
+          <div class="ppb-head">
+            <div class="ppb-icon blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <line x1="19" y1="8" x2="19" y2="14"></line>
+                <line x1="22" y1="11" x2="16" y2="11"></line>
+              </svg>
+            </div>
+            <span class="ppb-active-pill blue">ACTIVE</span>
+          </div>
+          <h4 class="ppb-title blue">New User Rewards</h4>
+          <div class="ppb-rate" id="enrollCpaRate">$0.05</div>
+          <span class="ppb-unit">per new user</span>
+          <p class="ppb-desc">Earn <span id="enrollCpaDescRate">$0.05</span> whenever a new user installs TeraBox from
+            your shared link.</p>
+        </div>
+
+        <!-- Video Plays Plan -->
+        <div class="partner-plan-box cpm">
+          <div class="ppb-head">
+            <div class="ppb-icon green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </div>
+            <span class="ppb-active-pill green">ACTIVE</span>
+          </div>
+          <h4 class="ppb-title green">Video Play Rewards</h4>
+          <div class="ppb-rate" id="enrollCpmRate">$4.00</div>
+          <span class="ppb-unit">per 1,000 views</span>
+          <p class="ppb-desc">Earn <span id="enrollCpmDescRate">$4.00</span> for every 1,000 video views from your
+            viewers.</p>
+        </div>
+      </div>
+
+      <!-- Verification Policies & Rules Card -->
+      <h3 class="sec-title" style="margin-bottom: 10px;">Simple Program Rules</h3>
+      <div class="card-white-surface" style="padding: 0; overflow: hidden; margin-bottom: 20px;">
+        <div class="rule-list-tile">
+          <div class="rlt-icon blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div class="rlt-info">
+            <h4>Unique Daily Views</h4>
+            <p>Views and clicks are counted once per person each day to ensure fair tracking.</p>
+          </div>
+        </div>
+        <div class="rlt-divider"></div>
+        <div class="rule-list-tile">
+          <div class="rlt-icon amber">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="rlt-info">
+            <h4>Watch Time Requirement</h4>
+            <p>Viewers need to watch your video for at least 30 seconds to count as a valid play.</p>
+          </div>
+        </div>
+        <div class="rlt-divider"></div>
+        <div class="rule-list-tile">
+          <div class="rlt-icon red">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+          </div>
+          <div class="rlt-info">
+            <h4>Real Viewer Traffic Only</h4>
+            <p>Only genuine views from real people count. Automated bots, fake clicks, and VPN manipulation are not
+              allowed.</p>
+          </div>
+        </div>
+        <div class="rlt-divider"></div>
+        <div class="rule-list-tile">
+          <div class="rlt-icon green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <line x1="6" y1="12" x2="18" y2="12"></line>
+            </svg>
+          </div>
+          <div class="rlt-info">
+            <h4>Easy Withdrawals</h4>
+            <p>Withdraw your earnings anytime once your balance reaches <span id="enrollMinWithdrawalText">$1</span>. We support UPI and
+              USDT.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal Compliance Notice -->
+      <h3 class="sec-title" style="margin-bottom: 10px;">Legal Guidelines and Content Safety</h3>
+      <div class="card-white-surface" style="margin-bottom: 24px;">
+        <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 2px;">Copyright and Content
+          Ownership</h4>
+        <span style="font-size: 11px; color: #64748B; font-weight: 500; display: block; margin-bottom: 6px;">Platform
+          Content Policy</span>
+        <p style="font-size: 11.5px; color: #64748B; line-height: 1.45;">You must own the rights to the files and videos
+          you share. Please do not upload copyrighted material without permission.</p>
+        <div class="rlt-divider" style="margin: 12px 0;"></div>
+        <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 2px;">Privacy and Data Protection
+        </h4>
+        <span style="font-size: 11px; color: #64748B; font-weight: 500; display: block; margin-bottom: 6px;">Your Data
+          is Safe</span>
+        <p style="font-size: 11.5px; color: #64748B; line-height: 1.45;">We keep all creator statistics safe, secure,
+          and private. We never share your personal information with third parties.</p>
+      </div>
+    </div>
+
+    <!-- Bottom Docked Consent & Action Bar (Exact Flutter bottom docked bar) -->
+    <div class="docked-bottom-enroll-bar">
+      <div class="docked-bar-content">
+        <label class="enroll-consent-checkbox-row">
+          <input type="checkbox" id="chkEnrollAgreed" checked>
+          <span class="custom-chk"></span>
+          <span class="chk-text">I agree to the <a href="javascript:void(0)" class="terms-blue-link"
+              data-navigate="screen-terms-conditions" id="linkToTermsPolicy">Terms of Service</a>, <a
+              href="javascript:void(0)" class="terms-blue-link" data-navigate="screen-community-guidelines"
+              id="linkToCommunityGuidelines">Community Guidelines</a>, and <a href="javascript:void(0)"
+              class="terms-blue-link" data-navigate="screen-program-rules" id="linkToProgramRules">Program
+              Rules</a>.</span>
+        </label>
+
+        <button id="btnHandleEnrollNow" class="btn-full-primary"
+          style="margin-top: 10px; height: 48px; font-size: 14px; font-weight: 700;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            style="margin-right: 8px;">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+          </svg>
+          <span>Join Partner Program and Get Your Link</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 0B: PROGRAM DISABLED (_buildProgramDisabledScaffold) -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-disabled-program" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <div style="width: 40px;"></div>
+        <div class="appbar-titles" style="text-align: center;">
+          <h1 class="appbar-title">Webmaster Program</h1>
+          <span class="appbar-sub">Maintenance Notice</span>
+        </div>
+        <div class="appbar-actions">
+          <button class="appbar-btn btn-app-close" title="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container"
+      style="display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px);">
+      <div class="disabled-program-card">
+        <div class="dpc-icon-box">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <span class="dpc-badge-tag">PROGRAM STATUS: COMING SOON</span>
+        <h2 class="dpc-title" id="disabledScaffoldTitle">Creator Program Upgrades in Progress</h2>
+        <h4 class="dpc-subtitle" id="disabledScaffoldSubtitle">Scheduled Maintenance</h4>
+        <p class="dpc-message" id="disabledScaffoldMessage">The Webmaster Monetization Center is currently undergoing
+          scheduled platform upgrades. New video sharing engines, creator bonuses, and enhanced analytics will be
+          available shortly.</p>
+        <button id="btnReturnHomeDisabled" class="btn-full-primary" style="margin-top: 20px;">Return to Home</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 1: WEBMASTER DASHBOARD (WebmasterDashboardScreen)    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-dashboard" class="app-screen">
+    <!-- Flutter AppBar -->
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button id="btnOpenMenuDrawer" class="appbar-btn" title="Navigation Menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Webmaster Hub</h1>
+          <span class="appbar-sub">Creator Monetization & Growth</span>
+        </div>
+        <div class="appbar-actions">
+          <button id="btnShareDashboardLink" class="appbar-btn" title="Copy Referral Link">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container">
+      <!-- 1. My Balance Card (Ultra-Premium Flutter Gradient Card) -->
+      <div class="balance-card-widget">
+        <div class="bc-top-row">
+          <div class="bc-status-pill">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#93C5FD" stroke-width="2.3">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <line x1="6" y1="12" x2="18" y2="12"></line>
+            </svg>
+            <span>AVAILABLE BALANCE</span>
+          </div>
+          <button class="bc-records-link" data-navigate="screen-withdrawal-history" type="button">
+            <span>Records</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="bc-main-row">
+          <div class="bc-amount-column">
+            <div class="bc-usd-amount">
+              <span id="overviewBalanceDisplay">$0.0000</span>
+            </div>
+            <div class="bc-today-tag">
+              <span id="overviewTodayEarned">Today: +$0.0000</span>
+            </div>
+          </div>
+
+          <button id="btnOpenWithdrawalModal" class="bc-withdraw-button" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="7" y1="17" x2="17" y2="7"></line>
+              <polyline points="7 7 17 7 17 17"></polyline>
+            </svg>
+            <span>Withdraw</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. Referral CPA Banner ($0.05 / User) -->
+      <div class="cpa-banner-widget">
+        <div class="cpa-top-row">
+          <span class="cpa-badge-tag">CPA INCENTIVE PROGRAM</span>
+          <button class="cpa-hub-link" data-navigate="screen-referral-program" type="button">
+            <span>Program Hub</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+        </div>
+
+        <div class="cpa-body-row">
+          <div class="cpa-info-box">
+            <div class="cpa-rate-line">
+              <span class="cpa-title" id="cpaRateText">+$0.05</span>
+              <span class="cpa-rate-unit">USD / User</span>
+            </div>
+            <p class="cpa-sub">Per verified new active user referral</p>
+          </div>
+          <div class="cpa-actions-group">
+            <button class="cpa-btn-invite" data-navigate="screen-referral-program" type="button">Invite</button>
+            <button id="btnQuickCopyReferral" class="cpa-btn-copy-icon" title="Copy Invite Link" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Time Tabs (Pill Segmented Style) -->
+      <div class="time-tabs-wrapper">
+        <div class="time-tabs-pill">
+          <button class="time-tab-btn active" data-period="24h">
+            <span class="live-dot-red"></span>
+            <span>Past 24 Hours (Live)</span>
+          </button>
+          <button class="time-tab-btn" data-period="all">All Time</button>
+        </div>
+      </div>
+
+      <!-- 4. Real-Time Performance Quad Metrics Grid -->
+      <div class="metrics-quad-grid">
+        <!-- Clicks -->
+        <div class="metric-card">
+          <div class="mc-head">
+            <div class="mc-icon-squircle blue">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"></path>
+                <path d="M13 13l6 6"></path>
+              </svg>
+            </div>
+            <div class="mc-trend-tag positive" id="trendClicksTag">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+              <span>LIVE</span>
+            </div>
+          </div>
+          <div class="mc-val" id="metricLinkClicks">0</div>
+          <div class="mc-label">Clicks</div>
+        </div>
+
+        <!-- Video Plays -->
+        <div class="metric-card">
+          <div class="mc-head">
+            <div class="mc-icon-squircle green">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3" fill="currentColor" fill-opacity="0.2"></polygon>
+              </svg>
+            </div>
+            <div class="mc-trend-tag positive" id="trendPlaysTag">
+              <span id="metricCpmPill">$4.00 CPM</span>
+            </div>
+          </div>
+          <div class="mc-val" id="metricVideoPlays">0</div>
+          <div class="mc-label">Video Plays</div>
+        </div>
+
+        <!-- New Users -->
+        <div class="metric-card">
+          <div class="mc-head">
+            <div class="mc-icon-squircle purple">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <line x1="19" y1="8" x2="19" y2="14"></line>
+                <line x1="22" y1="11" x2="16" y2="11"></line>
+              </svg>
+            </div>
+            <div class="mc-trend-tag positive" id="trendUsersTag">
+              <span id="metricCpaPill">$0.05 CPA</span>
+            </div>
+          </div>
+          <div class="mc-val" id="metricNewUsers">0</div>
+          <div class="mc-label">New Users</div>
+        </div>
+
+        <!-- Earnings -->
+        <div class="metric-card">
+          <div class="mc-head">
+            <div class="mc-icon-squircle amber">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="6" width="20" height="12" rx="2.5" fill="currentColor" fill-opacity="0.18"></rect>
+                <circle cx="12" cy="12" r="2.8"></circle>
+                <path d="M6 12h.01M18 12h.01"></path>
+              </svg>
+            </div>
+            <div class="mc-trend-tag positive">
+              <span>SETTLED</span>
+            </div>
+          </div>
+          <div class="mc-val" id="metricEstimatedIncome">$0.0000</div>
+          <div class="mc-label">Earnings</div>
+        </div>
+      </div>
+
+      <!-- 5. Essential Webmaster Tools Grid (Exact Flutter _buildFeatureList) -->
+      <div class="tools-section-wrapper">
+        <div class="tools-header-row">
+          <div class="tools-title-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </div>
+          <div class="tools-title-text">
+            <h3 class="tools-title">Webmaster Tools & Features</h3>
+            <span class="tools-sub">Monetization management & traffic controls</span>
+          </div>
+        </div>
+
+        <div class="tools-grid-layout">
+          <!-- 1. User Referrals -->
+          <div class="tool-feature-card" data-navigate="screen-referral-program">
+            <div class="tfc-top">
+              <div class="tfc-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <span class="tfc-badge purple" id="tfcCpaBadge">$0.05 / User</span>
+            </div>
+            <div class="tfc-details">
+              <h4 class="tfc-title">User Referrals</h4>
+              <p class="tfc-sub">Invite users & earn instant cash rewards</p>
+            </div>
+          </div>
+
+          <!-- 2. My Shared Links -->
+          <div class="tool-feature-card" data-navigate="screen-shared-links">
+            <div class="tfc-top">
+              <div class="tfc-icon blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+              </div>
+              <span class="tfc-badge blue" id="tfcLinksCountBadge">0 Links</span>
+            </div>
+            <div class="tfc-details">
+              <h4 class="tfc-title">My Shared Links</h4>
+              <p class="tfc-sub">Manage links, traffic views & QR codes</p>
+            </div>
+          </div>
+
+          <!-- 3. Pay Rate & Rules -->
+          <div class="tool-feature-card" data-navigate="screen-pay-rates">
+            <div class="tfc-top">
+              <div class="tfc-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="19" y1="5" x2="5" y2="19"></line>
+                  <circle cx="6.5" cy="6.5" r="2.5"></circle>
+                  <circle cx="17.5" cy="17.5" r="2.5"></circle>
+                </svg>
+              </div>
+              <span class="tfc-badge green">CPM Matrix</span>
+            </div>
+            <div class="tfc-details">
+              <h4 class="tfc-title">Pay Rate & Rules</h4>
+              <p class="tfc-sub">Check CPM pricing & country matrices</p>
+            </div>
+          </div>
+
+          <!-- 4. Reward Details -->
+          <div class="tool-feature-card" data-navigate="screen-reward-details">
+            <div class="tfc-top">
+              <div class="tfc-icon amber">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                  <path d="M12 6v2"></path>
+                  <path d="M12 16v2"></path>
+                </svg>
+              </div>
+              <span class="tfc-badge amber">Earnings</span>
+            </div>
+            <div class="tfc-details">
+              <h4 class="tfc-title">Reward Details</h4>
+              <p class="tfc-sub">Earnings breakdown and monetization history</p>
+            </div>
+          </div>
+
+          <!-- 5. Withdrawal History -->
+          <div class="tool-feature-card" data-navigate="screen-withdrawal-history">
+            <div class="tfc-top">
+              <div class="tfc-icon teal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <span class="tfc-badge teal">Payouts</span>
+            </div>
+            <div class="tfc-details">
+              <h4 class="tfc-title">Withdrawal History</h4>
+              <p class="tfc-sub">Track settlement logs & payment records</p>
+            </div>
+          </div>
+
+          <!-- 6. Terms & Rules -->
+          <div class="tool-feature-card" data-navigate="screen-terms-conditions">
+            <div class="tfc-top">
+              <div class="tfc-icon dark">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+              </div>
+              <span class="tfc-badge dark">Anti-Fraud</span>
+            </div>
+            <div class="tfc-details">
+              <h4 class="tfc-title">Terms & Rules</h4>
+              <p class="tfc-sub">Traffic guidelines & anti-fraud security</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 2: SHARED LINKS (ShareLinkScreen)                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-shared-links" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">My Shared Links</h1>
+          <span class="appbar-sub">Manage monetized links & live earnings</span>
+        </div>
+        <div class="appbar-actions">
+          <button id="btnRefreshLinks" class="appbar-btn" title="Refresh">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+          <button class="appbar-btn btn-app-close" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container">
+      <!-- 1. Executive Links Summary Card (Blue #0066FF) -->
+      <div class="blue-executive-card" style="margin-bottom: 12px;">
+        <div class="bec-head">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div
+              style="width: 32px; height: 32px; background: rgba(255,255,255,0.18); border-radius: 9px; display: flex; align-items: center; justify-content: center;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #FFFFFF; line-height: 1.2;">Monetized Links Hub
+              </div>
+              <div style="font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.85);">Earn cash from views &
+                registrations</div>
+            </div>
+          </div>
+          <div class="bec-pill" id="cardRefBadgeContainer" style="cursor: pointer;" title="Click to copy code">
+            <span id="cardRefCodeText">Code: TBX5367</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bec-sub-pods" style="margin-top: 10px;">
+          <div class="bec-pod">
+            <span class="bp-lbl">Total Earnings</span>
+            <span class="bp-val" id="linksTotalEarnedVal">$0.00</span>
+            <span class="bp-unit">lifetime cash</span>
+          </div>
+          <div class="bec-pod-divider"></div>
+          <div class="bec-pod">
+            <span class="bp-lbl">Active Links</span>
+            <span class="bp-val" id="linksTotalCountDisplay">0</span>
+            <span class="bp-unit">monetized files</span>
+          </div>
+          <div class="bec-pod-divider"></div>
+          <div class="bec-pod">
+            <span class="bp-lbl">Total Plays</span>
+            <span class="bp-val" id="linksTotalPlaysVal">0</span>
+            <span class="bp-unit">video streams</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Performance Metrics Overview Section -->
+      <div class="card-white-surface" style="margin-bottom: 14px;">
+        <div class="ch-icon-text">
+          <div class="ch-icon blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 20V10M12 20V4M6 20v-6"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Your Performance</h3>
+            <span class="section-card-sub">Real-time traffic, video plays, and revenue stats</span>
+          </div>
+        </div>
+
+        <div class="metrics-quad-grid" style="margin-top: 12px;">
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Clicks</span><span class="mip-tag blue">Traffic</span></div>
+            <div class="mip-val" id="sharedClicksMetric">0</div>
+          </div>
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Video Plays</span><span class="mip-tag purple">Streams</span></div>
+            <div class="mip-val" id="sharedPlaysMetric">0</div>
+          </div>
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>New Users</span><span class="mip-tag amber">Joined</span></div>
+            <div class="mip-val" id="sharedUsersMetric">0</div>
+          </div>
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Earnings</span><span class="mip-tag green">Paid</span></div>
+            <div class="mip-val" id="sharedEarningsMetric">$0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Shared Links Activity Section -->
+      <div class="card-white-surface" style="margin-bottom: 24px;">
+        <div class="card-header-flex">
+          <div class="ch-icon-text">
+            <div class="ch-icon sky" style="background: #F0F9FF; color: #0284C7;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="section-card-title">Shared Links Activity</h3>
+              <span class="section-card-sub">Real-time traffic and link metrics</span>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="history-total-chip" id="activityTotalLinksBadge">0 Total</span>
+            <button id="btnToggleSharedSearch" class="btn-search-toggle" title="Search Links">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Collapsible Instant Search Bar -->
+        <div id="sharedSearchContainer" class="shared-search-container" style="display: none; margin-top: 10px;">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8"
+              stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="sharedLinksSearchInput" class="shared-search-input"
+              placeholder="Search file name or link URL..." autocomplete="off" />
+            <button id="btnClearSharedSearch" class="btn-clear-search" style="display: none;" title="Clear search">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Segmented Filter and Sort Controls -->
+        <div class="links-control-bar" style="margin-top: 12px; margin-bottom: 12px;">
+          <div class="filter-chips-row">
+            <button class="filter-chip active" data-link-filter="0">All <span class="chip-count"
+                id="filterAllCount">0</span></button>
+            <button class="filter-chip" data-link-filter="1">Videos <span class="chip-count"
+                id="filterVideosCount">0</span></button>
+          </div>
+
+          <div class="sort-select-wrapper">
+            <select id="sharedLinksSortSelect" class="sort-select-dropdown" aria-label="Sort Links">
+              <option value="0">Newest</option>
+              <option value="1">Earnings</option>
+              <option value="2">Plays</option>
+              <option value="3">Clicks</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Links List Container -->
+        <div id="sharedLinksListContainer" class="shared-links-list">
+          <!-- Rendered dynamically via renderSharedLinksList() -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 3: REFERRAL PROGRAM (ReferralProgramScreen)         -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-referral-program" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Referral Program</h1>
+          <span class="appbar-sub">Invite friends & earn <span id="appbarRefRateText">$0.05</span> per install</span>
+        </div>
+        <div class="appbar-actions">
+          <button id="btnOpenRulesModal" class="appbar-btn" title="Rules & Info">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </button>
+          <button id="btnRefreshReferrals" class="appbar-btn" title="Refresh">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+          <button class="appbar-btn btn-app-close" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container">
+      <!-- 1. Dynamic Overview Summary Card (100% Real-time Admin Rates) -->
+      <div class="blue-executive-card" style="margin-bottom: 14px;">
+        <div class="bec-head">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div
+              style="width: 34px; height: 34px; background: rgba(255,255,255,0.18); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2">
+                <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                <circle cx="12" cy="12" r="2"></circle>
+                <path d="M6 12h.01M18 12h.01"></path>
+              </svg>
+            </div>
+            <div>
+              <div style="font-size: 14.5px; font-weight: 800; color: #FFFFFF; line-height: 1.2;">Referral Cash Bonus
+              </div>
+              <div style="font-size: 10.5px; font-weight: 500; color: rgba(255,255,255,0.85);">Get <span
+                  id="refHeroRate">$0.05</span> for every friend who joins</div>
+            </div>
+          </div>
+          <div class="bec-pill" id="cardRefBadgeContainer2" style="cursor: pointer;" title="Click to copy code">
+            <span id="cardRefCodeBadge">Code: TBX5367</span>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div class="bec-sub-pods" style="margin-top: 14px;">
+          <div class="bec-pod">
+            <span class="bp-lbl">Reward Rate</span>
+            <span class="bp-val" id="refRewardRatePod">$0.05</span>
+            <span class="bp-unit">per install</span>
+          </div>
+          <div class="bec-pod-divider"></div>
+          <div class="bec-pod">
+            <span class="bp-lbl">Total Earned</span>
+            <span class="bp-val" id="refTotalEarnedPod">$0.00</span>
+            <span class="bp-unit">wallet balance</span>
+          </div>
+          <div class="bec-pod-divider"></div>
+          <div class="bec-pod">
+            <span class="bp-lbl">Min Payout</span>
+            <span class="bp-val" id="refMinPayoutPod">$1.00</span>
+            <span class="bp-unit">instant withdrawal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Performance Metrics Overview Section -->
+      <div class="card-white-surface" style="margin-bottom: 14px;">
+        <div class="ch-icon-text">
+          <div class="ch-icon blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 20V10M12 20V4M6 20v-6"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Your Performance</h3>
+            <span class="section-card-sub">Real-time traffic and referral statistics</span>
+          </div>
+        </div>
+
+        <div class="metrics-quad-grid" style="margin-top: 12px;">
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Clicks</span><span class="mip-tag blue">Traffic</span></div>
+            <div class="mip-val" id="funnelTotalClicks">0</div>
+          </div>
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Installs</span><span class="mip-tag purple">Installs</span></div>
+            <div class="mip-val" id="funnelTotalInstalls">0</div>
+          </div>
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Pending</span><span class="mip-tag amber">Review</span></div>
+            <div class="mip-val" id="funnelPending">0</div>
+          </div>
+          <div class="metric-item-pod">
+            <div class="mip-top"><span>Completed</span><span class="mip-tag green">Paid</span></div>
+            <div class="mip-val" id="funnelQualified">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Share Your Referral Link Section (Clean Direct Play Store Link) -->
+      <div class="card-white-surface" style="margin-bottom: 14px;">
+        <div class="ch-icon-text">
+          <div class="ch-icon purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Your Direct Invite Link</h3>
+            <span class="section-card-sub">Friends install directly from Google Play Store</span>
+          </div>
+        </div>
+
+        <div class="invite-url-copy-row" style="margin-top: 12px;">
+          <input type="text" id="refInviteUrlInput" readonly
+            value="https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client&referrer=ref%3DTBX5367">
+          <button id="btnCopyInviteLink" class="btn-primary-blue">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              style="margin-right: 4px;">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <div class="social-share-row" style="margin-top: 10px;">
+          <button id="btnShareWhatsApp" class="social-share-btn whatsapp">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2">
+              <path
+                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+              </path>
+            </svg>
+            <span>WhatsApp</span>
+          </button>
+          <button id="btnShareTelegram" class="social-share-btn telegram">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Telegram</span>
+          </button>
+          <button id="btnOpenReferralQr" class="social-share-btn qr" title="Scan QR Code">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. How It Works (Simple 3 Steps) -->
+      <div class="card-white-surface" style="margin-bottom: 14px;">
+        <div class="ch-icon-text">
+          <div class="ch-icon green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" y1="8" x2="19" y2="14"></line>
+              <line x1="22" y1="11" x2="16" y2="11"></line>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">How to Earn in 3 Steps</h3>
+            <span class="section-card-sub">Simple process to earn <span id="refStepRateBonus">$0.05</span> per
+              friend</span>
+          </div>
+        </div>
+
+        <div class="step-flow-box" style="margin-top: 12px;">
+          <div class="step-flow-col">
+            <div class="step-circle green">1</div>
+            <div class="step-title">Share Link</div>
+            <div class="step-desc">Send invite link to friends</div>
+          </div>
+          <div class="step-arrow-divider">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+          <div class="step-flow-col">
+            <div class="step-circle green">2</div>
+            <div class="step-title">Friend Installs</div>
+            <div class="step-desc">Friend installs and uses app</div>
+          </div>
+          <div class="step-arrow-divider">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+          <div class="step-flow-col">
+            <div class="step-circle green">3</div>
+            <div class="step-title">Get Paid</div>
+            <div class="step-desc">Earn reward in wallet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Simple Rules for Earning (Exact Flutter 5 Rules) -->
+      <div class="card-white-surface" style="margin-bottom: 14px;">
+        <div class="ch-icon-text">
+          <div class="ch-icon amber">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="section-card-title">Simple Earning Rules</h3>
+            <span class="section-card-sub">Follow these simple steps so your rewards get approved fast</span>
+          </div>
+        </div>
+
+        <div class="rules-vertical-list" style="margin-top: 12px;">
+          <div class="rule-list-item">
+            <div class="rli-icon amber">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <polyline points="9 12 11 14 15 10"></polyline>
+              </svg>
+            </div>
+            <div class="rli-content">
+              <h4>Real Phones and Users Only</h4>
+              <p>Your friends must install the app on a real phone. Fake clicks and bots are blocked.</p>
+            </div>
+          </div>
+          <div class="rule-list-item">
+            <div class="rli-icon amber">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </div>
+            <div class="rli-content">
+              <h4>Simple Activity to Qualify</h4>
+              <p>Friend must upload 1 file (at least 2 MB) or watch a video for 60 seconds.</p>
+            </div>
+          </div>
+          <div class="rule-list-item">
+            <div class="rli-icon amber">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
+            <div class="rli-content">
+              <h4>One Reward per Device</h4>
+              <p>Each physical phone counts once to keep the system safe and fair for all creators.</p>
+            </div>
+          </div>
+          <div class="rule-list-item">
+            <div class="rli-icon amber">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+              </svg>
+            </div>
+            <div class="rli-content">
+              <h4>No Self Referrals</h4>
+              <p>Installing on your own device with another account will not give referral money.</p>
+            </div>
+          </div>
+          <div class="rule-list-item">
+            <div class="rli-icon amber">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <line x1="6" y1="12" x2="18" y2="12"></line>
+              </svg>
+            </div>
+            <div class="rli-content">
+              <h4>Instant Wallet Deposit</h4>
+              <p>Once verified, <b id="rulesRateText">$0.05 USD</b> is added straight to your balance.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Referral Activity Ledger -->
+      <div class="card-white-surface" style="margin-bottom: 24px;">
+        <div class="card-header-flex">
+          <div class="ch-icon-text">
+            <div class="ch-icon blue">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h3 class="section-card-title">Referral History</h3>
+              <span class="section-card-sub">Track all referred friends and payouts</span>
+            </div>
+          </div>
+          <span class="history-total-chip" id="referralsTotalCountTag">0 Total</span>
+        </div>
+
+        <div class="filter-chips-row" style="margin-top: 12px; margin-bottom: 12px;">
+          <button class="filter-chip active" data-ref-status-filter="all">All <span class="chip-count"
+              id="refCountAll">0</span></button>
+          <button class="filter-chip" data-ref-status-filter="qualified">Completed <span class="chip-count"
+              id="refCountQualified">0</span></button>
+          <button class="filter-chip" data-ref-status-filter="pending">In Progress <span class="chip-count"
+              id="refCountPending">0</span></button>
+          <button class="filter-chip" data-ref-status-filter="rejected">Blocked <span class="chip-count"
+              id="refCountRejected">0</span></button>
+        </div>
+
+        <div id="referralsActivityContainer" class="referrals-ledger-list">
+          <!-- Rendered dynamically via renderReferralsActivityList() -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 4: WITHDRAWAL HISTORY (WithdrawalHistoryScreen)     -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-withdrawal-history" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Withdrawal History</h1>
+          <span class="appbar-sub">Payout records and live settlement status</span>
+        </div>
+        <div class="appbar-actions">
+          <button id="btnRefreshWithdrawals" class="appbar-btn" title="Refresh">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+          <button class="appbar-btn btn-app-close" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container">
+      <!-- 1. Executive Settlement Vault Card (Ultra-Premium Modern Blue Gradient) -->
+      <div class="wh-vault-card">
+        <div class="wh-vault-head">
+          <span class="wh-vault-label">SETTLEMENT VAULT</span>
+          <div class="wh-vault-shield">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Secured Payouts</span>
+          </div>
+        </div>
+        <div class="wh-vault-amount" id="vaultTotalPaidDisplay">$0.00</div>
+        <p class="wh-vault-sub">Total lifetime payouts successfully settled to your accounts</p>
+
+        <div class="wh-vault-pods-row">
+          <div class="wh-vault-pod">
+            <div class="wh-pod-dot-row">
+              <span class="wh-pod-dot green"></span>
+              <span class="wh-pod-label">Paid Out</span>
+            </div>
+            <span class="wh-pod-val" id="vaultPaidOutVal">$0.00</span>
+          </div>
+          <div class="wh-pod-divider"></div>
+          <div class="wh-vault-pod">
+            <div class="wh-pod-dot-row">
+              <span class="wh-pod-dot amber"></span>
+              <span class="wh-pod-label">In Review</span>
+            </div>
+            <span class="wh-pod-val" id="vaultInReviewVal">$0.00</span>
+          </div>
+          <div class="wh-pod-divider"></div>
+          <div class="wh-vault-pod">
+            <div class="wh-pod-dot-row">
+              <span class="wh-pod-dot blue"></span>
+              <span class="wh-pod-label">Available</span>
+            </div>
+            <span class="wh-pod-val" id="vaultAvailableVal">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Status Filter Pills -->
+      <div class="wh-status-scroll">
+        <button class="wh-status-chip active" data-status-filter="all">
+          <span>All Settlements</span>
+          <span class="wh-chip-count" id="countAllSettlements">0</span>
+        </button>
+        <button class="wh-status-chip" data-status-filter="paid">
+          <span class="wh-chip-dot green"></span>
+          <span>Paid</span>
+          <span class="wh-chip-count" id="countPaidSettlements">0</span>
+        </button>
+        <button class="wh-status-chip" data-status-filter="pending">
+          <span class="wh-chip-dot amber"></span>
+          <span>In Review</span>
+          <span class="wh-chip-count" id="countPendingSettlements">0</span>
+        </button>
+        <button class="wh-status-chip" data-status-filter="rejected">
+          <span class="wh-chip-dot red"></span>
+          <span>Rejected</span>
+          <span class="wh-chip-count" id="countRejectedSettlements">0</span>
+        </button>
+      </div>
+
+      <!-- 3. Payment Method Filter Pills -->
+      <div class="wh-method-pills">
+        <button class="wh-method-pill active" data-method-filter="all">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v12M6 12h12"></path>
+          </svg>
+          <span>All Gateways</span>
+        </button>
+        <button class="wh-method-pill" data-method-filter="upi">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M4 18L13 12L4 6V18Z" fill="#059669" />
+            <path d="M11 18L20 12L11 6V18Z" fill="#EA580C" />
+          </svg>
+          <span>UPI Transfer</span>
+        </button>
+        <button class="wh-method-pill" data-method-filter="usdt">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" fill="#26A17B" />
+            <path
+              d="M13.2 11.5c-.05 0-.33.02-1.2.02-.7 0-1.07-.02-1.2-.02-2.3-.1-4-.6-4-1.2 0-.6 1.7-1.1 4-1.2v1.1c.13.01.5.03 1.2.03.86 0 1.14-.02 1.2-.03v-1.1c2.3.1 4 .6 4 1.2 0 .6-1.7 1.1-4 1.2zm0-3.3V6.6h3.3V5H7.5v1.6h3.3v1.6c-2.9.14-5 1.02-5 2.1 0 1.08 2.1 1.96 5 2.1V17.5h2.4V12.4c2.9-.14 5-1.02 5-2.1 0-1.08-2.1-1.96-5-2.1z"
+              fill="#FFFFFF" />
+          </svg>
+          <span>USDT (BEP-20)</span>
+        </button>
+      </div>
+
+      <!-- 4. Section Header -->
+      <div class="wh-sec-header">
+        <div class="wh-sec-title-box">
+          <h3 class="wh-sec-title">Settlement Records</h3>
+          <span class="wh-sec-badge" id="whRecordsCountBadge">0 Records</span>
+        </div>
+        <button class="wh-clear-link" id="whBtnNewWithdraw" onclick="window.webmasterFlutter.openWithdrawalModal()">+
+          Request Payout</button>
+      </div>
+
+      <!-- 5. Withdrawal Ledger Cards List Container -->
+      <div id="withdrawalCardsList" class="wh-records-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 5: PAY RATE & RULES (PayRateScreen)                 -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-pay-rates" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Pay Rate and Rules</h1>
+          <span class="appbar-sub">Official Rates and Simple Rules to Earn</span>
+        </div>
+        <div class="appbar-actions">
+          <button class="appbar-btn btn-app-close" data-navigate="screen-dashboard" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container">
+      <!-- 1. Dynamic Overview Summary Card -->
+      <div class="pr-overview-card">
+        <div class="pr-overview-head">
+          <div class="pr-overview-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M6 12h.01M18 12h.01"></path>
+            </svg>
+          </div>
+          <div>
+            <div class="pr-overview-title">How You Earn Money</div>
+            <div class="pr-overview-sub">Earn by sharing videos and inviting new users</div>
+          </div>
+        </div>
+
+        <div class="pr-metrics-box">
+          <div class="pr-metric-col">
+            <span class="pr-metric-lbl">Video Views</span>
+            <span class="pr-metric-val" id="payRatesCpmPod">$4.00</span>
+            <span class="pr-metric-unit">for 1000 views</span>
+          </div>
+          <div class="pr-metric-divider"></div>
+          <div class="pr-metric-col">
+            <span class="pr-metric-lbl">New Users</span>
+            <span class="pr-metric-val" id="payRatesCpaPod">$0.05</span>
+            <span class="pr-metric-unit">for each signup</span>
+          </div>
+          <div class="pr-metric-divider"></div>
+          <div class="pr-metric-col">
+            <span class="pr-metric-lbl">Min Payout</span>
+            <span class="pr-metric-val" id="payRatesMinPod">$1.00</span>
+            <span class="pr-metric-unit">minimum amount</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Video Views Earnings Section -->
+      <div class="pr-card">
+        <div class="pr-card-header">
+          <div class="pr-card-icon blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+          <div class="pr-card-titles">
+            <h3 class="pr-card-h">Video Views Earnings</h3>
+            <p class="pr-card-p">You earn for every 1000 real views on your shared videos</p>
+          </div>
+        </div>
+        <div class="pr-divider"></div>
+        <div class="pr-global-rate-row">
+          <span class="pr-global-badge">Global Rate</span>
+          <span class="pr-global-desc">All countries worldwide</span>
+          <span class="pr-global-rate-val" id="globalCpmRateText">$4.00</span>
+          <span class="pr-global-rate-unit">/ 1000 views</span>
+        </div>
+      </div>
+
+      <!-- 3. New User Bonus Section (CPA) -->
+      <div class="pr-card">
+        <div class="pr-card-header">
+          <div class="pr-card-icon indigo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <line x1="19" y1="8" x2="19" y2="14"></line>
+              <line x1="22" y1="11" x2="16" y2="11"></line>
+            </svg>
+          </div>
+          <div class="pr-card-titles">
+            <h3 class="pr-card-h">New User Bonus</h3>
+            <p class="pr-card-p">Earn <b id="payRateCpaBoldText" style="color: #4F46E5;">$0.05 USD</b> every time a new
+              person joins using your link</p>
+          </div>
+        </div>
+        <div class="pr-steps-box">
+          <div class="pr-step-col">
+            <div class="pr-step-num">1</div>
+            <span class="pr-step-title">Share Link</span>
+            <span class="pr-step-sub">Send video or invite link to friends</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            class="pr-step-chevron">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <div class="pr-step-col">
+            <div class="pr-step-num">2</div>
+            <span class="pr-step-title">Friend Joins</span>
+            <span class="pr-step-sub">Friend installs app and signs up</span>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            class="pr-step-chevron">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <div class="pr-step-col">
+            <div class="pr-step-num">3</div>
+            <span class="pr-step-title">Get Cash</span>
+            <span class="pr-step-sub">Earn <span id="payRateStep3Bonus">$0.05</span> directly in wallet</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Simple and Real Rules for Earning -->
+      <div class="pr-card">
+        <div class="pr-card-header">
+          <div class="pr-card-icon orange">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div class="pr-card-titles">
+            <h3 class="pr-card-h">Simple Rules to Keep Your Earnings Safe</h3>
+            <p class="pr-card-p">Follow these guidelines so your views get approved quickly</p>
+          </div>
+        </div>
+        <div class="pr-divider"></div>
+        <div class="pr-rules-list">
+          <div class="pr-rule-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              class="pr-rule-icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <div class="pr-rule-content">
+              <h4 class="pr-rule-title">Watch for at least 30 Seconds</h4>
+              <p class="pr-rule-desc">People must watch your video for at least 30 seconds for the view to count and
+                give you money.</p>
+            </div>
+          </div>
+          <div class="pr-rule-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              class="pr-rule-icon">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <div class="pr-rule-content">
+              <h4 class="pr-rule-title">One View per Person per Day</h4>
+              <p class="pr-rule-desc">If the same person watches your video multiple times on the same day it counts as
+                1 view.</p>
+            </div>
+          </div>
+          <div class="pr-rule-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              class="pr-rule-icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+            <div class="pr-rule-content">
+              <h4 class="pr-rule-title">No Self Views or Self Clicks</h4>
+              <p class="pr-rule-desc">Watching your own shared videos or clicking your own invite links will not add
+                money.</p>
+            </div>
+          </div>
+          <div class="pr-rule-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              class="pr-rule-icon">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <div class="pr-rule-content">
+              <h4 class="pr-rule-title">Real People Only</h4>
+              <p class="pr-rule-desc">Fake views, bots, automated tools, and VPN traffic are automatically blocked.</p>
+            </div>
+          </div>
+          <div class="pr-rule-item">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              class="pr-rule-icon">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <div class="pr-rule-content">
+              <h4 class="pr-rule-title">Share Clean and Allowed Content</h4>
+              <p class="pr-rule-desc">Do not share copyright or illegal content. Broken or blocked links will stop
+                earning.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Payment and Withdrawal Details -->
+      <div class="pr-payment-card">
+        <div class="pr-payment-head">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          <span>Payment and Withdrawal Information</span>
+        </div>
+        <div class="pr-bullet-list">
+          <div class="pr-bullet-item">
+            <span class="pr-bullet-dot"></span>
+            <span class="pr-bullet-text">You can withdraw money as soon as your wallet reaches <b
+                id="payRatesMinPolicyText">$1.00 USD</b>.</span>
+          </div>
+          <div class="pr-bullet-item">
+            <span class="pr-bullet-dot"></span>
+            <span class="pr-bullet-text">Withdrawal requests are reviewed and sent within 10 minutes to 4 hours.</span>
+          </div>
+          <div class="pr-bullet-item">
+            <span class="pr-bullet-dot"></span>
+            <span class="pr-bullet-text">You can receive your money directly via UPI or USDT Crypto (TRC-20 /
+              BEP-20).</span>
+          </div>
+          <div class="pr-bullet-item">
+            <span class="pr-bullet-dot"></span>
+            <span class="pr-bullet-text">All rates are set and updated by the admin team.</span>
+          </div>
+          <div class="pr-bullet-item">
+            <span class="pr-bullet-dot"></span>
+            <span class="pr-bullet-text">Earnings are added directly to your Webmaster wallet when views are
+              confirmed.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Legal Compliance Card -->
+      <div class="pr-legal-card">
+        <div class="pr-legal-item">
+          <div class="pr-legal-title">Intermediary Safe Harbor Notice</div>
+          <div class="pr-legal-sub">Section 79 IT Act 2000 & IT Rules 2021</div>
+          <p class="pr-legal-desc">This platform operates strictly as a neutral intermediary under the Information
+            Technology Rules, 2021. Users and webmasters are solely responsible for ensuring they possess rights and
+            licensing for any media shared.</p>
+        </div>
+        <div class="pr-legal-item">
+          <div class="pr-legal-title">DPDP Act Privacy Standards</div>
+          <div class="pr-legal-sub">Digital Personal Data Protection</div>
+          <p class="pr-legal-desc">Viewer telemetry, deduplication nonces, and referral metrics are processed using
+            privacy-preserving cryptographic hashes. Creator analytics are aggregated in accordance with international
+            privacy laws.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 6: REWARD DETAILS (RewardDetailsScreen)             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-reward-details" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Reward Details</h1>
+          <span class="appbar-sub">Earnings Breakdown and History</span>
+        </div>
+        <div class="appbar-actions">
+          <button id="btnRefreshRewards" class="appbar-btn" title="Refresh">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+          <button class="appbar-btn btn-app-close" data-navigate="screen-dashboard" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container">
+      <!-- 1. Executive Earnings Summary Card (Blue #0066FF) -->
+      <div class="rd-summary-card">
+        <div class="rd-summary-head">
+          <span id="rewardPeriodHeaderLabel">All Time</span>
+          <div class="rd-summary-pill">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <line x1="6" y1="12" x2="18" y2="12"></line>
+            </svg>
+            <span>Live Wallet</span>
+          </div>
+        </div>
+        <div class="rd-summary-amount" id="rewardSummaryTotalDisplay">$0.0000</div>
+        <p class="rd-summary-sub">Total Monetization Earnings</p>
+
+        <div class="rd-summary-pods">
+          <div class="rd-summary-pod">
+            <span class="rd-pod-lbl">Today</span>
+            <span class="rd-pod-val" id="rewardTodayPodVal">$0.0000</span>
+          </div>
+          <div class="rd-pod-divider"></div>
+          <div class="rd-summary-pod">
+            <span class="rd-pod-lbl">This Month</span>
+            <span class="rd-pod-val" id="rewardMonthPodVal">$0.0000</span>
+          </div>
+          <div class="rd-pod-divider"></div>
+          <div class="rd-summary-pod">
+            <span class="rd-pod-lbl">All Time</span>
+            <span class="rd-pod-val" id="rewardAllTimePodVal">$0.0000</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Real-Time Rates Banner -->
+      <div class="rd-rates-banner">
+        <div class="rd-rates-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <div class="rd-rates-content">
+          <h4 class="rd-rates-title">Current Official Earning Rates</h4>
+          <p class="rd-rates-sub">Views: <span id="rncCpmText" class="rd-rate-bold">$4.00</span> for 1000 views
+            &nbsp;|&nbsp; New Users: <span id="rncCpaText" class="rd-rate-bold">$0.05</span> per signup</p>
+        </div>
+      </div>
+
+      <!-- 3. Time Period Filters -->
+      <div class="rd-period-tabs">
+        <button class="rd-period-tab active" data-reward-period="all">All Time</button>
+        <button class="rd-period-tab" data-reward-period="today">Today</button>
+        <button class="rd-period-tab" data-reward-period="week">This Week</button>
+        <button class="rd-period-tab" data-reward-period="month">This Month</button>
+      </div>
+
+      <!-- 4. Source Type Filters -->
+      <div class="rd-source-chips">
+        <button class="rd-source-chip active" data-source-filter="all">All Sources</button>
+        <button class="rd-source-chip" data-source-filter="video">Video Views</button>
+        <button class="rd-source-chip" data-source-filter="user">New Users</button>
+      </div>
+
+      <!-- 5. Section Header -->
+      <div class="rd-section-header">
+        <div class="rd-header-left">
+          <h3 class="rd-section-title">Earnings History</h3>
+          <span class="rd-count-badge" id="rewardRecordsCountBadge">0</span>
+        </div>
+        <span class="rd-header-period" id="historyPeriodSub">All Time</span>
+      </div>
+
+      <!-- 6. Records List Container (renders cards or authentic empty state) -->
+      <div id="rewardRecordsList" class="rd-records-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 7: TERMS & POLICY (WebmasterTermsScreen)            -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-terms-conditions" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Terms & Policy</h1>
+          <span class="appbar-sub">Partner Agreement & Content Rules</span>
+        </div>
+        <div class="appbar-actions">
+          <button class="appbar-btn btn-app-close" data-navigate="screen-dashboard" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container" style="padding-bottom: 60px; max-width: 680px; margin: 0 auto; width: 100%;">
+      <!-- Important Notice Box (Neutral Black & Slate, Justified Text, No Red) -->
+      <div
+        style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: justify; line-height: 1.6;">
+        <h3 style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">Important
+          Notice and Sole User Responsibility</h3>
+        <p style="font-size: 12px; color: #334155; margin-bottom: 8px;">
+          You are completely and solely responsible for all files, videos, audio, and documents that you upload and
+          share through TeraBox. TeraBox is a neutral cloud platform and does not check, verify, or own user-uploaded
+          files.
+        </p>
+        <p style="font-size: 12px; color: #334155; margin: 0;">
+          If you upload or share any illegal, unauthorized, pirated, or copyrighted files, all legal responsibility,
+          copyright claims, and consequences belong only to you as the uploader. TeraBox will immediately delete illegal
+          files and cooperate fully with police and legal authorities when requested.
+        </p>
+      </div>
+
+      <!-- Main Policy Document Body (Justified, Easy English, Pure Black/Slate) -->
+      <div class="card-white-surface"
+        style="padding: 20px 18px; line-height: 1.65; text-align: justify; border: 1px solid #E2E8F0; border-radius: 12px;">
+        <div style="margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0; text-align: left;">
+          <h2 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">TeraBox Webmaster Partner
+            Agreement</h2>
+          <span style="font-size: 11.5px; color: #64748B;">Effective Date: September 2026 | Official Program
+            Terms</span>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">1. About
+            This Program</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            The TeraBox Webmaster Program allows verified creators to earn money by sharing files and videos. Rewards
+            are generated through verified video views and new user registrations. By joining this program, you agree to
+            follow all the rules stated on this page.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">2. Your
+            Responsibility for Your Files</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            TeraBox does not monitor or review your uploaded files before you share them. When you share links, you
+            agree that:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">You own the files or you have legal permission from the owner to share them.
+            </li>
+            <li style="margin-bottom: 4px;">Your files do not violate anyone's copyright, trademark, privacy, or
+              personal rights.</li>
+            <li style="margin-bottom: 4px;">You take full personal and legal responsibility for every file uploaded from
+              your account.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">3.
+            Prohibited and Illegal Content</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            You must never upload, share, or earn money from the following types of files:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Pirated movies, TV shows, songs, books, or paid software without legal
+              permission.</li>
+            <li style="margin-bottom: 4px;">Any form of child abuse, adult pornography, or non-consensual images.</li>
+            <li style="margin-bottom: 4px;">Violent content, hate speech, terrorism, or dangerous materials.</li>
+            <li style="margin-bottom: 4px;">Viruses, malware, hacking tools, or phishing links.</li>
+            <li style="margin-bottom: 4px;">Private personal information of other people without their clear permission.
+            </li>
+          </ul>
+          <p style="font-size: 12px; color: #334155; margin-top: 6px; margin-bottom: 0;">
+            If you share any prohibited content, your account will be permanently banned and all pending balance will be
+            lost.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">4.
+            Copyright and DMCA Rules</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            We respect the rights of all content owners. If a copyright owner submits a valid complaint about your link,
+            we will remove or disable that link immediately. Users who repeatedly upload copyrighted content will have
+            their accounts banned permanently.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">5. How
+            You Earn Rewards</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            You can earn money through two methods at the same time:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;"><b>New User Signups (CPA):</b> Earn a fixed reward whenever a new unique
+              user downloads and registers on TeraBox using your link.</li>
+            <li style="margin-bottom: 4px;"><b>Video Play Views (CPM):</b> Earn money based on every 1,000 real unique
+              video views on your shared videos.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">6. Fair
+            Views and Anti-Cheat Rules</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            All traffic is automatically checked by our security system to ensure fair rewards:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Views from the same person or device are counted only once every 24 hours.
+            </li>
+            <li style="margin-bottom: 4px;">Video play rewards require the viewer to watch the video for at least 30
+              seconds.</li>
+            <li style="margin-bottom: 4px;">Fake traffic, automated bots, clicking your own links repeatedly, or using
+              VPNs to fake views will not be counted.</li>
+            <li style="margin-bottom: 4px;">Deceptive titles, fake thumbnails, and forced pop-up redirects are strictly
+              prohibited.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">7.
+            Withdrawals and Payment Methods</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            Earnings are credited to your wallet balance once verified. You can request a withdrawal anytime your
+            balance reaches the minimum threshold of <b id="termsMinUsd">$1.00 USD</b>. We provide two official payout
+            methods:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;"><b>UPI Transfer:</b> Fast payout directly to your verified UPI ID (e.g.
+              name@oksbi, phone@paytm).</li>
+            <li style="margin-bottom: 4px;"><b>USDT Crypto (BEP-20):</b> Payout directly to your 42-character Binance
+              Smart Chain (BSC) USDT wallet address starting with 0x.</li>
+          </ul>
+          <p style="font-size: 12px; color: #334155; margin-top: 6px; margin-bottom: 0;">
+            Payout requests are verified for traffic authenticity and processed within 10 minutes to 4 hours.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">8.
+            Account Suspension and Closure</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            TeraBox has the right to freeze or close any account that breaks these rules, uses fake bot traffic, or
+            uploads prohibited content. In case of account closure due to policy violations, all unpaid earnings will be
+            permanently forfeited.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">9.
+            Protecting the Platform (Indemnity)</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            If any third party or legal authority takes action against TeraBox because of files you uploaded or shared,
+            you agree to take full responsibility and pay for all related legal costs, claims, and damages.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">10.
+            Contact and Help</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            If you have questions about copyright, need to report an infringing link, or have legal queries, please
+            contact our compliance team at <b>dmca@terabox.com</b> or <b>privacy@terabox.com</b>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 8: COMMUNITY GUIDELINES                             -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-community-guidelines" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Community Guidelines</h1>
+          <span class="appbar-sub">Safety, Ethics & Content Standards</span>
+        </div>
+        <div class="appbar-actions">
+          <button class="appbar-btn btn-app-close" data-navigate="screen-dashboard" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container" style="padding-bottom: 60px; max-width: 680px; margin: 0 auto; width: 100%;">
+      <!-- Summary Box -->
+      <div
+        style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: justify; line-height: 1.6;">
+        <h3 style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">Creator
+          Safety and Ethics Standards</h3>
+        <p style="font-size: 12px; color: #334155; margin: 0;">
+          TeraBox is dedicated to fostering a safe, trustworthy, and transparent cloud sharing ecosystem for creators,
+          partners, and viewers worldwide. These Community Guidelines define our mandatory content standards and
+          operational ethics. All webmasters and content distributors must strictly adhere to these policies.
+        </p>
+      </div>
+
+      <!-- Main Document Card -->
+      <div class="card-white-surface"
+        style="padding: 20px 18px; line-height: 1.65; text-align: justify; border: 1px solid #E2E8F0; border-radius: 12px;">
+        <div style="margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0; text-align: left;">
+          <h2 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">TeraBox Global Community
+            Guidelines</h2>
+          <span style="font-size: 11.5px; color: #64748B;">Effective Date: September 2026 | Content and Community Ethics
+            Policy</span>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">1.
+            Genuine Content and Intellectual Property</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            We place utmost importance on intellectual property rights and authentic content creation. You may only
+            share files, video streams, audio recordings, documents, and software for which you hold legitimate
+            ownership or explicit commercial distribution rights. Uploading pirated, cracked, or unauthorized commercial
+            material is strictly prohibited and subject to immediate link removal.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">2.
+            Prohibited Content Categories</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            To maintain community safety, the following content types are strictly prohibited and will result in
+            immediate permanent account termination and forfeiture of all pending rewards:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Child sexual abuse material, child exploitation, or non-consensual sexual
+              depictions.</li>
+            <li style="margin-bottom: 4px;">Violent extremism, terrorist propaganda, weapons manufacturing tutorials,
+              and hate speech.</li>
+            <li style="margin-bottom: 4px;">Malicious software, keyloggers, ransomware, phishing scripts, and hacking
+              exploits.</li>
+            <li style="margin-bottom: 4px;">Illicit narcotics, prescription drug trafficking, and dangerous chemical
+              substances.</li>
+            <li style="margin-bottom: 4px;">Private personal data, stolen credentials, banking information, or doxxing
+              materials.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">3.
+            Anti-Spam and Transparent Sharing</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            Shared links must represent authentic files without misleading or deceptive metadata. The following
+            practices violate community integrity:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Using misleading titles, fake celebrity thumbnails, or false file
+              descriptions to manipulate clicks.</li>
+            <li style="margin-bottom: 4px;">Automated spamming of link URLs in public forums, social comment sections,
+              or unsolicited messages.</li>
+            <li style="margin-bottom: 4px;">Forced redirects, multi-hop link shortener loops, or browser lockers that
+              compromise viewer security.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">4. User
+            Privacy and Consent Protection</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            Respect for individual privacy is a core foundation of our service. Never upload or distribute personal
+            photographs, private communications, confidential business records, or surveillance recordings without
+            verifiable written consent from all involved parties.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">5.
+            Respectful Interaction and Anti-Harassment</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            All creators and partners must maintain professional conduct. We strictly prohibit harassment, intimidation,
+            defamation, blackmail, or coordinated attacks targeting individuals or organizations through our platform
+            services.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">6.
+            Enforcement, Audits, and Account Actions</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            TeraBox deploys automated content detection systems alongside manual compliance reviews. Violations of these
+            Community Guidelines result in tiered enforcement actions, ranging from formal warnings and content deletion
+            to permanent account banning, device blocking, and referral forfeiture.
+          </p>
+        </div>
+
+        <div>
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">7.
+            Appeals and Contact</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            If you believe content on your account was mistakenly flagged or removed, you may submit a formal appeal
+            detailing the link ID and proof of ownership to <b>compliance@terabox.com</b>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 9: PROGRAM RULES                                    -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-program-rules" class="app-screen">
+    <header class="flutter-appbar">
+      <div class="appbar-content">
+        <button class="appbar-btn btn-app-back" data-navigate="screen-dashboard" title="Back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div class="appbar-titles">
+          <h1 class="appbar-title">Program Rules</h1>
+          <span class="appbar-sub">Monetization & Traffic Compliance Standards</span>
+        </div>
+        <div class="appbar-actions">
+          <button class="appbar-btn btn-app-close" data-navigate="screen-dashboard" title="Close">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="screen-body-container" style="padding-bottom: 60px; max-width: 680px; margin: 0 auto; width: 100%;">
+      <!-- Summary Box -->
+      <div
+        style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: justify; line-height: 1.6;">
+        <h3 style="font-size: 13.5px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">Partner
+          Monetization and Traffic Compliance Rules</h3>
+        <p style="font-size: 12px; color: #334155; margin: 0;">
+          The TeraBox Webmaster Program operates on strict fairness, transparent tracking, and automated anti-fraud
+          validation. All creators, partners, and referrers must comply with the rules outlined below to remain eligible
+          for earnings and wallet payouts.
+        </p>
+      </div>
+
+      <!-- Main Document Card -->
+      <div class="card-white-surface"
+        style="padding: 20px 18px; line-height: 1.65; text-align: justify; border: 1px solid #E2E8F0; border-radius: 12px;">
+        <div style="margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #E2E8F0; text-align: left;">
+          <h2 style="font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 4px;">Official TeraBox Webmaster
+            Program Rules</h2>
+          <span style="font-size: 11.5px; color: #64748B;">Effective Date: September 2026 | Creator Compliance and Audit
+            Standards</span>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">1.
+            Account Eligibility and Verification</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            Each individual creator or corporate partner is permitted one active webmaster account. Accounts must be
+            registered with a verifiable email address or mobile phone number. Registering duplicate accounts, fake
+            personas, or automated profile farms to capture unearned bonuses will result in immediate disqualification.
+          </p>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">2. Video
+            Play Monetization (CPM) Qualification</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            Video play views generate CPM earnings based on active rate cards under the following conditions:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">The viewer must watch the video content continuously for a minimum duration
+              of 30 seconds.</li>
+            <li style="margin-bottom: 4px;">Views originating from the same IP address or device fingerprint are counted
+              only once in every 24-hour rolling window.</li>
+            <li style="margin-bottom: 4px;">Autoplay scripts, hidden iframe views, background loopers, and muted
+              pop-unders are filtered out automatically.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">3. New
+            User Referral (CPA) Attribution Rules</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            Referral incentives are credited when a new unique user registers on TeraBox via your verified invite link:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Attribution requires a genuine first-time installation on a distinct
+              physical hardware device.</li>
+            <li style="margin-bottom: 4px;">The referred user must complete standard account registration and perform
+              genuine initial platform activity.</li>
+            <li style="margin-bottom: 4px;">Self-referrals by the webmaster, secondary accounts on the creator's own
+              device, and duplicate registrations on previously recorded hardware are blocked by our anti-fraud engine.
+            </li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">4.
+            Anti-Fraud and Prohibited Traffic Methods</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            TeraBox deploys proprietary machine-learning fraud detection to monitor all traffic streams. The following
+            activities are strictly prohibited:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Commercial VPNs, Tor nodes, residential proxy networks, and datacenter IP
+              traffic.</li>
+            <li style="margin-bottom: 4px;">Automated click bots, macro scripts, headless browser runners, or emulation
+              tools.</li>
+            <li style="margin-bottom: 4px;">Paid click-exchange forums, micro-incentivized installs, or task completion
+              networks where users are paid to download without genuine intent.</li>
+            <li style="margin-bottom: 4px;">Domain masking, fake link forwarders, or unauthorized iframe embedding on
+              third-party websites.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">5.
+            Approved Promotion Channels</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            Creators are encouraged to promote their monetized links across authentic, creator-owned channels including:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">Personal YouTube video descriptions, community posts, and channel links.
+            </li>
+            <li style="margin-bottom: 4px;">Dedicated Telegram public broadcast channels and verified group discussions.
+            </li>
+            <li style="margin-bottom: 4px;">Personal blogs, technical tutorials, resource directories, and social media
+              feeds.</li>
+            <li style="margin-bottom: 4px;">WhatsApp creator community groups and broadcast channels.</li>
+          </ul>
+        </div>
+
+        <div style="margin-bottom: 18px;">
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">6.
+            Settlement SLA, Thresholds, and Payout Rules</h4>
+          <p style="font-size: 12px; color: #334155; margin-bottom: 6px;">
+            Settlement rules and payment channel standards:
+          </p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; margin: 0; text-align: justify;">
+            <li style="margin-bottom: 4px;">The minimum withdrawal threshold is $10.00 USD (or as adjusted in your
+              regional dashboard).</li>
+            <li style="margin-bottom: 4px;">Supported payout channels include verified UPI transfer and USDT (Binance
+              Smart Chain BEP-20) addresses.</li>
+            <li style="margin-bottom: 4px;">Payout settlements are audited for traffic validity and processed within an
+              SLA window of 10 minutes to 4 hours.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 style="font-size: 13px; font-weight: 700; color: #0F172A; margin-bottom: 6px; text-align: left;">7. Audit
+            Rights, Penalties, and Forfeiture</h4>
+          <p style="font-size: 12px; color: #334155; margin: 0;">
+            TeraBox reserves the right to review traffic logs, inspect referral conversion metrics, and withhold payouts
+            if anomalous patterns are detected. In instances of verified fraud or intentional policy circumvention, all
+            accumulated wallet balances and referral credits are permanently forfeited.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- SCREEN 10: APP SECURITY LOCKOUT (Unauthorized Access)      -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <section id="screen-unauthorized-access" class="app-screen">
+    <div class="security-lockout-container">
+      <div class="security-lockout-card">
+        <!-- Sleek Icon with subtle layered container -->
+        <div class="security-icon-wrapper">
+          <div class="security-shield-squircle">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2.5L4.5 5.5V11.2C4.5 16.1 7.7 20.6 12 21.8C16.3 20.6 19.5 16.1 19.5 11.2V5.5L12 2.5Z"
+                fill="#0066FF" fill-opacity="0.1" stroke="#0066FF" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path d="M9.5 11.8L11.2 13.5L15 9.5" stroke="#0066FF" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="security-badge-pill">
+          <span class="sec-dot"></span>
+          <span>TeraBox Security Protocol</span>
+        </div>
+
+        <h2 class="security-title">App Authentication Required</h2>
+        <p class="security-subtitle">The Webmaster Monetization Center is cryptographically secured and strictly
+          accessible from within the official TeraBox mobile application.</p>
+
+        <!-- Refined List with Distinct Professional Icons & Micro Dividers -->
+        <div class="security-features-box">
+          <div class="sfb-item">
+            <div class="sfb-icon sfb-blue">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+            </div>
+            <div class="sfb-text">HMAC-SHA256 Signed Session Token Required</div>
+          </div>
+          <div class="sfb-divider"></div>
+          <div class="sfb-item">
+            <div class="sfb-icon sfb-green">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="sfb-text">Private Earnings & Payout Ledgers Protected</div>
+          </div>
+          <div class="sfb-divider"></div>
+          <div class="sfb-item">
+            <div class="sfb-icon sfb-purple">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+              </svg>
+            </div>
+            <div class="sfb-text">Anti-Bypass & Direct Object Isolation Active</div>
+          </div>
+        </div>
+
+        <div class="security-action-btns">
+          <a href="https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client"
+            class="security-primary-btn" target="_blank" rel="noopener noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+              <line x1="12" y1="18" x2="12.01" y2="18"></line>
+            </svg>
+            <span>Open in TeraBox App</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- 3-STEP WITHDRAWAL MODAL (Exact Flutter _showWithdrawalModal)-->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="withdrawModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-sheet">
+      <div class="modal-drag-handle"></div>
+
+      <div class="modal-head-flex">
+        <div>
+          <h3 class="modal-heading-text" id="modalStepTitle">Select Gateway</h3>
+          <span class="modal-step-indicator" id="modalStepIndicator">Step 1 of 3</span>
+        </div>
+        <button id="btnCloseWithdrawModal" class="icon-btn-plain" type="button" title="Close"
+          onclick="window.webmasterFlutter.closeWithdrawalModal ? window.webmasterFlutter.closeWithdrawalModal() : document.getElementById('withdrawModal').style.display='none'">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Step Progress Dots Bar -->
+      <div class="step-dots-bar">
+        <div class="step-dot-item active" id="dotStep0">
+          <span class="s-circle">1</span>
+          <span>Gateway</span>
+        </div>
+        <div class="step-line" id="lineStep01"></div>
+        <div class="step-dot-item" id="dotStep1">
+          <span class="s-circle">2</span>
+          <span>Amount</span>
+        </div>
+        <div class="step-line" id="lineStep12"></div>
+        <div class="step-dot-item" id="dotStep2">
+          <span class="s-circle">3</span>
+          <span>Review</span>
+        </div>
+      </div>
+
+      <!-- STEP 0: METHOD SELECTION -->
+      <div id="modalStep0View" class="modal-step-view active">
+        <p class="step-intro-text">Select your preferred payout settlement gateway.</p>
+        <div class="modal-methods-list">
+          <label class="modal-method-card active" for="payoutMethodUpi">
+            <input type="radio" name="payoutMethod" id="payoutMethodUpi" value="upi" checked>
+            <div class="mmc-box">
+              <div class="mmc-icon" style="background: #ECFDF5;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 18L13.2 12L4 6V18Z" fill="#059669" />
+                  <path d="M10.8 18L20 12L10.8 6V18Z" fill="#EA580C" />
+                </svg>
+              </div>
+              <div class="mmc-info" style="flex: 1;">
+                <h4>UPI Transfer (India)</h4>
+                <p>Instant settlement to GPay, PhonePe, Paytm VPA</p>
+                <span class="mmc-fee" id="upiMethodFeeTag">0% Platform Fee • Min $1.00 USD</span>
+              </div>
+            </div>
+          </label>
+
+          <label class="modal-method-card" for="payoutMethodUsdt">
+            <input type="radio" name="payoutMethod" id="payoutMethodUsdt" value="USDT_BEP20">
+            <div class="mmc-box">
+              <div class="mmc-icon" style="background: #F0FDF4;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" fill="#26A17B" />
+                  <path
+                    d="M13.2 11.5c-.05 0-.33.02-1.2.02-.7 0-1.07-.02-1.2-.02-2.3-.1-4-.6-4-1.2 0-.6 1.7-1.1 4-1.2v1.1c.13.01.5.03 1.2.03.86 0 1.14-.02 1.2-.03v-1.1c2.3.1 4 .6 4 1.2 0 .6-1.7 1.1-4 1.2zm0-3.3V6.6h3.3V5H7.5v1.6h3.3v1.6c-2.9.14-5 1.02-5 2.1 0 1.08 2.1 1.96 5 2.1V17.5h2.4V12.4c2.9-.14 5-1.02 5-2.1 0-1.08-2.1-1.96-5-2.1z"
+                    fill="#FFFFFF" />
+                </svg>
+              </div>
+              <div class="mmc-info" style="flex: 1;">
+                <h4>USDT Crypto (BEP-20)</h4>
+                <p>Instant settlement to Binance Smart Chain (BSC) address</p>
+                <span class="mmc-fee" id="usdtMethodFeeTag">0% Platform Fee • Min $1.00 USD</span>
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <button type="button" id="btnStep0Continue" class="btn-full-primary">Continue to Details</button>
+      </div>
+
+      <!-- STEP 1: AMOUNT & ACCOUNT -->
+      <div id="modalStep1View" class="modal-step-view">
+        <div class="modal-balance-summary-bar">
+          <div class="mbsb-left">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+            <span id="modalStep1AvailBalance">Available: $0.0000 USD</span>
+          </div>
+          <span class="mbsb-min-tag" id="modalStep1MinLimitTag">Min $1.00</span>
+        </div>
+
+        <div class="form-group-block">
+          <div class="fgb-label-row">
+            <label class="fgb-label" for="inputWithdrawUsdAmount">Withdrawal Amount (USD)</label>
+            <div class="preset-chips-row">
+              <button type="button" class="preset-chip" id="presetMinBtn">Min</button>
+              <button type="button" class="preset-chip" id="preset50Btn">50%</button>
+              <button type="button" class="preset-chip" id="presetMaxBtn">Max</button>
+            </div>
+          </div>
+          <div class="amount-input-box">
+            <span class="curr-symbol">$</span>
+            <input type="number" id="inputWithdrawUsdAmount" placeholder="1.00" step="0.01" min="1.00">
+          </div>
+          <span class="inr-estimate-hint" id="inrEstimateHint">Estimated: ≈ ₹87.00 INR (1 USD ≈ ₹87.00)</span>
+        </div>
+
+        <div class="form-group-block">
+          <div class="fgb-label-row">
+            <label class="fgb-label" id="lblDestinationAccount" for="inputDestinationAccount">UPI ID (VPA)</label>
+            <span class="network-badge" id="networkBadgeTag"
+              style="display: none; font-size: 10px; font-weight: 800; background: #FEF3C7; color: #D97706; padding: 2px 6px; border-radius: 4px;">BSC
+              BEP-20</span>
+          </div>
+          <div class="account-input-wrapper">
+            <input type="text" id="inputDestinationAccount" placeholder="e.g. yourname@okaxis or yourname@paytm">
+            <button type="button" class="btn-paste-icon" id="btnPasteAccount" title="Paste from clipboard">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+          <span class="account-input-hint" id="accountInputHint">Enter verified Google Pay, PhonePe, or Paytm UPI
+            ID.</span>
+        </div>
+
+        <div class="processing-time-indicator">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Settlement SLA: Reviewed & paid in 10 minutes to 4 hours</span>
+        </div>
+
+        <div id="modalStep1ErrorBox" class="modal-error-alert" style="display: none;"></div>
+
+        <div class="modal-action-buttons-row">
+          <button type="button" id="btnStep1Back" class="btn-outline-back">Back</button>
+          <button type="button" id="btnStep1Continue" class="btn-action-primary">Next: Review</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: REVIEW & CONFIRMATION -->
+      <div id="modalStep2View" class="modal-step-view">
+        <p class="step-intro-text">Please verify your withdrawal details before final submission.</p>
+
+        <div class="payout-review-card">
+          <div class="prc-row">
+            <span class="prc-label">Payout Amount</span>
+            <span class="prc-val bold blue" id="reviewAmountUsd">$1.00 USD</span>
+          </div>
+          <div class="prc-row">
+            <span class="prc-label">Est. INR Equivalent</span>
+            <span class="prc-val" id="reviewAmountInr">≈ ₹87.00 INR</span>
+          </div>
+          <div class="prc-row">
+            <span class="prc-label">Gateway</span>
+            <span class="prc-val" id="reviewGatewayName">UPI Transfer</span>
+          </div>
+          <div class="prc-row">
+            <span class="prc-label">Destination Account</span>
+            <span class="prc-val mono" id="reviewAccountDestination">info.earningskaro@oksbi</span>
+          </div>
+          <div class="prc-row">
+            <span class="prc-label">Estimated Time</span>
+            <span class="prc-val" id="reviewEstimatedTime">1-4 hours</span>
+          </div>
+          <div class="prc-row">
+            <span class="prc-label">Platform Fee</span>
+            <span class="prc-val green bold">0% (Free)</span>
+          </div>
+        </div>
+
+        <div id="modalStep2ErrorBox" class="modal-error-alert" style="display: none;"></div>
+
+        <div class="modal-action-buttons-row">
+          <button type="button" id="btnStep2Back" class="btn-outline-back">Back</button>
+          <button type="button" id="btnStep2Submit" class="btn-action-primary green">Confirm & Submit Payout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- RECEIPT MODAL DIALOG (Exact Flutter _showReceiptModal)     -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="receiptModal" class="modal-backdrop" style="display: none;"
+    onclick="if(event.target === this) (window.webmasterFlutter.closeReceiptModal ? window.webmasterFlutter.closeReceiptModal() : (this.classList.remove('open'), this.removeAttribute('data-open'), setTimeout(()=>{this.style.display='none'}, 170)))">
+    <div class="modal-sheet receipt-sheet">
+      <div class="modal-drag-handle"></div>
+
+      <div class="receipt-header">
+        <div class="receipt-icon-circle" id="receiptStatusIcon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <h3 class="receipt-amount" id="receiptAmountDisplay">$1.00 USD</h3>
+        <span class="receipt-status-pill" id="receiptStatusPill">PAID</span>
+      </div>
+
+      <div class="receipt-data-table">
+        <div class="r-row">
+          <span>Transaction ID</span>
+          <span class="mono" id="receiptTxnId">#wd_12345678</span>
+        </div>
+        <div class="r-row">
+          <span>Payment Gateway</span>
+          <span id="receiptMethod">UPI Transfer</span>
+        </div>
+        <div class="r-row">
+          <span>Destination Account</span>
+          <span class="mono" id="receiptAccount">user@oksbi</span>
+        </div>
+        <div class="r-row">
+          <span>Requested At</span>
+          <span id="receiptRequestedDate">Sep 09, 2026 at 09:14 AM</span>
+        </div>
+        <div class="r-row">
+          <span>Settled At</span>
+          <span id="receiptSettledDate">Sep 09, 2026 at 09:15 AM</span>
+        </div>
+      </div>
+
+      <button id="btnCloseReceiptModal" class="btn-full-primary" type="button" style="margin-top: 16px;"
+        onclick="window.webmasterFlutter.closeReceiptModal ? window.webmasterFlutter.closeReceiptModal() : (document.getElementById('receiptModal').classList.remove('open'), document.getElementById('receiptModal').removeAttribute('data-open'), setTimeout(()=>{document.getElementById('receiptModal').style.display='none'}, 170))">Close
+        Receipt</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- QR CODE MODAL DIALOG                                       -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="qrModal" class="modal-backdrop" style="display: none;"
+    onclick="if(event.target === this) (window.webmasterFlutter.closeQrModal ? window.webmasterFlutter.closeQrModal() : (this.classList.remove('open'), this.removeAttribute('data-open'), setTimeout(()=>{this.style.display='none'}, 170)))">
+    <div class="modal-sheet qr-card">
+      <div class="modal-drag-handle"></div>
+      <div class="modal-head-flex">
+        <div>
+          <h3 class="modal-heading-text" id="qrHeading">Scan Link QR Code</h3>
+          <span class="modal-step-indicator" id="qrSubHeading">Scan to open or share directly</span>
+        </div>
+        <button id="btnCloseQrModal" class="icon-btn-plain" type="button" title="Close"
+          onclick="window.webmasterFlutter.closeQrModal ? window.webmasterFlutter.closeQrModal() : (document.getElementById('qrModal').classList.remove('open'), document.getElementById('qrModal').removeAttribute('data-open'), setTimeout(()=>{document.getElementById('qrModal').style.display='none'}, 170))">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div id="qrCanvasContainer" class="qr-canvas-box"
+        style="margin: 16px auto 12px; display: flex; justify-content: center;"></div>
+
+      <div id="qrCodePillContainer" class="qr-code-pill-row"
+        style="display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 8px 14px; border-radius: 8px;">
+        <span style="font-size: 11px; color: #64748B; font-weight: 600;">Invite Code:</span>
+        <span id="qrModalRefCode" style="font-size: 13px; font-weight: 800; color: #0066FF;">TBX5367</span>
+      </div>
+
+      <input type="hidden" id="qrTextValue">
+      <button id="btnCopyQrUrl" class="btn-full-primary"
+        style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+        <span>Copy Invite Link</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <!-- RULES & GUIDELINES MODAL (Referral Info)                   -->
+  <!-- ══════════════════════════════════════════════════════════ -->
+  <div id="rulesModal" class="modal-backdrop" style="display: none;"
+    onclick="if(event.target === this) (window.webmasterFlutter.closeRulesModal ? window.webmasterFlutter.closeRulesModal() : (this.classList.remove('open'), this.removeAttribute('data-open'), setTimeout(()=>{this.style.display='none'}, 170)))">
+    <div class="modal-sheet">
+      <div class="modal-drag-handle"></div>
+      <div class="modal-head-flex">
+        <div>
+          <h3 class="modal-heading-text">Referral Rules & Details</h3>
+          <span class="modal-step-indicator">Incentive qualification & verification</span>
+        </div>
+        <button id="btnCloseRulesModal" class="icon-btn-plain" type="button" title="Close"
+          onclick="window.webmasterFlutter.closeRulesModal ? window.webmasterFlutter.closeRulesModal() : (document.getElementById('rulesModal').classList.remove('open'), document.getElementById('rulesModal').removeAttribute('data-open'), setTimeout(()=>{document.getElementById('rulesModal').style.display='none'}, 170))">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-rules-body" style="padding: 12px 0 6px;">
+        <div class="rules-modal-rows">
+          <div class="rule-modal-row">
+            <div class="rmr-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div class="rmr-content">
+              <h4 id="rulesModalRewardRateTitle">Reward Rate: $0.05 USD / Friend</h4>
+              <p id="rulesModalRewardRateDesc">You get $0.05 every time a friend installs the app and performs an
+                initial activity.</p>
+            </div>
+          </div>
+
+          <div class="rule-modal-row">
+            <div class="rmr-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+            </div>
+            <div class="rmr-content">
+              <h4>Simple Activity Needed</h4>
+              <p>Your friend must upload a file of at least 2 MB or stream a video for 60 seconds.</p>
+            </div>
+          </div>
+
+          <div class="rule-modal-row">
+            <div class="rmr-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0066FF" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
+            <div class="rmr-content">
+              <h4>One Reward per Phone</h4>
+              <p>Each physical device is eligible once to keep rewards genuine and fair.</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="btnCloseRulesBtn" class="btn-full-primary" type="button" style="margin-top: 14px;"
+          onclick="window.webmasterFlutter.closeRulesModal ? window.webmasterFlutter.closeRulesModal() : (document.getElementById('rulesModal').classList.remove('open'), document.getElementById('rulesModal').removeAttribute('data-open'), setTimeout(()=>{document.getElementById('rulesModal').style.display='none'}, 170))">Understood</button>
+      </div>
+    </div>
+  </div>
+
+  <nav id="bottomNavigationBar" class="bottom-nav-bar" style="display: none;">
+    <div class="bottom-nav-inner">
+      <button class="bottom-nav-item active" data-navigate="screen-dashboard" id="bnav-dashboard" title="Home">
+        <div class="bnav-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="bnav-icon">
+            <path d="M2 12.2L11.13 3.07C11.61 2.59 12.39 2.59 12.87 3.07L22 12.2" />
+            <path d="M4 10.5V19.5C4 20.6 4.9 21.5 6 21.5H18C19.1 21.5 20 20.6 20 19.5V10.5" />
+            <path d="M9.5 21.5V15.5C9.5 14.67 10.17 14 11 14H13C13.83 14 14.5 14.67 14.5 15.5V21.5" />
+          </svg>
+        </div>
+        <span class="bnav-label">Home</span>
+      </button>
+
+      <button class="bottom-nav-item" data-navigate="screen-shared-links" id="bnav-shared-links" title="Shared Links">
+        <div class="bnav-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="bnav-icon">
+            <path d="M14.2 9.8L9.8 14.2" />
+            <path d="M16.5 12.5L18.7 10.3C20.4 8.6 20.4 5.9 18.7 4.3C17 2.6 14.3 2.6 12.7 4.3L10.5 6.5" />
+            <path d="M7.5 11.5L5.3 13.7C3.6 15.4 3.6 18.1 5.3 19.7C7 21.4 9.7 21.4 11.3 19.7L13.5 17.5" />
+          </svg>
+        </div>
+        <span class="bnav-label">Links</span>
+      </button>
+
+      <button class="bottom-nav-item" data-navigate="screen-referral-program" id="bnav-referral-program"
+        title="Referrals">
+        <div class="bnav-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="bnav-icon">
+            <path
+              d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" />
+            <path d="M2.04 19C2.54 15.63 5.46 13.06 9 13.06C12.54 13.06 15.46 15.63 15.96 19" />
+            <path d="M16 11C17.66 11 19 9.66 19 8C19 6.34 17.66 5 16 5" />
+            <path d="M19 16.5C20.4 16.85 21.5 18 21.8 19.5" />
+          </svg>
+        </div>
+        <span class="bnav-label">Referrals</span>
+      </button>
+
+      <button class="bottom-nav-item" data-navigate="screen-withdrawal-history" id="bnav-withdrawal-history"
+        title="Payouts">
+        <div class="bnav-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="bnav-icon">
+            <path
+              d="M18 19.5H6C3.79 19.5 2 17.71 2 15.5V8.5C2 6.29 3.79 4.5 6 4.5H18C20.21 4.5 22 6.29 22 8.5V15.5C22 17.71 20.21 19.5 18 19.5Z" />
+            <path d="M16.5 12H19.5" />
+            <path d="M2 9H22" />
+          </svg>
+        </div>
+        <span class="bnav-label">Payouts</span>
+      </button>
+
+      <button class="bottom-nav-item" data-navigate="screen-pay-rates" id="bnav-pay-rates" title="Pay Rates">
+        <div class="bnav-icon-box">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="bnav-icon">
+            <path d="M22 6L13.5 14.5L8.5 9.5L2 16" />
+            <path d="M16 6H22V12" />
+          </svg>
+        </div>
+        <span class="bnav-label">Rates</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="webmaster.js?v=6.9"></script>
+</body>
+
+</html>
