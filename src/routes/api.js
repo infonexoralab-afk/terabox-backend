@@ -255,7 +255,7 @@ router.get('/media/check/:code', async (req, res) => {
 
 // 1. User Profile
 router.get('/user/profile', (req, res) => {
-  const userId = req.query.userId || req.headers['x-user-id'] || req.headers['x-user-email'];
+  const userId = req.query.userId || req.query.email || req.headers['x-user-id'] || req.headers['x-user-email'];
   if (!userId) {
     return res.status(401).json({
       success: false,
@@ -797,7 +797,7 @@ function checkUserStorageQuota(req, incomingBytes = 0) {
     return {
       allowed: false,
       error: 'STORAGE_LIMIT_EXCEEDED',
-      message: `Cloud storage limit reached (${formattedUsed} / ${formattedTotal}). Please upgrade to TeraBox VIP to unlock up to 5.0 TB additional storage.`,
+      message: `Cloud storage limit reached (${formattedUsed} / ${formattedTotal}). Please upgrade to AirBox VIP to unlock up to 5.0 TB additional storage.`,
       usedSpaceBytes: used,
       totalSpaceBytes: total,
     };
@@ -984,6 +984,7 @@ router.post('/upload/chunk', uploadMemory.single('chunk'), async (req, res) => {
 
       const rawUserEmail = req.headers['x-user-email'] || req.body?.userEmail || (userFolder.includes('@') ? userFolder : '');
       const rawUserId = req.headers['x-user-id'] || req.body?.userId || '';
+      const clientNodeId = req.body?.nodeId || req.headers['x-node-id'] || null;
 
       meta = {
         s3UploadId: createRes.UploadId,
@@ -995,7 +996,11 @@ router.post('/upload/chunk', uploadMemory.single('chunk'), async (req, res) => {
         userFolder,
         userId: rawUserId,
         userEmail: rawUserEmail,
+        nodeId: clientNodeId,
       };
+      await r2StorageService.uploadJson(metaKey, meta);
+    } else if (!meta.nodeId && (req.body?.nodeId || req.headers['x-node-id'])) {
+      meta.nodeId = req.body?.nodeId || req.headers['x-node-id'];
       await r2StorageService.uploadJson(metaKey, meta);
     }
 
@@ -1067,7 +1072,7 @@ async function completeS3MultipartUploadAsync(uploadId, meta, sizeBytes) {
     const finalUserId = meta.userId || (userFolder.includes('@') ? '' : userFolder);
     const finalUserEmail = meta.userEmail || (userFolder.includes('@') ? userFolder : '');
 
-    const clientNodeId = meta.nodeId || req.body?.nodeId || req.body?.id || null;
+    const clientNodeId = meta.nodeId || null;
     const savedNode = nodeService.saveNode({
       id: clientNodeId,
       name: meta.fileName,
@@ -1114,7 +1119,7 @@ async function completeS3MultipartUploadAsync(uploadId, meta, sizeBytes) {
 // 5. Complete & Assemble Resumable Upload in Cloudflare R2
 router.post('/upload/complete', async (req, res) => {
   try {
-    const { uploadId, fileName, totalChunks, sizeBytes, mimeType } = req.body;
+    const { uploadId, fileName, totalChunks, sizeBytes, mimeType, nodeId } = req.body;
     if (!uploadId) {
       return res.status(400).json({ error: 'uploadId is required' });
     }
@@ -1129,6 +1134,10 @@ router.post('/upload/complete', async (req, res) => {
 
     if (!meta) {
       return res.status(404).json({ error: 'Upload metadata not found or session already closed' });
+    }
+
+    if (nodeId && !meta.nodeId) {
+      meta.nodeId = nodeId;
     }
 
     // Set task to processing state
@@ -1365,7 +1374,7 @@ const handleShareCreate = async (req, res) => {
           id: share.code,
           shortCode: share.code,
           originalUrl: share.downloadUrl || share.streamUrl || '',
-          monetizedUrl: share.shareUrl || `https://terabox.mywire.org/s/${share.code}?ref=${targetProfile.referralCode}`,
+          monetizedUrl: share.shareUrl || `https://airbox.one/s/${share.code}?ref=${targetProfile.referralCode}`,
           fileName: rawFileName,
           createdAt: share.createdAt || new Date().toISOString(),
           clicks: share.viewsCount || 0,
@@ -1593,7 +1602,7 @@ function authenticateWebmasterRequest(req) {
     } catch (_) { }
   }
 
-  return { authenticated: false, reason: 'Invalid, expired, or missing TeraBox app security credentials.' };
+  return { authenticated: false, reason: 'Invalid, expired, or missing AirBox app security credentials.' };
 }
 
 // Generate Secure SSO Launch Token for Authorized App User
@@ -1627,7 +1636,7 @@ router.get('/webmaster/profile', (req, res) => {
     return res.status(401).json({
       success: false,
       isEnrolled: false,
-      error: 'Unauthorized: Webmaster portal requires a valid TeraBox mobile app session token or user ID.',
+      error: 'Unauthorized: Webmaster portal requires a valid AirBox mobile app session token or user ID.',
       requiresAppAuth: true
     });
   }
@@ -1680,7 +1689,7 @@ router.get('/webmaster/profile', (req, res) => {
           id: sCode,
           shortCode: sCode,
           originalUrl: share.downloadUrl || share.streamUrl || '',
-          monetizedUrl: share.shareUrl || `https://terabox.mywire.org/s/${sCode}?ref=${refCodeClean}`,
+          monetizedUrl: share.shareUrl || `https://airbox.one/s/${sCode}?ref=${refCodeClean}`,
           fileName: share.fileName || 'Shared Video',
           createdAt: share.createdAt || new Date().toISOString(),
           clicks: share.viewsCount || 0,
@@ -2081,7 +2090,7 @@ router.post('/webmaster/verify-watch', async (req, res) => {
         id: share.code,
         shortCode: share.code,
         originalUrl: share.downloadUrl || share.streamUrl || '',
-        monetizedUrl: share.shareUrl || `https://terabox.mywire.org/s/${share.code}?ref=${refCode}`,
+        monetizedUrl: share.shareUrl || `https://airbox.one/s/${share.code}?ref=${refCode}`,
         fileName: share.fileName || 'Shared Video',
         createdAt: share.createdAt || new Date().toISOString(),
         clicks: 1,
@@ -2411,7 +2420,7 @@ async function handleStatutoryNoticeSubmission(req, res) {
       success: true,
       reportId,
       ticketNumber: reportId,
-      message: 'Statutory infringement notice submitted successfully. Your complaint has been formally registered with the TeraBox Grievance Officer and Trust & Safety Legal Desk.',
+      message: 'Statutory infringement notice submitted successfully. Your complaint has been formally registered with the AirBox Grievance Officer and Trust & Safety Legal Desk.',
       submittedAt: reportRecord.submittedAt,
     });
   } catch (err) {
@@ -2470,7 +2479,7 @@ router.get(['/report/track/:ticketId', '/reports/track/:ticketId', '/report/stat
     fileName: report.fileName || 'Shared Media',
     submittedAt: report.submittedAt,
     actionTakenAt: report.actionTakenAt || null,
-    resolvedBy: report.resolvedBy ? 'TeraBox Trust & Safety Legal Desk' : null,
+    resolvedBy: report.resolvedBy ? 'AirBox Trust & Safety Legal Desk' : null,
     statutorySla: isResolved ? 'Fulfilled (Within Statutory 24-36h)' : 'Active (Under 24-36h Redressal Window)',
     resolutionSummary: report.status === 'TAKEDOWN_EXECUTED'
       ? 'The reported infringing content has been disabled across all CDN distribution channels, Cloudflare R2, and client apps. Strike recorded on creator profile.'

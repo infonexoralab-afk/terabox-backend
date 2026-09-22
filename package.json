@@ -1,7 +1,7 @@
 {
-  "name": "terabox-backend-server",
+  "name": "airbox-backend-server",
   "version": "1.0.0",
-  "description": "Production-grade TeraBox Cloud Storage & Webmaster API Engine",
+  "description": "Production-grade AirBox Cloud Storage & Webmaster API Engine",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

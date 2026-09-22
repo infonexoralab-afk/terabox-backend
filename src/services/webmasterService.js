@@ -245,6 +245,13 @@ class WebmasterService {
 
   // Credit Referral Rewards with Audit Trail
   creditReferralEarnings(referralCode, amountUsd = 0.05, details = {}) {
+    let isProgramEnabled = true;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      isProgramEnabled = systemConfigStore.get('webmaster_program_enabled', true);
+    } catch (_) {}
+    if (!isProgramEnabled) return false;
+
     const profile = this.getProfile(referralCode);
     if (!profile) return false;
 
@@ -279,6 +286,15 @@ class WebmasterService {
 
   // Record a Video View with Anti-Fraud 24hr IP deduplication
   recordVideoView(referralCode, nodeId, clientIp) {
+    let isProgramEnabled = true;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      isProgramEnabled = systemConfigStore.get('webmaster_program_enabled', true);
+    } catch (_) {}
+    if (!isProgramEnabled) {
+      return { counted: false, reason: 'Webmaster program is disabled' };
+    }
+
     const profile = this.profiles.get(referralCode);
     if (!profile) return { counted: false, reason: 'Invalid referral code' };
 
@@ -305,6 +321,13 @@ class WebmasterService {
 
   // Record a New User Registration
   recordNewUser(referralCode) {
+    let isProgramEnabled = true;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      isProgramEnabled = systemConfigStore.get('webmaster_program_enabled', true);
+    } catch (_) {}
+    if (!isProgramEnabled) return;
+
     const profile = this.profiles.get(referralCode);
     if (!profile) return;
 
@@ -430,7 +453,7 @@ class WebmasterService {
   handleTelegramBotWebhook({ telegramUserId, mediaUrl, caption, referralCode }) {
     const code = referralCode || 'TBX9942';
     const shortCode = `tg${Math.random().toString(36).substring(2, 7)}`;
-    const monetizedUrl = `https://terabox.cloud/s/${shortCode}?ref=${code}`;
+    const monetizedUrl = `https://airbox.one/s/${shortCode}?ref=${code}`;
 
     return {
       success: true,

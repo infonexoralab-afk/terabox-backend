@@ -288,40 +288,68 @@ class R2StorageService {
     }
   }
 
-  // Get storage telemetry and user folder metrics from R2
-  async getStorageTelemetry() {
-    try {
-      const command = new ListObjectsV2Command({
-        Bucket: this.bucketName,
-        MaxKeys: 1000,
-      });
-      const res = await this.client.send(command);
-      const objects = res.Contents || [];
-      
-      const userFoldersSet = new Set();
-      let totalBytes = 0;
+  // Get storage telemetry and user folder metrics from R2 with full pagination
+  async getStorageTelemetry(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && this._cachedTelemetry && (now - (this._cachedTelemetryTime || 0)) < 15000) {
+      return this._cachedTelemetry;
+    }
 
-      objects.forEach(obj => {
-        totalBytes += (obj.Size || 0);
-        if (obj.Key && obj.Key.startsWith('users/')) {
-          const parts = obj.Key.split('/');
-          if (parts.length >= 2) {
-            userFoldersSet.add(parts[1]);
+    try {
+      let continuationToken = undefined;
+      let totalObjects = 0;
+      let totalBytes = 0;
+      const userFoldersMap = {}; // folderName -> { bytes, count }
+
+      do {
+        const command = new ListObjectsV2Command({
+          Bucket: this.bucketName,
+          MaxKeys: 1000,
+          ContinuationToken: continuationToken,
+        });
+        const res = await this.client.send(command);
+        const contents = res.Contents || [];
+        totalObjects += contents.length;
+
+        for (const obj of contents) {
+          const sz = obj.Size || 0;
+          totalBytes += sz;
+          const key = obj.Key || '';
+          if (key.startsWith('users/')) {
+            const parts = key.split('/');
+            if (parts.length >= 2) {
+              const folder = parts[1];
+              userFoldersMap[folder] = userFoldersMap[folder] || { bytes: 0, count: 0 };
+              userFoldersMap[folder].bytes += sz;
+              userFoldersMap[folder].count++;
+            }
           }
         }
-      });
 
-      return {
+        continuationToken = res.IsTruncated ? res.NextContinuationToken : undefined;
+      } while (continuationToken);
+
+      const userFoldersList = Object.keys(userFoldersMap);
+      const telemetry = {
         success: true,
         bucketName: this.bucketName,
         publicDomain: this.publicDomain,
-        totalObjects: objects.length,
+        totalObjects,
         totalStorageBytes: totalBytes,
-        totalStorageGb: Math.round((totalBytes / (1024 * 1024 * 1024)) * 100) / 100,
-        userFoldersCount: userFoldersSet.size,
-        userFolders: Array.from(userFoldersSet),
+        totalStorageGb: Number((totalBytes / (1024 * 1024 * 1024)).toFixed(2)),
+        totalStorageMb: Number((totalBytes / (1024 * 1024)).toFixed(2)),
+        userFoldersCount: userFoldersList.length,
+        userFolders: userFoldersList,
+        userFoldersMap,
+        timestamp: new Date().toISOString(),
       };
+
+      this._cachedTelemetry = telemetry;
+      this._cachedTelemetryTime = now;
+      return telemetry;
     } catch (err) {
+      console.error('[R2 Storage Service] getStorageTelemetry error:', err.message);
+      if (this._cachedTelemetry) return this._cachedTelemetry;
       return {
         success: false,
         bucketName: this.bucketName,
@@ -329,10 +357,66 @@ class R2StorageService {
         totalObjects: 0,
         totalStorageBytes: 0,
         totalStorageGb: 0,
+        totalStorageMb: 0,
         userFoldersCount: 0,
         userFolders: [],
+        userFoldersMap: {},
         error: err.message,
       };
+    }
+  }
+
+  // Deep sync user storage quotas directly from real Cloudflare R2 object hierarchy
+  async syncAllUsersStorageFromR2(authService) {
+    if (!authService) return { success: false, error: 'authService required' };
+    try {
+      const telemetry = await this.getStorageTelemetry(true);
+      if (!telemetry || !telemetry.success) {
+        return { success: false, error: telemetry?.error || 'Failed to fetch R2 telemetry' };
+      }
+
+      const folderUsage = telemetry.userFoldersMap || {};
+      const users = authService.getAllUsersList();
+      let updatedCount = 0;
+
+      for (const u of users) {
+        const email = (u.email || '').trim().toLowerCase();
+        const cleanEmail = this.sanitizeUserFolder(email);
+        const id = (u.id || '').trim();
+        const cleanId = this.sanitizeUserFolder(id);
+
+        let userBytes = 0;
+        const checkedFolders = new Set();
+        const possibleFolders = [email, cleanEmail, id, cleanId];
+
+        for (const f of possibleFolders) {
+          if (f && !checkedFolders.has(f) && folderUsage[f]) {
+            checkedFolders.add(f);
+            userBytes += folderUsage[f].bytes;
+          }
+        }
+
+        if (u.usedSpaceBytes !== userBytes) {
+          u.usedSpaceBytes = userBytes;
+          updatedCount++;
+        }
+      }
+
+      if (updatedCount > 0) {
+        authService.saveUsers();
+      }
+
+      return {
+        success: true,
+        updatedUsersCount: updatedCount,
+        totalUsers: users.length,
+        totalStorageBytes: telemetry.totalStorageBytes,
+        totalStorageGb: telemetry.totalStorageGb,
+        totalObjects: telemetry.totalObjects,
+      };
+    } catch (err) {
+      console.error('[R2 Storage Service] syncAllUsersStorageFromR2 error:', err);
+      return { success: false, error: err.message };
     }
   }
 
@@ -352,3 +436,4 @@ class R2StorageService {
 }
 
 module.exports = new R2StorageService();
+

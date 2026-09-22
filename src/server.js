@@ -45,7 +45,7 @@ app.use('/uploads', express.static(uploadsDir, {
 app.get('/health', (req, res) => {
   res.json({
     status: 'online',
-    service: 'TeraBox Cloud & Cloudflare R2 Engine',
+    service: 'AirBox Cloud & Cloudflare R2 Engine',
     version: '1.0.0',
     storage: 'Cloudflare R2 (1024 GB S3-Compatible)',
     timestamp: new Date().toISOString(),
@@ -58,7 +58,7 @@ app.get('/s/:code', async (req, res) => {
     const share = await shareService.getShare(req.params.code);
     if (!share) {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(404).send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Link Expired - TeraBox</title><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif}body{background:#F8FAFC;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.card{background:#FFF;border-radius:24px;padding:48px 32px;text-align:center;max-width:440px;width:100%;box-shadow:none;border:1px solid #E2E8F0}.icon{width:72px;height:72px;border-radius:20px;background:#FEF2F2;border:1px solid #FECACA;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}h2{font-size:22px;font-weight:800;color:#0F172A;margin-bottom:8px}p{font-size:14px;color:#64748B;line-height:1.6;margin-bottom:24px}a{display:inline-block;background:#0066FF;color:#FFF;padding:14px 32px;border-radius:16px;font-weight:700;font-size:14px;text-decoration:none;}</style></head><body><div class="card"><div class="icon">🔗</div><h2>Share Link Not Found</h2><p>This share link has expired or the server was restarted. Please ask the sender to generate a new share link from their TeraBox app.</p><a href="/">Go to TeraBox Home</a></div></body></html>`);
+      return res.status(404).send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Link Expired - AirBox</title><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif}body{background:#F8FAFC;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.card{background:#FFF;border-radius:24px;padding:48px 32px;text-align:center;max-width:440px;width:100%;box-shadow:none;border:1px solid #E2E8F0}.icon{width:72px;height:72px;border-radius:20px;background:#FEF2F2;border:1px solid #FECACA;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}h2{font-size:22px;font-weight:800;color:#0F172A;margin-bottom:8px}p{font-size:14px;color:#64748B;line-height:1.6;margin-bottom:24px}a{display:inline-block;background:#0066FF;color:#FFF;padding:14px 32px;border-radius:16px;font-weight:700;font-size:14px;text-decoration:none;}</style></head><body><div class="card"><div class="icon">🔗</div><h2>Share Link Not Found</h2><p>This share link has expired or the server was restarted. Please ask the sender to generate a new share link from their AirBox app.</p><a href="/">Go to AirBox Home</a></div></body></html>`);
     }
 
     let refCode = (req.query.ref || share.referralCode || '').toString().trim().toUpperCase();
@@ -123,7 +123,8 @@ app.get('/s/:code', async (req, res) => {
         referralService.pendingAttributions.set(`ip_${rawIp}`, attribution);
       }
 
-      if (refCode && !botCheck.isBot && clickDedup.allowed) {
+      const isWebmasterActive = systemConfigStore.get('webmaster_program_enabled', true);
+      if (refCode && !botCheck.isBot && clickDedup.allowed && isWebmasterActive) {
         // Record verified human preview view
         shareService.recordShareView(share.code);
         // Record click in Referral Service
@@ -152,7 +153,7 @@ app.get('/s/:code', async (req, res) => {
               id: share.code,
               shortCode: share.code,
               originalUrl: share.downloadUrl || share.streamUrl || '',
-              monetizedUrl: share.shareUrl || `https://terabox.mywire.org/s/${share.code}?ref=${refCode}`,
+              monetizedUrl: share.shareUrl || `https://airbox.one/s/${share.code}?ref=${refCode}`,
               fileName: share.fileName || 'Shared Video',
               createdAt: share.createdAt || new Date().toISOString(),
               clicks: 1,
@@ -198,7 +199,7 @@ app.get('/join', (req, res) => {
   const refCode = (req.query.ref || req.query.referralCode || req.query.c || 'TBX_VIP').trim().toUpperCase();
   referralService.recordLinkClick(refCode);
 
-  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client&referrer=ref%3D${encodeURIComponent(refCode)}`;
+  const playStoreUrl = `https://play.google.com/store/apps/details?id=com.airbox.cloud.storage&referrer=ref%3D${encodeURIComponent(refCode)}`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(`<!DOCTYPE html>
@@ -206,7 +207,7 @@ app.get('/join', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Join TeraBox - Claim 1024 GB Free Cloud Storage</title>
+  <title>Join AirBox - Claim 1024 GB Free Cloud Storage</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -395,6 +396,20 @@ if (!fs.existsSync(webDir)) {
   webDir = path.join(__dirname, '../../terabox_client/build/web');
 }
 if (fs.existsSync(webDir)) {
+  // Clean Policy Page Route Aliases
+  app.get(['/privacy', '/privacy-policy'], (req, res) => {
+    res.sendFile(path.join(webDir, 'privacy.html'));
+  });
+  app.get(['/terms', '/terms-of-service'], (req, res) => {
+    res.sendFile(path.join(webDir, 'terms.html'));
+  });
+  app.get(['/clipboard', '/clipboard-policy', '/clipboard-statement'], (req, res) => {
+    res.sendFile(path.join(webDir, 'clipboard.html'));
+  });
+  app.get(['/dmca', '/dmca-notice', '/copyright'], (req, res) => {
+    res.sendFile(path.join(webDir, 'dmca.html'));
+  });
+
   app.use(express.static(webDir));
   // Support SPA routing fallback for index.html
   app.get('*', (req, res, next) => {
@@ -497,7 +512,7 @@ if (process.env.VERCEL !== '1') {
       // Client Push Socket (Mobile / Web App)
       ws.send(JSON.stringify({
         type: 'CONNECTED',
-        service: 'TeraBox Real-Time Push Engine',
+        service: 'AirBox Real-Time Push Engine',
         timestamp: new Date().toISOString(),
       }));
 
@@ -536,16 +551,16 @@ if (process.env.VERCEL !== '1') {
   });
 
   server.listen(env.port, async () => {
-    console.log(`[TeraBox Server] Running on http://localhost:${env.port}`);
-    console.log(`[TeraBox Server] Admin Panel: http://localhost:${env.port}/admin`);
-    console.log(`[TeraBox Server] Storage Engine: Cloudflare R2 (${env.r2.bucketName})`);
+    console.log(`[AirBox Server] Running on http://localhost:${env.port}`);
+    console.log(`[AirBox Server] Admin Panel: http://localhost:${env.port}/admin`);
+    console.log(`[AirBox Server] Storage Engine: Cloudflare R2 (${env.r2.bucketName})`);
 
     // Test R2 connection on startup
     const r2Check = await r2StorageService.testConnection();
     if (r2Check.success) {
-      console.log(`[TeraBox Server] ✅ Cloudflare R2 Connected Successfully!`);
+      console.log(`[AirBox Server] ✅ Cloudflare R2 Connected Successfully!`);
     } else {
-      console.log(`[TeraBox Server] ⚠️ R2 Status: ${r2Check.error || 'Configured with public domain ' + env.r2.publicDomain}`);
+      console.log(`[AirBox Server] ⚠️ R2 Status: ${r2Check.error || 'Configured with public domain ' + env.r2.publicDomain}`);
     }
   });
 

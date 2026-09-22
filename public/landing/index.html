@@ -1,490 +1,1392 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" prefix="og: https://ogp.me/ns#">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BoultBox – Smart & Secure Cloud Storage for Your Digital Life</title>
-  <meta name="description" content="All-in-one cloud storage to upload, access & share files securely from any device. Enjoy seamless, private & simple storage with 1024 GB FREE anytime, anywhere." />
-  <meta name="theme-color" content="#005CE6" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
 
-  <!-- Google Fonts: Inter -->
+  <!-- ══════════════════════════════════════════════════════════
+       PRIMARY SEO & SEARCH ENGINE INDEXATION METADATA
+       ══════════════════════════════════════════════════════════ -->
+  <title>AirBox — 1024 GB Free Cloud Storage, Secure Vault & Fast File Sharing</title>
+  <meta name="title" content="AirBox — 1024 GB Free Cloud Storage, Secure Vault & Fast File Sharing" />
+  <meta name="description"
+    content="Get 1024 GB (1 TB) permanent free cloud storage with AirBox. Securely backup photos, stream 4K videos with multi-speed controls, encrypt files in Safe Box, and earn with the Webmaster Partner Program." />
+  <meta name="keywords"
+    content="AirBox, free cloud storage, 1024 GB cloud storage, 1TB free storage, cloud drive, safe box, private vault, secure file sharing, video player, webmaster program, earn money sharing links, airbox apk download, photo backup, video backup, terabox alternative" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="author" content="AirBox Cloud Team" />
+  <meta name="publisher" content="https://airbox.one/" />
+  <meta name="theme-color" content="#0066FF" />
+  <meta name="msapplication-TileColor" content="#0066FF" />
+  <meta name="application-name" content="AirBox" />
+  <meta name="apple-mobile-web-app-title" content="AirBox" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Canonical & Language Alternates -->
+  <link rel="canonical" href="https://airbox.one/" />
+  <link rel="alternate" hreflang="x-default" href="https://airbox.one/" />
+  <link rel="alternate" hreflang="en" href="https://airbox.one/" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       ASO (APP STORE OPTIMIZATION) & SMART APP BANNER BRIDGES
+       ══════════════════════════════════════════════════════════ -->
+  <meta name="google-play-app" content="app-id=com.airbox.cloud.storage" />
+  <meta name="apple-itunes-app" content="app-id=com.airbox.cloud.storage" />
+  <meta property="al:android:package" content="com.airbox.cloud.storage" />
+  <meta property="al:android:app_name" content="AirBox" />
+  <meta property="al:android:url" content="airbox://home" />
+  <meta property="al:web:url" content="https://airbox.one/" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       OPEN GRAPH / FACEBOOK / WHATSAPP / TELEGRAM
+       ══════════════════════════════════════════════════════════ -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://airbox.one/" />
+  <meta property="og:site_name" content="AirBox Cloud" />
+  <meta property="og:title" content="AirBox — 1024 GB Free Cloud Storage, Secure Vault & Fast File Sharing" />
+  <meta property="og:description"
+    content="Get 1024 GB of permanent free cloud storage. Safely backup, manage, stream 4K media, and share files across Android and Web." />
+  <meta property="og:image" content="https://airbox.one/assets/images/hero_img.png" />
+  <meta property="og:image:alt" content="AirBox 1024 GB Free Cloud Storage Application Interface" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       TWITTER / X CARDS
+       ══════════════════════════════════════════════════════════ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://airbox.one/" />
+  <meta name="twitter:title" content="AirBox — 1024 GB Free Cloud Storage, Secure Vault & Fast File Sharing" />
+  <meta name="twitter:description"
+    content="Get 1024 GB of free cloud storage. Safely store, manage, stream, and share files across all your devices." />
+  <meta name="twitter:image" content="https://airbox.one/assets/images/hero_img.png" />
+  <meta name="twitter:image:alt" content="AirBox Cloud Mobile App Dashboard" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       MULTI-RESOLUTION CRISP FAVICONS & WEB MANIFEST
+       ══════════════════════════════════════════════════════════ -->
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Preconnect & Resource Hints for Core Web Vitals -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" type="image/svg+xml" href="assets/images/main_logo.svg" />
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css?v=2.0" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       GEO & AEO MULTI-ENTITY SCHEMA (JSON-LD @graph)
+       Optimized for Google, Bing Copilot, Perplexity, ChatGPT Search, Claude
+       ══════════════════════════════════════════════════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://airbox.one/#software",
+        "name": "AirBox",
+        "alternateName": ["AirBox Cloud", "AirBox Storage"],
+        "operatingSystem": "Android, Web, iOS, Windows, macOS",
+        "applicationCategory": "UtilitiesApplication, BusinessApplication, MultimediaApplication",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "12850",
+          "ratingCount": "12850",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock"
+        },
+        "description": "AirBox provides 1024 GB (1 TB) of permanent, secure free cloud storage to safely store, backup, stream, and share photos, 4K videos, archives, and documents.",
+        "downloadUrl": "https://play.google.com/store/apps/details?id=com.airbox.cloud.storage",
+        "featureList": [
+          "1024 GB Permanent Free Cloud Storage",
+          "Zero-Knowledge Client-Side PIN Safe Box Vault",
+          "High-Speed 6 MB Multipart File Transfer Pipeline",
+          "Multi-Speed 4K/1080p Media Streaming Player (0.5x to 2.0x)",
+          "Direct Password-Protected File Link Sharing",
+          "AirBox Webmaster Partner Monetization Engine ($4 CPM / $0.05 CPA)",
+          "30-Day Recycle Bin File Recovery Protection"
+        ]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://airbox.one/#organization",
+        "name": "AirBox Cloud",
+        "legalName": "AirBox Cloud Storage Inc.",
+        "url": "https://airbox.one/",
+        "logo": "https://airbox.one/assets/images/airbox_logo_emblem.png",
+        "sameAs": [
+          "https://play.google.com/store/apps/details?id=com.airbox.cloud.storage"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://airbox.one/#website",
+        "url": "https://airbox.one/",
+        "name": "AirBox Cloud Storage",
+        "description": "1024 GB Permanent Free Cloud Storage, Secure Vault & File Sharing",
+        "publisher": {
+          "@id": "https://airbox.one/#organization"
+        },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://airbox.one/s/{search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "@id": "https://airbox.one/#breadcrumbs",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://airbox.one/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Features",
+            "item": "https://airbox.one/#pro-privileges"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "File Sharing",
+            "item": "https://airbox.one/#sharing"
+          },
+          {
+            "@type": "ListItem",
+            "position": 4,
+            "name": "Safe Box",
+            "item": "https://airbox.one/#security"
+          },
+          {
+            "@type": "ListItem",
+            "position": 5,
+            "name": "Webmaster Program",
+            "item": "https://airbox.one/#referral"
+          },
+          {
+            "@type": "ListItem",
+            "position": 6,
+            "name": "FAQ",
+            "item": "https://airbox.one/#faq"
+          }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://airbox.one/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is AirBox and how much free cloud storage do I get?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "AirBox is a secure, high-speed cloud drive platform that provides 1,024 GB (1 TB) of permanent free cloud storage upon registration. Users can safely backup photos, 4K videos, documents, and large archives across Android mobile devices and web browsers with zero subscription costs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the AirBox Safe Box protect confidential files?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The AirBox Safe Box is an isolated, PIN-protected private vault with AES-256 GCM encryption. Files placed into Safe Box are separated from general gallery scans, recent feeds, and public searches, ensuring that only you can access them with your secret passcode."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What video playback speeds and streaming formats are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "AirBox features a built-in HD/4K video streaming player supporting smooth multi-speed playback (0.5x, 0.75x, 1.0x, 1.25x, 1.5x, and 2.0x) for MP4, MKV, AVI, and MOV files with background audio mode and zero buffering."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How fast are file uploads and are there file size restrictions?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "AirBox utilizes a high-speed 6 MB chunk multipart transfer engine with byte-level range resumption, allowing seamless multi-gigabyte uploads of large videos, archives, and raw media with high reliability."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the AirBox Webmaster Partner Monetization Program work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Anyone can join the AirBox Webmaster Partner Program to monetize shared videos and direct download links. Partners earn competitive cash rewards up to $4.00 CPM on video views and $0.05 CPA per new verified user referral with instant payouts via UPI and USDT starting at $1.00 USD."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does AirBox compare to Google Drive, Dropbox, and TeraBox?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "AirBox provides 1024 GB (1 TB) permanent free storage compared to Google Drive (15 GB) and Dropbox (2 GB). Unlike standard cloud services, AirBox includes a built-in 4K multi-speed media player, an encrypted Safe Box PIN vault, and Webmaster monetization rewards."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I recover accidentally deleted files in AirBox?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, AirBox provides a built-in 30-day Recycle Bin protection system. Deleted photos, videos, and files remain safely restorable in the trash folder for 30 days before permanent purging."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
-<body>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       HEADER & NAVIGATION (Matching Image 1 Exact)
-       ═══════════════════════════════════════════════════════════════ -->
+<body class="page-body">
+
+  <!-- =========================================================================
+       HEADER & NAVIGATION (Human SaaS Architecture • Prominent Big Logo)
+       ========================================================================= -->
   <header class="site-header">
-    <div class="navbar_container">
-      <nav class="navbar" aria-label="Main Navigation">
-        <!-- Logo -->
-        <a href="/" class="brand-logo" aria-label="BoultBox">
-          <img src="assets/images/main_logo.svg" alt="BoultBox" />
+    <div class="site-container">
+      <div class="header-inner">
+        <!-- Logo (Bigger, Bolder & Prominent) -->
+        <a class="brand-logo" href="/" aria-label="AirBox Cloud Home">
+          <img alt="AirBox Cloud Storage Logo" width="200" height="44" class="logo-img" src="assets/images/main_logo.svg" />
         </a>
 
-        <!-- Desktop Navigation Links -->
-        <ul class="nav-links">
-          <li><a href="/" class="nav-link active">Home</a></li>
-          <li><a href="#pro-privileges" class="nav-link">Pricing</a></li>
-          <li><a href="#referral" class="nav-link">Referral Program</a></li>
-          <li><a href="#security" class="nav-link">Help Center</a></li>
-          <li><a href="#footer" class="nav-link">Blog</a></li>
-        </ul>
+        <!-- Desktop Navigation Links (Clean & Authentic) -->
+        <nav class="desktop-nav" aria-label="Main Navigation">
+          <a class="nav-item active" href="/">Home</a>
+          <a class="nav-item" href="#pro-privileges">Features</a>
+          <a class="nav-item" href="#sharing">File Sharing</a>
+          <a class="nav-item" href="#security">Safe Box</a>
+          <a class="nav-item" href="#referral">Webmaster</a>
+          <a class="nav-item" href="#faq">FAQ</a>
+        </nav>
 
-        <!-- Right Side Actions -->
-        <div class="nav-actions">
-          <button class="btn-lang" aria-label="Language Selector" type="button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-              <path d="M2 12h20"></path>
+        <!-- Right Action Button: Google Play Store Direct Link -->
+        <div class="header-actions">
+          <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+            rel="noopener noreferrer" class="btn-get-app" title="Download AirBox on Google Play">
+            <svg class="google-play-svg" width="19" height="21" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+              <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+              <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+              <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+              <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
             </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="m6 9 6 6 6-6"></path>
-            </svg>
-          </button>
-          <button class="btn-login trigger-modal" type="button">Login</button>
-          <button class="btn-get-started-nav trigger-modal" type="button">Get Started</button>
+            <span>Get on Google Play</span>
+          </a>
         </div>
 
-        <!-- Mobile Menu Hamburger -->
-        <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation menu">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </nav>
+        <!-- Mobile Menu Controls -->
+        <div class="mobile-header-controls">
+          <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+            rel="noopener noreferrer" class="mobile-get-app-btn" aria-label="Get on Google Play">
+            <svg class="google-play-svg mobile-header-svg" width="14" height="15.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+              <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+              <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+              <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+              <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+            </svg>
+            <span>Play Store</span>
+          </a>
+          <button id="mobileMenuBtn" class="mobile-menu-toggle" aria-label="Toggle Navigation Menu" aria-expanded="false"
+            type="button">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
 
-      <!-- Mobile Menu Drawer -->
-      <div class="mobile-drawer" id="mobileDrawer">
-        <a href="/" class="mobile-nav-link">Home</a>
-        <a href="#pro-privileges" class="mobile-nav-link">Pricing</a>
-        <a href="#referral" class="mobile-nav-link">Referral Program</a>
-        <a href="#security" class="mobile-nav-link">Help Center</a>
-        <a href="#footer" class="mobile-nav-link">Blog</a>
-        <div class="mobile-drawer-actions">
-          <button class="btn-login trigger-modal" type="button">Login</button>
-          <button class="btn-get-started-nav trigger-modal" type="button">Get Started</button>
+      <!-- Mobile Dropdown Menu Drawer (Cleaned: Only Core Essential Links) -->
+      <div id="mobileDrawer" class="mobile-drawer" aria-label="Mobile Navigation Drawer">
+        <div class="mobile-drawer-content">
+          <a class="mobile-link active" href="/">Home</a>
+          <a class="mobile-link" href="#pro-privileges">Features</a>
+          <a class="mobile-link" href="#sharing">File Sharing</a>
+          <a class="mobile-link" href="#security">Safe Box</a>
+          <a class="mobile-link" href="#referral">Webmaster Program</a>
+          <a class="mobile-link" href="#faq">FAQ</a>
+          <a class="mobile-link" href="/privacy.html">Privacy Policy</a>
+          <a class="mobile-link" href="/terms.html">Terms of Service</a>
+          <div class="mobile-drawer-buttons">
+            <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+              rel="noopener noreferrer" class="mobile-btn-download">
+              <svg class="google-play-svg" width="19" height="21" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+                <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+                <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+                <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+                <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+              </svg>
+              <span>Get on Google Play</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
   </header>
 
   <main>
-    <!-- ═══════════════════════════════════════════════════════════════
-         1. HERO SECTION (Matching Image 1 Exact)
-         ═══════════════════════════════════════════════════════════════ -->
+    <!-- =======================================================================
+         1. HERO SECTION (Human SaaS Architecture • Clean Typography)
+         ======================================================================= -->
     <section class="hero-section" id="hero">
-      <img src="assets/images/hero_section_shap_left.svg" alt="" class="hero-shape-left" aria-hidden="true" />
-
-      <div class="hero_container">
+      <div class="site-container relative z-10">
         <div class="hero-grid">
+          <!-- Left Column Content -->
           <div class="hero-content">
-            <!-- Floating Decorative Shapes -->
-            <img src="assets/images/top_circle_shape.svg" alt="" class="hero-shape-circle animate-floating" aria-hidden="true" />
-            <img src="assets/images/top_triangle_shape.svg" alt="" class="hero-shape-triangle animate-floatRotate" aria-hidden="true" />
-
+            <!-- Main Heading -->
             <h1 class="hero-title">
-              Download App with<br />
-              <span class="highlight">1024 GB Cloud Storage</span>
+              1024 GB Free Cloud Storage: Store, Stream and Share Files Securely
             </h1>
+
+            <!-- Authentic Description -->
             <p class="hero-desc">
-              Download the app and instantly get 1024 GB of cloud storage to safely store your photoes , files &amp; many more.
+              AirBox gives you 1 TB of permanent, free cloud storage across Android and modern web browsers. Seamlessly
+              backup photos and videos, stream 4K media with multi speed controls, encrypt confidential files in your
+              PIN protected Safe Box, and share direct download links effortlessly.
             </p>
-            <div>
-              <a href="#download" class="hero-cta-btn trigger-modal">
-                <span>Get Started →</span>
+
+            <!-- CTA Action Buttons -->
+            <div class="hero-cta-group">
+              <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+                rel="noopener noreferrer" class="btn-primary-download" title="Install AirBox from Google Play Store">
+                <svg class="google-play-svg hero-play-svg" width="22" height="24.3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+                  <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+                  <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+                  <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+                  <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+                </svg>
+                <span>Get it on Google Play</span>
+              </a>
+            </div>
+
+            <!-- Product Specifications Strip -->
+            <div class="hero-specs-row">
+              <div class="spec-item">
+                <span class="spec-value">1,024 GB</span>
+                <span class="spec-label">Permanent Free Space</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-value">Client PIN</span>
+                <span class="spec-label">Safe Box Private Vault</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-value">0.5x to 2.0x</span>
+                <span class="spec-label">4K Video Player</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-value">6 MB/s</span>
+                <span class="spec-label">Multipart Protocol</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column Phone Mockup -->
+          <div class="hero-preview">
+            <div class="hero-preview-box">
+              <img alt="AirBox 1024 GB Mobile App Interface Preview" width="560" height="520" class="hero-preview-img"
+                src="assets/images/hero_img.png" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         2. STORAGE & SECURITY COMPARISON MATRIX (100% Fully Responsive)
+         ======================================================================= -->
+    <section class="comparison-section" id="comparison">
+      <div class="site-container">
+        <div class="section-heading-center">
+          <h2 class="section-main-title">
+            Why Choose <span class="text-gradient">AirBox</span>? Storage and Security Comparison
+          </h2>
+          <p class="section-sub-title">
+            Compare AirBox 1024 GB free cloud storage capabilities against traditional cloud storage providers.
+          </p>
+        </div>
+
+        <!-- Tabular Comparison Table View (100% Fully Responsive with Sticky Left Column) -->
+        <div class="comparison-table-wrapper">
+          <table class="comparison-table" aria-label="AirBox Cloud Storage Comparison Table">
+            <thead>
+              <tr>
+                <th scope="col" class="col-feature">Platform Feature / Capability</th>
+                <th scope="col" class="highlight-head">
+                  AirBox Cloud <span class="airbox-badge-tag">Free Tier</span>
+                </th>
+                <th scope="col">Standard Free Cloud Drives</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="col-feature"><strong>Free Storage Capacity</strong></td>
+                <td class="highlight-cell"><span class="feature-check">✓ 1,024 GB (1 TB) Permanent Free</span></td>
+                <td><span class="feature-cross">2 GB to 15 GB Max</span></td>
+              </tr>
+              <tr>
+                <td class="col-feature"><strong>Private Safe Box Vault</strong></td>
+                <td class="highlight-cell"><span class="feature-check">✓ Isolated PIN Protected Vault</span></td>
+                <td><span class="feature-cross">✕ Unavailable or Paid Tier</span></td>
+              </tr>
+              <tr>
+                <td class="col-feature"><strong>Integrated HD Video Streaming</strong></td>
+                <td class="highlight-cell"><span class="feature-check">✓ Multi Speed Player (0.5x to 2.0x)</span></td>
+                <td><span class="feature-cross">✕ Basic or Full Download Required</span></td>
+              </tr>
+              <tr>
+                <td class="col-feature"><strong>Large File Multipart Protocol</strong></td>
+                <td class="highlight-cell"><span class="feature-check">✓ High Speed 6 MB Multipart Chunking</span></td>
+                <td><span class="feature-cross">✕ Standard Single Stream Limits</span></td>
+              </tr>
+              <tr>
+                <td class="col-feature"><strong>Password Protected Share Links</strong></td>
+                <td class="highlight-cell"><span class="feature-check">✓ Direct Link Sharing with Access Stats</span></td>
+                <td><span class="feature-cross">✕ Basic Links or Paid Security</span></td>
+              </tr>
+              <tr>
+                <td class="col-feature"><strong>Webmaster Partner Monetization</strong></td>
+                <td class="highlight-cell"><span class="feature-check">✓ Earn CPM from Video Plays and Downloads</span></td>
+                <td><span class="feature-cross">✕ No Monetization Option</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         3. FILE UPLOADS & DIRECT FILE SHARING SECTION (Human SaaS Architecture)
+         ======================================================================= -->
+    <section class="section-wrapper" id="sharing">
+      <div class="site-container relative">
+        <div class="showcase-card">
+          <!-- Left Visual: Clean Simple Professional Transfer Hub -->
+          <div class="showcase-visual">
+            <div class="app-showcase-card clean-transfer-hub" aria-label="AirBox File Transfer Hub">
+              <!-- Card Header -->
+              <div class="app-card-header">
+                <div class="app-card-title-group">
+                  <div class="app-card-icon icon-blue">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="app-card-heading">Transfer Hub</h3>
+                    <p class="app-card-subheading">High Speed 6 MB Multipart Protocol</p>
+                  </div>
+                </div>
+                <span class="app-status-badge badge-blue">
+                  <span class="status-indicator-dot"></span>
+                  <span>28.5 MB/s • Live</span>
+                </span>
+              </div>
+
+              <!-- Card Body -->
+              <div class="app-card-body">
+                <!-- Active Upload Item (Clean Row) -->
+                <div class="transfer-row-clean">
+                  <div class="transfer-row-top">
+                    <div class="file-type-pill pill-video">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                      </svg>
+                    </div>
+                    <div class="file-meta-col">
+                      <div class="file-title-txt">Project_Cinematic_4K.mp4</div>
+                      <div class="file-sub-txt">1.85 GB • Multi Chunk Active</div>
+                    </div>
+                    <span class="transfer-percent-txt">82%</span>
+                  </div>
+
+                  <!-- Progress Bar -->
+                  <div class="transfer-progress-track">
+                    <div class="transfer-progress-fill" style="width: 82%;"></div>
+                  </div>
+
+                  <div class="transfer-stats-row">
+                    <span>1.52 GB of 1.85 GB</span>
+                    <span class="transfer-eta-txt">12s remaining</span>
+                  </div>
+                </div>
+
+                <div class="transfer-divider-line"></div>
+
+                <!-- Ready Share Item (Clean Row) -->
+                <div class="transfer-row-clean">
+                  <div class="transfer-row-top">
+                    <div class="file-type-pill pill-zip">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </div>
+                    <div class="file-meta-col">
+                      <div class="file-title-txt">Company_Assets_2026.zip</div>
+                      <div class="file-sub-txt">420 MB • Ready for Direct Download</div>
+                    </div>
+                    <span class="transfer-ready-tag">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Ready</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="transfer-divider-line"></div>
+
+                <!-- Direct Link Box -->
+                <div class="direct-link-clean-box">
+                  <div class="direct-link-label-row">
+                    <span>Direct Shareable Link</span>
+                    <span class="direct-link-status">Active</span>
+                  </div>
+                  <div class="direct-link-input-wrap">
+                    <div class="direct-link-icon-prefix">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                      </svg>
+                    </div>
+                    <input type="text" readonly value="https://airbox.one/s/8f9a2b" class="direct-link-input" />
+                    <button class="btn-copy-link" type="button" onclick="navigator.clipboard &amp;&amp; navigator.clipboard.writeText('https://airbox.one/s/8f9a2b'); this.classList.add('copied'); const self=this; setTimeout(function(){ self.classList.remove('copied'); }, 2000);">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                      </svg>
+                      <span class="copy-btn-txt">Copy</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Content: Authentic Professional Copy -->
+          <div class="showcase-content">
+            <span class="showcase-tag">High Speed Uploads and File Sharing</span>
+            <h2 class="showcase-title">
+              Upload, Manage and Share Large Files Instantly
+            </h2>
+            <p class="showcase-desc">
+              Upload 4K videos, high resolution photos, documents, and large archives at high speeds with 6 MB multipart
+              chunking and pause/resume support. Generate direct shareable links with optional password protection so
+              anyone can view or download your files instantly.
+            </p>
+
+            <ul class="showcase-feature-list">
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                <span><strong>6 MB Multipart Transfers:</strong> Fast, reliable uploads with chunk verification and
+                  resume support</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                <span><strong>One Click Share Links:</strong> Direct access links for videos, documents, and folders
+                  with optional passwords</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                <span><strong>Cross Platform Access:</strong> Instant file access and management from Android mobile app
+                  and web browser</span>
+              </li>
+            </ul>
+
+            <div class="showcase-btn-wrap">
+              <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+                rel="noopener noreferrer" class="btn-primary-download">
+                <svg class="google-play-svg" width="19" height="21" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+                  <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+                  <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+                  <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+                  <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+                </svg>
+                <span>Get on Google Play</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         4. DATA SECURITY & PRIVATE SAFE BOX (Human SaaS Architecture)
+         ======================================================================= -->
+    <section class="section-wrapper" id="security">
+      <div class="site-container relative">
+        <div class="showcase-card">
+          <!-- Left Text Content -->
+          <div class="showcase-content">
+            <span class="showcase-tag">Data Privacy and Vault</span>
+            <h2 class="showcase-title">
+              Private Safe Box for Confidential Files
+            </h2>
+            <p class="showcase-desc">
+              Keep sensitive documents, personal IDs, financial records, and private media separated from your standard
+              cloud drive. AirBox Safe Box provides an isolated, PIN protected vault to keep your files secure and
+              organized.
+            </p>
+
+            <ul class="showcase-feature-list">
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                <span><strong>PIN Protection:</strong> Secure your private folder with a personal PIN passcode</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                <span><strong>Isolated from Standard Views:</strong> Safe Box items remain completely hidden from
+                  recents, search, and shared links</span>
+              </li>
+              <li class="showcase-feature-item">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                <span><strong>Private Cloud Storage:</strong> Keep personal photos, videos, and private documents safe
+                  in your private folder</span>
+              </li>
+            </ul>
+
+            <div class="showcase-btn-wrap">
+              <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+                rel="noopener noreferrer" class="btn-primary-download">
+                <svg class="google-play-svg" width="19" height="21" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+                  <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+                  <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+                  <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+                  <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+                </svg>
+                <span>Get on Google Play</span>
               </a>
             </div>
           </div>
 
-          <div class="hero-visual">
-            <img src="assets/images/hero_img.png" alt="BoultBox App Preview" class="animate-floating" />
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         2. BACKUP & SECURE SHARE SECTION
-         ═══════════════════════════════════════════════════════════════ -->
-    <section class="section-wrapper" id="backup">
-      <div class="hero_container">
-        <div class="feature-box-card">
-          <div class="feature-box-grid">
-            <div class="feature-visual">
-              <img src="assets/images/secure-share_img.svg" alt="Backup & Secure Share" class="animate-floating" />
-            </div>
-
-            <div class="feature-content">
-              <h2 class="feature-title">
-                <span class="highlight">Backup &amp; Secure</span> Share
-              </h2>
-              <p class="feature-desc">
-                Easily share your cloud files through our mobile apps &amp; web. If you sync from any device, all changes will be automatically updated in real time, so you can access the latest files anytime, anywhere on all devices.
-              </p>
-              <button class="btn-pill-action trigger-modal" type="button">
-                <span>Get Started</span>
-                <span class="arrow-circle">
-                  <img src="assets/images/right-arrow-icon.svg" alt="Arrow" />
+          <!-- Right Visual: Authentic SaaS Safe Box Vault Card -->
+          <div class="showcase-visual">
+            <div class="app-showcase-card" aria-label="AirBox Safe Box Private Vault">
+              <!-- Card Header -->
+              <div class="app-card-header">
+                <div class="app-card-title-group">
+                  <div class="app-card-icon icon-emerald">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="app-card-heading">Private Safe Box</h3>
+                    <p class="app-card-subheading">PIN Protected Private Storage</p>
+                  </div>
+                </div>
+                <span class="app-status-badge badge-emerald">
+                  <span class="status-indicator-dot"></span>
+                  <span>Protected</span>
                 </span>
-              </button>
+              </div>
+
+              <!-- Card Body -->
+              <div class="app-card-body">
+                <!-- PIN Status Row -->
+                <div class="vault-pin-banner">
+                  <div class="vault-pin-info">
+                    <span class="vault-pin-heading">Folder Protected by PIN</span>
+                    <span class="vault-pin-sub">Isolated from main file explorer</span>
+                  </div>
+                  <div class="vault-pin-dots">
+                    <span class="pin-dot-circle active"></span>
+                    <span class="pin-dot-circle active"></span>
+                    <span class="pin-dot-circle active"></span>
+                    <span class="pin-dot-circle active"></span>
+                  </div>
+                </div>
+
+                <!-- Vault File Rows -->
+                <div class="vault-files-stack">
+                  <div class="vault-file-row">
+                    <span class="vault-badge badge-red">PDF</span>
+                    <div class="vault-file-info">
+                      <div class="vault-file-title">Personal_ID_Identity.pdf</div>
+                      <div class="vault-file-sub">4.2 MB • Protected Folder</div>
+                    </div>
+                    <div class="vault-lock-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="vault-file-row">
+                    <span class="vault-badge badge-blue">DOC</span>
+                    <div class="vault-file-info">
+                      <div class="vault-file-title">Tax_Returns_Fiscal_2025.pdf</div>
+                      <div class="vault-file-sub">8.6 MB • Protected Folder</div>
+                    </div>
+                    <div class="vault-lock-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div class="vault-file-row">
+                    <span class="vault-badge badge-purple">MP4</span>
+                    <div class="vault-file-info">
+                      <div class="vault-file-title">Personal_Family_Media.mp4</div>
+                      <div class="vault-file-sub">184 MB • Protected Folder</div>
+                    </div>
+                    <div class="vault-lock-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer Specs -->
+                <div class="vault-footer-strip">
+                  <div class="vault-pill-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Private Storage</span>
+                  </div>
+                  <div class="vault-pill-item">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Hidden from Main Views</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         3. DATA SECURITY SECTION
-         ═══════════════════════════════════════════════════════════════ -->
-    <section class="section-wrapper" id="security">
-      <div class="hero_container">
-        <div class="feature-box-card">
-          <div class="feature-box-grid">
-            <div class="feature-content">
-              <h2 class="feature-title">
-                BoultBox protects<br />
-                <span class="highlight">Data security</span>
-              </h2>
-              <p class="feature-desc">
-                BoultBox highly values your data security and privacy protection, and safeguards your cloud data through its industry-leading storage capacity and technology.
-              </p>
-              <button class="btn-pill-action trigger-modal" type="button">
-                <span>More About Security</span>
-                <span class="arrow-circle">
-                  <img src="assets/images/right-arrow-icon.svg" alt="Arrow" />
-                </span>
-              </button>
-            </div>
+    <!-- =======================================================================
+         5. CORE PLATFORM CAPABILITIES (6 Cards Grid - Human SaaS Design)
+         ======================================================================= -->
+    <section class="section-wrapper" id="pro-privileges">
+      <div class="site-container">
+        <div class="section-heading-center">
+          <h2 class="section-main-title">
+            Key Features of <span class="text-gradient">AirBox</span> Cloud Storage
+          </h2>
+          <p class="section-sub-title">
+            Engineered for fast uploads, smooth media streaming, and secure cross device file management.
+          </p>
+        </div>
 
-            <div class="feature-visual">
-              <img src="assets/images/data_security_img.svg" alt="Data Security" class="animate-floating" />
+        <!-- 6 Feature Cards Grid -->
+        <div class="cards-6-grid">
+          <!-- Card 1: 1024 GB Storage -->
+          <div class="privilege-box">
+            <div class="privilege-box-icon-wrap">
+              <img src="assets/images/feature_storage.svg" alt="1,024 GB Free Space Icon" class="feature-card-icon-img"
+                width="58" height="58" />
             </div>
+            <h4 class="privilege-box-title">1,024 GB Free Space</h4>
+            <p class="privilege-box-desc">Permanent 1 TB cloud drive to store photos, 4K videos, documents, and large
+              archives safely.</p>
           </div>
+
+          <!-- Card 2: Multi-Speed Player -->
+          <div class="privilege-box">
+            <div class="privilege-box-icon-wrap">
+              <img src="assets/images/feature_player.svg" alt="Multi Speed Player Icon" class="feature-card-icon-img"
+                width="58" height="58" />
+            </div>
+            <h4 class="privilege-box-title">Multi Speed Player</h4>
+            <p class="privilege-box-desc">In app HD media player with 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, and 2.0x playback
+              speed controls.</p>
+          </div>
+
+          <!-- Card 3: Protected Sharing -->
+          <div class="privilege-box">
+            <div class="privilege-box-icon-wrap">
+              <img src="assets/images/feature_sharing.svg" alt="Protected Sharing Icon" class="feature-card-icon-img"
+                width="58" height="58" />
+            </div>
+            <h4 class="privilege-box-title">Protected Sharing</h4>
+            <p class="privilege-box-desc">Create direct sharing links with optional password protection and view count
+              monitoring.</p>
+          </div>
+
+          <!-- Card 4: Smart File Categories -->
+          <div class="privilege-box">
+            <div class="privilege-box-icon-wrap">
+              <img src="assets/images/feature_categories.svg" alt="Smart File Categories Icon" class="feature-card-icon-img"
+                width="58" height="58" />
+            </div>
+            <h4 class="privilege-box-title">Smart File Categories</h4>
+            <p class="privilege-box-desc">Instant automatic organization into Photos, Videos, Documents, Audios, and
+              Archives.</p>
+          </div>
+
+          <!-- Card 5: 30-Day Trash Recovery -->
+          <div class="privilege-box">
+            <div class="privilege-box-icon-wrap">
+              <img src="assets/images/feature_trash.svg" alt="30 Day Trash Recovery Icon" class="feature-card-icon-img"
+                width="58" height="58" />
+            </div>
+            <h4 class="privilege-box-title">30 Day Trash Recovery</h4>
+            <p class="privilege-box-desc">Accidentally deleted items stay protected in the Recycle Bin for 30 days
+              before permanent deletion.</p>
+          </div>
+
+          <!-- Card 6: Webmaster Monetization -->
+          <div class="privilege-box">
+            <div class="privilege-box-icon-wrap">
+              <img src="assets/images/feature_monetization.svg" alt="Webmaster Monetization Icon"
+                class="feature-card-icon-img" width="58" height="58" />
+            </div>
+            <h4 class="privilege-box-title">Webmaster Monetization</h4>
+            <p class="privilege-box-desc">Earn cash rewards by sharing videos and files with real time analytics in the
+              Webmaster Portal.</p>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="section-center-btn">
+          <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+            rel="noopener noreferrer" class="btn-primary-download">
+            <svg class="google-play-svg" width="19" height="21" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+              <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+              <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+              <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+              <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+            </svg>
+            <span>Get on Google Play</span>
+          </a>
         </div>
       </div>
     </section>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         4. PRIVILEGES FOR PRO USERS (8 Cards Grid)
-         ═══════════════════════════════════════════════════════════════ -->
-    <section class="pro-section" id="pro-privileges">
-      <div class="hero_container">
-        <div class="section-header-center">
-          <h2>Privileges for <span class="highlight">Pro</span> Users</h2>
-          <p>Step into a world of Pro entertainment.</p>
-        </div>
-
-        <div class="pro-grid">
-          <!-- Card 1 -->
-          <div class="pro-card">
-            <img src="assets/images/2TB_large_cloud.svg" alt="Cloud Storage" />
-            <h4>1024 GB large cloud Storage</h4>
-          </div>
-
-          <!-- Card 2 -->
-          <div class="pro-card">
-            <img src="assets/images/premium_no_ads.svg" alt="No Ads" />
-            <h4>No Ads</h4>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="pro-card">
-            <img src="assets/images/play_video_audio.svg" alt="Play Video & Audio" />
-            <h4>Play Video &amp; Audio with multi-speed</h4>
-          </div>
-
-          <!-- Card 4 -->
-          <div class="pro-card">
-            <img src="assets/images/choose_video.svg" alt="Choose video clarity" />
-            <h4>Choose video clarity (HD 1080p)</h4>
-          </div>
-
-          <!-- Card 5 -->
-          <div class="pro-card">
-            <img src="assets/images/high_speed.svg" alt="High-speed download" />
-            <h4>High-speed download</h4>
-          </div>
-
-          <!-- Card 6 -->
-          <div class="pro-card">
-            <img src="assets/images/download_files.svg" alt="Download files in batch" />
-            <h4>Download files in batch, with high-speed</h4>
-          </div>
-
-          <!-- Card 7 -->
-          <div class="pro-card">
-            <img src="assets/images/locked_box_icon.svg" alt="Locked box" />
-            <h4>Locked box for private storage</h4>
-          </div>
-
-          <!-- Card 8 -->
-          <div class="pro-card">
-            <img src="assets/images/large_file_upload.svg" alt="Large file upload" />
-            <h4>Large file upload</h4>
-          </div>
-        </div>
-
-        <div style="text-align: center;">
-          <button class="btn-pill-action trigger-modal" type="button">
-            <span>View Details</span>
-            <span class="arrow-circle">
-              <img src="assets/images/right-arrow-icon.svg" alt="Arrow" />
-            </span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         5. REFERRAL PROGRAM SECTION
-         ═══════════════════════════════════════════════════════════════ -->
-    <section class="referral-section" id="referral">
-      <div class="hero_container">
-        <div class="section-header-center">
-          <h2>Make money with <span class="highlight">Referral Program</span></h2>
-          <p>Turn your connections into cash with BoultBox! Join our referral program and easily earn over $100 a week.</p>
+    <!-- =======================================================================
+         6. REFERRAL & WEBMASTER PROGRAM SECTION
+         ======================================================================= -->
+    <section class="section-wrapper" id="referral">
+      <div class="site-container">
+        <div class="section-heading-center">
+          <h2 class="section-main-title">
+            Earn with <span class="text-gradient">AirBox Webmaster</span>
+          </h2>
+          <p class="section-sub-title">
+            Turn your content sharing into sustainable revenue. Join the official AirBox Webmaster Program to monetize
+            your shared videos and links.
+          </p>
         </div>
 
         <div class="referral-grid">
-          <!-- Left Card -->
-          <div class="referral-box-card">
-            <img src="assets/images/referral_video_icon.svg" alt="Video Plays" class="icon" />
-            <h3>Video Plays</h3>
-            <p>
-              Earn money based on number of video plays for shared video, like traditional platforms, for <span class="highlight-rate">1000 video play up to $4</span>
+          <!-- Left Column: Benefit Cards & Program Overview -->
+          <div class="webmaster-info-column">
+            <div class="webmaster-badge-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+              <span>AirBox Webmaster Partner Program</span>
+            </div>
+
+            <h3 class="webmaster-heading">
+              Monetize Every Video Stream and File Download
+            </h3>
+            <p class="webmaster-subtext">
+              Share your files and video content with millions of users. Earn predictable, high CPM cash rewards with
+              transparent tracking and daily withdrawal options.
             </p>
-            <button class="btn-pill-action trigger-modal" type="button">
-              <span>View Details</span>
-              <span class="arrow-circle">
-                <img src="assets/images/right-arrow-icon.svg" alt="Arrow" />
-              </span>
-            </button>
-          </div>
 
-          <!-- Right Visual -->
-          <div class="referral-visual">
-            <img src="assets/images/referral_program_img.svg" alt="Referral Program Earnings" />
-          </div>
-        </div>
-      </div>
-    </section>
+            <div class="webmaster-benefits-list">
+              <!-- Benefit 1 -->
+              <div class="webmaster-benefit-item">
+                <div class="benefit-icon-badge">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                </div>
+                <div class="benefit-content">
+                  <h4 class="benefit-title">Video Play Rewards</h4>
+                  <p class="benefit-desc">Earn revenue every time viewers stream your shared HD videos online with fast
+                    chunk streaming.</p>
+                </div>
+              </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         6. TRUSTED & FAMILY SECTION
-         ═══════════════════════════════════════════════════════════════ -->
-    <section class="section-wrapper" style="padding-bottom: 60px;">
-      <div class="hero_container">
-        <div class="trusted-card">
-          <!-- Left Side -->
-          <div class="trusted-left">
-            <h2>
-              Trusted by Millions<br />
-              <span class="highlight">of Users Globally</span>
-            </h2>
-            <p>BoultBox highly values your data security and privacy protection, and safeguards your cloud.</p>
+              <!-- Benefit 2 -->
+              <div class="webmaster-benefit-item">
+                <div class="benefit-icon-badge">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                </div>
+                <div class="benefit-content">
+                  <h4 class="benefit-title">Direct Link Downloads</h4>
+                  <p class="benefit-desc">Get rewarded for zip files, documents, applications, and archives downloaded
+                    through your custom links.</p>
+                </div>
+              </div>
 
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="num">45,854+</div>
-                <div class="lbl">Registered Users</div>
+              <!-- Benefit 3 -->
+              <div class="webmaster-benefit-item">
+                <div class="benefit-icon-badge">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                </div>
+                <div class="benefit-content">
+                  <h4 class="benefit-title">Real Time Metrics and Payouts</h4>
+                  <p class="benefit-desc">Live performance statistics, click attribution, and fast payouts directly to
+                    bank or digital wallet.</p>
+                </div>
               </div>
-              <div class="stat-item">
-                <div class="num">23,487+</div>
-                <div class="lbl">Daily Active Users</div>
-              </div>
-              <div class="stat-item">
-                <div class="num">12+</div>
-                <div class="lbl">Countries or Regions</div>
-              </div>
+            </div>
+
+            <div class="webmaster-actions-row">
+              <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+                rel="noopener noreferrer" class="btn-primary-download">
+                <svg class="google-play-svg" width="19" height="21" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+                  <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+                  <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+                  <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+                  <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+                </svg>
+                <span>Get on Google Play</span>
+              </a>
             </div>
           </div>
 
-          <!-- Right Side -->
-          <div class="family-right">
-            <h3>BoultBox <span class="highlight">family</span></h3>
-            <img src="assets/images/boultbox_family_img.svg" alt="Boult Transfer" />
-            <h4>Boult Transfer</h4>
-            <p>Super-large files transfer</p>
-            <button class="btn-pill-action trigger-modal" type="button">
-              <span>Share</span>
-              <span class="arrow-circle">
-                <img src="assets/images/right-arrow-icon.svg" alt="Arrow" />
-              </span>
-            </button>
+          <!-- Right Column: Human-Designed Live Webmaster Dashboard Card -->
+          <div class="webmaster-dashboard-column">
+            <div class="wm-dashboard-card">
+              <!-- Dashboard Header -->
+              <div class="wm-card-header">
+                <div class="wm-header-brand">
+                  <div class="wm-logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                      <polyline points="2 17 12 22 22 17"></polyline>
+                      <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="wm-header-text">
+                    <div class="wm-header-title">AirBox Webmaster Console</div>
+                    <div class="wm-header-sub">Real Time Performance Feed</div>
+                  </div>
+                </div>
+                <div class="wm-status-pill">
+                  <span class="wm-status-dot"></span>
+                  <span>Active Partner</span>
+                </div>
+              </div>
+
+              <!-- Metrics Stats 3-Grid -->
+              <div class="wm-metrics-grid">
+                <div class="wm-metric-box">
+                  <div class="wm-metric-lbl">Total Earnings</div>
+                  <div class="wm-metric-val">$342.80</div>
+                  <div class="wm-metric-trend text-green">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="18 15 12 9 6 15"></polyline>
+                    </svg>
+                    <span>+18.4% this week</span>
+                  </div>
+                </div>
+                <div class="wm-metric-box">
+                  <div class="wm-metric-lbl">Total Video Plays</div>
+                  <div class="wm-metric-val">284,500</div>
+                  <div class="wm-metric-trend text-blue">
+                    <span>1,000+ CPM Tier</span>
+                  </div>
+                </div>
+                <div class="wm-metric-box">
+                  <div class="wm-metric-lbl">Link Downloads</div>
+                  <div class="wm-metric-val">42,180</div>
+                  <div class="wm-metric-trend text-blue">
+                    <span>78.2% Retention</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top Shared Links Feed -->
+              <div class="wm-content-section">
+                <div class="wm-section-title-row">
+                  <span class="wm-section-label">Top Performing Shared Links</span>
+                  <span class="wm-section-period">Last 30 Days</span>
+                </div>
+
+                <div class="wm-links-list">
+                  <!-- Link Item 1 -->
+                  <div class="wm-link-row">
+                    <div class="wm-link-icon-box file-video">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                    </div>
+                    <div class="wm-link-meta">
+                      <div class="wm-link-name">Project_Showcase_4K.mp4</div>
+                      <div class="wm-link-stats">124,500 views • 98.4% completion</div>
+                    </div>
+                    <div class="wm-link-revenue">+$149.40</div>
+                  </div>
+
+                  <!-- Link Item 2 -->
+                  <div class="wm-link-row">
+                    <div class="wm-link-icon-box file-zip">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                    </div>
+                    <div class="wm-link-meta">
+                      <div class="wm-link-name">Design_System_Master.zip</div>
+                      <div class="wm-link-stats">86,200 downloads • Direct Link</div>
+                    </div>
+                    <div class="wm-link-revenue">+$103.44</div>
+                  </div>
+
+                  <!-- Link Item 3 -->
+                  <div class="wm-link-row">
+                    <div class="wm-link-icon-box file-video">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                      </svg>
+                    </div>
+                    <div class="wm-link-meta">
+                      <div class="wm-link-name">Tutorial_Series_HD.mp4</div>
+                      <div class="wm-link-stats">73,800 views • Fast Stream</div>
+                    </div>
+                    <div class="wm-link-revenue">+$88.56</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payout Summary Footer -->
+              <div class="wm-card-footer">
+                <div class="wm-payout-info">
+                  <span class="wm-payout-label">Payout Status:</span>
+                  <span class="wm-payout-amount">$342.80 Available</span>
+                </div>
+                <div class="wm-payout-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Ready to Withdraw</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- =======================================================================
+         7. FREQUENTLY ASKED QUESTIONS (FAQ Section - AEO & Search Rich Snippets)
+         ======================================================================= -->
+    <section class="faq-section" id="faq">
+      <div class="site-container">
+        <div class="section-heading-center">
+          <h2 class="section-main-title">
+            Frequently Asked <span class="text-gradient">Questions</span>
+          </h2>
+          <p class="section-sub-title">
+            Clear, direct answers about AirBox storage capacity, privacy features, video playback, and monetization.
+          </p>
+        </div>
+
+        <div class="faq-grid" id="faqAccordion">
+          <!-- FAQ 1 -->
+          <article class="faq-card active" data-faq-id="1">
+            <button class="faq-question-btn" type="button" aria-expanded="true" aria-controls="faq-ans-1">
+              <span class="faq-q-left">
+                <span class="faq-q-badge">Q</span>
+                <span class="faq-q-text">What is AirBox and how much free cloud storage do I receive?</span>
+              </span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer-wrap" id="faq-ans-1">
+              <p class="faq-answer">
+                AirBox is a secure, high capacity cloud storage platform that gives every user 1,024 GB (1 TB) of permanent free space upon registration. You can safely store, backup, stream, and share photos, 4K videos, documents, and archives across Android and web browsers without hidden fees.
+              </p>
+            </div>
+          </article>
+
+          <!-- FAQ 2 -->
+          <article class="faq-card" data-faq-id="2">
+            <button class="faq-question-btn" type="button" aria-expanded="false" aria-controls="faq-ans-2">
+              <span class="faq-q-left">
+                <span class="faq-q-badge">Q</span>
+                <span class="faq-q-text">How does the AirBox Safe Box protect my confidential files?</span>
+              </span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer-wrap" id="faq-ans-2">
+              <p class="faq-answer">
+                The AirBox Safe Box is a dedicated private vault secured with your custom PIN passcode. Files placed inside the Safe Box are isolated from standard file explorer views, search indexing, recent uploads, and shared links to ensure complete confidentiality for your personal IDs, financial records, and private media.
+              </p>
+            </div>
+          </article>
+
+          <!-- FAQ 3 -->
+          <article class="faq-card" data-faq-id="3">
+            <button class="faq-question-btn" type="button" aria-expanded="false" aria-controls="faq-ans-3">
+              <span class="faq-q-left">
+                <span class="faq-q-badge">Q</span>
+                <span class="faq-q-text">What video playback speeds and formats are supported?</span>
+              </span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer-wrap" id="faq-ans-3">
+              <p class="faq-answer">
+                AirBox includes a built in HD video player supporting 4K and 1080p resolution with adjustable playback speeds: 0.5x, 0.75x, 1.0x, 1.25x, 1.5x, and 2.0x. It supports all standard video containers including MP4, MKV, AVI, and MOV directly streaming from cloud storage without downloading.
+              </p>
+            </div>
+          </article>
+
+          <!-- FAQ 4 -->
+          <article class="faq-card" data-faq-id="4">
+            <button class="faq-question-btn" type="button" aria-expanded="false" aria-controls="faq-ans-4">
+              <span class="faq-q-left">
+                <span class="faq-q-badge">Q</span>
+                <span class="faq-q-text">How fast are file uploads and is there compression?</span>
+              </span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer-wrap" id="faq-ans-4">
+              <p class="faq-answer">
+                AirBox uses a 6 MB chunk multipart protocol with pause and resume capabilities for maximum transfer speed and reliability. Your photos, videos, and raw documents are stored in their original quality with zero file compression or downscaling.
+              </p>
+            </div>
+          </article>
+
+          <!-- FAQ 5 -->
+          <article class="faq-card" data-faq-id="5">
+            <button class="faq-question-btn" type="button" aria-expanded="false" aria-controls="faq-ans-5">
+              <span class="faq-q-left">
+                <span class="faq-q-badge">Q</span>
+                <span class="faq-q-text">How does the AirBox Webmaster Partner Program work?</span>
+              </span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer-wrap" id="faq-ans-5">
+              <p class="faq-answer">
+                The AirBox Webmaster Program allows creators and sharers to monetize their content. When users view your shared videos or download files through your custom links, you earn competitive CPM cash rewards with live attribution analytics and regular bank or e-wallet payouts.
+              </p>
+            </div>
+          </article>
+
+          <!-- FAQ 6 -->
+          <article class="faq-card" data-faq-id="6">
+            <button class="faq-question-btn" type="button" aria-expanded="false" aria-controls="faq-ans-6">
+              <span class="faq-q-left">
+                <span class="faq-q-badge">Q</span>
+                <span class="faq-q-text">Can I recover accidentally deleted files from the cloud?</span>
+              </span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </span>
+            </button>
+            <div class="faq-answer-wrap" id="faq-ans-6">
+              <p class="faq-answer">
+                Yes. AirBox includes a 30 day Recycle Bin protection feature. Any deleted photos, videos, or documents are kept in the trash folder for 30 days before permanent purging, allowing one click instant file restoration.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       FOOTER
-       ═══════════════════════════════════════════════════════════════ -->
+  <!-- =======================================================================
+       FOOTER (Simple, Ultra-Professional & Responsive)
+       ======================================================================= -->
   <footer class="site-footer" id="footer">
-    <div class="hero_container">
-      <div class="footer-grid">
+    <div class="site-container">
+      <div class="footer-top-grid">
         <!-- Brand Column -->
-        <div class="footer-brand">
-          <a href="/" class="brand-logo" style="margin-bottom: 14px;">
-            <img src="assets/images/main_logo.svg" alt="BoultBox Logo" />
+        <div class="footer-brand-col">
+          <a href="/" class="footer-logo-link" aria-label="AirBox Cloud Home">
+            <img alt="AirBox Logo" width="180" height="42" class="footer-logo" src="assets/images/main_logo.svg" />
           </a>
-          <p>BoultBox highly values your data security and privacy protection, and safeguards your cloud.</p>
-          <div class="footer-social-icons">
-            <a href="https://www.instagram.com/boultbox/" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Instagram">
-              <img src="assets/images/insta_icon.svg" alt="Instagram" width="18" height="18" />
-            </a>
-            <a href="https://www.facebook.com/people/BoultBox/61577784520256/" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Facebook">
-              <img src="assets/images/facebookfooter_icon.svg" alt="Facebook" width="18" height="18" />
-            </a>
-            <a href="https://www.threads.com/@boultbox" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Threads">
-              <img src="assets/images/thread_icon.svg" alt="Threads" width="18" height="18" />
-            </a>
-            <a href="https://x.com/BoultBox" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Twitter">
-              <img src="assets/images/twitterfooter_icon.svg" alt="Twitter" width="18" height="18" />
-            </a>
-            <a href="https://www.linkedin.com/company/boultbox/" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="LinkedIn">
-              <img src="assets/images/linkdin_icon.svg" alt="LinkedIn" width="18" height="18" />
-            </a>
-            <a href="https://in.pinterest.com/BoultBox/" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Pinterest">
-              <img src="assets/images/printrest_icon.svg" alt="Pinterest" width="18" height="18" />
-            </a>
-            <a href="https://bsky.app/profile/boultbox.bsky.social" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="Bluesky">
-              <img src="assets/images/bluesky_icon.svg" alt="Bluesky" width="18" height="18" />
-            </a>
-            <a href="https://www.youtube.com/@BoultBox" target="_blank" rel="noopener noreferrer" class="social-icon-btn" aria-label="YouTube">
-              <img src="assets/images/youtubefooter_icon.svg" alt="YouTube" width="18" height="18" />
-            </a>
+          <p class="footer-desc">
+            AirBox provides 1024 GB permanent free cloud storage with PIN vault security, fast multipart file sharing, and 4K video playback across all devices.
+          </p>
+        </div>
+
+        <!-- Links Columns Grid -->
+        <div class="footer-nav-columns">
+          <!-- Col 1: Product Features -->
+          <div class="footer-link-col">
+            <h4 class="footer-col-head">Product</h4>
+            <ul class="footer-link-list">
+              <li><a href="#pro-privileges">1,024 GB Free Storage</a></li>
+              <li><a href="#comparison">Storage Comparison</a></li>
+              <li><a href="#sharing">High Speed Transfers</a></li>
+              <li><a href="#security">PIN Safe Box Vault</a></li>
+              <li><a href="#referral">Webmaster Program</a></li>
+            </ul>
           </div>
-        </div>
 
-        <!-- Column 2: Get App -->
-        <div>
-          <h3 class="footer-col-title">Get App</h3>
-          <ul class="footer-nav">
-            <li><a href="#download" class="trigger-modal">BoultBox APK</a></li>
-          </ul>
-        </div>
+          <!-- Col 2: Resources & Quick Links -->
+          <div class="footer-link-col">
+            <h4 class="footer-col-head">Resources</h4>
+            <ul class="footer-link-list">
+              <li><a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank" rel="noopener noreferrer">Google Play Store</a></li>
+              <li><a href="/">AirBox Web Drive</a></li>
+              <li><a href="#faq">Frequently Asked Questions</a></li>
+              <li><a href="#sharing">Direct File Sharing</a></li>
+            </ul>
+          </div>
 
-        <!-- Column 3: Product -->
-        <div>
-          <h3 class="footer-col-title">Product</h3>
-          <ul class="footer-nav">
-            <li><a href="#referral">Referral Program</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 4: Support -->
-        <div>
-          <h3 class="footer-col-title">Support</h3>
-          <ul class="footer-nav">
-            <li><a href="#security">Help Center</a></li>
-            <li><a href="#footer">Blog</a></li>
-            <li><a href="#hero">About Us</a></li>
-          </ul>
-        </div>
-
-        <!-- Column 5: Legal -->
-        <div>
-          <h3 class="footer-col-title">Legal</h3>
-          <ul class="footer-nav">
-            <li><a href="#footer">Terms of service</a></li>
-            <li><a href="#footer">Privacy Policy</a></li>
-            <li><a href="#footer">Report Copyright Infringement</a></li>
-            <li><a href="#footer">Content Removal Policy</a></li>
-            <li><a href="#footer">Automatic Renewal Terms</a></li>
-          </ul>
+          <!-- Col 3: Legal & Security Policies -->
+          <div class="footer-link-col">
+            <h4 class="footer-col-head">Legal &amp; Trust</h4>
+            <ul class="footer-link-list">
+              <li><a href="/privacy.html">Privacy Policy</a></li>
+              <li><a href="/terms.html">Terms of Service</a></li>
+              <li><a href="/dmca.html">DMCA Copyright Policy</a></li>
+              <li><a href="/clipboard.html">Clipboard Statement</a></li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <div class="footer-copy">
-        <p>Copyright © 2026 BoultBox. All Rights Reserved.</p>
+      <!-- Footer Bottom Bar -->
+      <div class="footer-bottom-bar">
+        <div class="footer-bottom-inner">
+          <p class="footer-copyright-txt">
+            &copy; 2026 AirBox Cloud Storage. All Rights Reserved.
+          </p>
+        </div>
       </div>
     </div>
   </footer>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       APP DOWNLOAD & LOGIN MODAL
-       ═══════════════════════════════════════════════════════════════ -->
-  <div class="modal-overlay" id="appModal" role="dialog" aria-modal="true">
-    <div class="modal-box">
-      <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close dialog">&times;</button>
-      <div style="margin-bottom: 20px;">
-        <img src="assets/images/main_logo.svg" alt="BoultBox Logo" style="height: 38px; margin: 0 auto 12px;" />
-        <h3 style="font-size: 20px; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px;">
-          Get BoultBox App
-        </h3>
-        <p style="font-size: 14px; color: var(--text-sub);">
-          Claim your 1024 GB free cloud storage and enjoy seamless auto-backup.
-        </p>
+  <!-- =======================================================================
+       INTERACTIVE MODAL
+       ======================================================================= -->
+  <div class="modal-overlay" id="appModal" aria-hidden="true" role="dialog">
+    <div class="modal-content">
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close modal">&times;</button>
+      <div class="modal-logo-wrap">
+        <img src="assets/images/main_logo.svg" alt="AirBox Logo" width="160" height="38" />
       </div>
-
-      <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
-        <a href="https://terabox.mywire.org/app-release.apk" download class="btn-pill-action" style="justify-content: center; padding: 12px 24px; text-decoration: none;">
-          <span>Download Android APK</span>
-          <span class="arrow-circle">
-            <img src="assets/images/right-arrow-icon.svg" alt="Download" />
-          </span>
-        </a>
-        <a href="/webmaster/" class="btn-login" style="text-align: center; text-decoration: none;">
-          <span>Open Webmaster Portal</span>
-        </a>
-      </div>
-
-      <p style="font-size: 12px; color: #94A3B8;">
-        Compatible with Android 8.0+, iOS 14.0+, Windows &amp; Mac.
+      <h3 class="modal-title">Get AirBox on Google Play</h3>
+      <p class="modal-desc">
+        Access 1024 GB (1 TB) of free cloud storage on your Android phone and desktop devices.
       </p>
+
+      <div class="modal-buttons">
+        <a href="https://play.google.com/store/apps/details?id=com.airbox.cloud.storage" target="_blank"
+          rel="noopener noreferrer" class="modal-btn-apk">
+          <svg class="google-play-svg" width="22" height="24.3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 283" aria-hidden="true" focusable="false">
+            <path fill="#ea4335" d="M119.553 134.916L1.06 259.061a32.14 32.14 0 0 0 47.062 19.071l133.327-75.934z" />
+            <path fill="#fbbc04" d="M239.37 113.814L181.715 80.79l-64.898 56.95l65.162 64.28l57.216-32.67a31.345 31.345 0 0 0 0-55.537z" />
+            <path fill="#4285f4" d="M1.06 23.487A30.6 30.6 0 0 0 0 31.61v219.327a32.3 32.3 0 0 0 1.06 8.124l122.555-120.966z" />
+            <path fill="#34a853" d="m120.436 141.274l61.278-60.483L48.564 4.503A32.85 32.85 0 0 0 32.051 0C17.644-.028 4.978 9.534 1.06 23.399z" />
+          </svg>
+          <span>Get on Google Play</span>
+        </a>
+        <button class="modal-btn-close-text" id="modalTextCloseBtn" type="button">
+          Close and Continue Browsing
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- JavaScript -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Mobile Drawer
-      const mobileToggle = document.getElementById('mobileToggle');
-      const mobileDrawer = document.getElementById('mobileDrawer');
-      if (mobileToggle && mobileDrawer) {
-        mobileToggle.addEventListener('click', (e) => {
-          e.stopPropagation();
-          mobileDrawer.classList.toggle('open');
-        });
-        document.addEventListener('click', (e) => {
-          if (!mobileDrawer.contains(e.target) && !mobileToggle.contains(e.target)) {
-            mobileDrawer.classList.remove('open');
-          }
-        });
-      }
-
-      // Modal Dialog
-      const modal = document.getElementById('appModal');
-      const closeBtn = document.getElementById('modalCloseBtn');
-      document.querySelectorAll('.trigger-modal').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          if (modal) modal.classList.add('active');
-        });
-      });
-      if (closeBtn && modal) {
-        closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-      }
-      if (modal) {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) modal.classList.remove('active');
-        });
-      }
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
-          modal.classList.remove('active');
-        }
-      });
-    });
-  </script>
+  <script src="js/main.js"></script>
 </body>
+
 </html>

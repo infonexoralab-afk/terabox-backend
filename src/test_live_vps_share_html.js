@@ -1,9 +1,9 @@
 const https = require('https');
 const assert = require('assert');
 
-console.log('Fetching live domain share page (https://terabox.mywire.org/s/TBX_MTN10I6D)...');
+console.log('Fetching live domain share page (https://airbox.one/s/TBX_MTN10I6D)...');
 
-const req = https.get('https://terabox.mywire.org/s/TBX_MTN10I6D', { rejectUnauthorized: false }, (res) => {
+const req = https.get('https://airbox.one/s/TBX_MTN10I6D', { rejectUnauthorized: false }, (res) => {
   let data = '';
   res.on('data', (chunk) => data += chunk);
   res.on('end', () => {
@@ -14,7 +14,7 @@ const req = https.get('https://terabox.mywire.org/s/TBX_MTN10I6D', { rejectUnaut
     assert(data.includes('Copyright &amp; Grievance Policy') || data.includes('Copyright & Grievance Policy'), 'Policy title must be in live HTML');
     assert(data.includes('openPolicyModal()'), 'openPolicyModal must be in live HTML');
     assert(data.includes('closePolicyModal()'), 'closePolicyModal must be in live HTML');
-    assert(data.includes('grievance-compliance@terabox.app'), 'Grievance email must be in live HTML');
+    assert(data.includes('info.airboxcloud@gmail.com'), 'Grievance email must be in live HTML');
 
     // Verify DMCA Notice Form & Responsiveness
     assert(data.includes('id="reportModalOverlay"'), 'reportModalOverlay ID must be in live HTML');

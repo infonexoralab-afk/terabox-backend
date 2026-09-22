@@ -1,256 +1,122 @@
 /**
- * TeraBox Cloud Storage - Main Interactive JavaScript
- * Modern, Lightweight & High Performance
+ * AirBox Cloud Storage — Official Website Interactive Engine
+ * Lightweight, 100% Responsive & High Performance
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
-  // ─────────────────────────────────────────────────────────────
-  // 1. Sticky Navigation Blur & Shadow on Scroll
-  // ─────────────────────────────────────────────────────────────
+  // 1. Sticky Header Shadow on Scroll
   const header = document.querySelector('.site-header');
-  const handleHeaderScroll = () => {
-    if (window.scrollY > 20) {
+  const handleScroll = () => {
+    if (window.scrollY > 15) {
       header?.classList.add('scrolled');
     } else {
       header?.classList.remove('scrolled');
     }
   };
-  window.addEventListener('scroll', handleHeaderScroll, { passive: true });
-  handleHeaderScroll();
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll();
 
-  // ─────────────────────────────────────────────────────────────
   // 2. Mobile Drawer Navigation Toggle
-  // ─────────────────────────────────────────────────────────────
-  const mobileToggle = document.getElementById('mobileToggle');
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
   const mobileDrawer = document.getElementById('mobileDrawer');
-  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+  const mobileLinks = document.querySelectorAll('.mobile-link');
 
-  if (mobileToggle && mobileDrawer) {
-    mobileToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = mobileDrawer.classList.toggle('open');
-      mobileToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-      
-      // Animate hamburger lines
-      const spans = mobileToggle.querySelectorAll('span');
-      if (spans.length === 3) {
-        if (isOpen) {
-          spans[0].style.transform = 'translateY(7.5px) rotate(45deg)';
-          spans[1].style.opacity = '0';
-          spans[2].style.transform = 'translateY(-7.5px) rotate(-45deg)';
-        } else {
-          spans[0].style.transform = 'none';
-          spans[1].style.opacity = '1';
-          spans[2].style.transform = 'none';
-        }
-      }
-    });
-
-    // Close mobile drawer when clicking a link
-    mobileLinks.forEach((link) => {
-      link.addEventListener('click', () => {
-        mobileDrawer.classList.remove('open');
-        mobileToggle.setAttribute('aria-expanded', 'false');
-        const spans = mobileToggle.querySelectorAll('span');
-        if (spans.length === 3) {
-          spans[0].style.transform = 'none';
-          spans[1].style.opacity = '1';
-          spans[2].style.transform = 'none';
-        }
-      });
-    });
-
-    // Close when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!mobileDrawer.contains(e.target) && !mobileToggle.contains(e.target)) {
-        mobileDrawer.classList.remove('open');
-        mobileToggle.setAttribute('aria-expanded', 'false');
-        const spans = mobileToggle.querySelectorAll('span');
-        if (spans.length === 3) {
-          spans[0].style.transform = 'none';
-          spans[1].style.opacity = '1';
-          spans[2].style.transform = 'none';
-        }
-      }
-    });
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // 3. ScrollSpy Active Link Navigation
-  // ─────────────────────────────────────────────────────────────
-  const sections = document.querySelectorAll('section[id]');
-  const desktopNavLinks = document.querySelectorAll('.nav-links .nav-link');
-
-  const highlightNavOnScroll = () => {
-    const scrollY = window.pageYOffset + 120;
-    sections.forEach((current) => {
-      const sectionHeight = current.offsetHeight;
-      const sectionTop = current.offsetTop;
-      const sectionId = current.getAttribute('id');
-
-      if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-        desktopNavLinks.forEach((link) => {
-          if (link.getAttribute('href') === `#${sectionId}`) {
-            link.classList.add('active');
-          } else {
-            link.classList.remove('active');
-          }
-        });
-      }
-    });
-  };
-  window.addEventListener('scroll', highlightNavOnScroll, { passive: true });
-
-  // ─────────────────────────────────────────────────────────────
-  // 4. Live Referral & Webmaster CPM Income Calculator
-  // ─────────────────────────────────────────────────────────────
-  const viewsSlider = document.getElementById('viewsSlider');
-  const viewsCountDisplay = document.getElementById('viewsCountDisplay');
-  const earningsDisplay = document.getElementById('earningsDisplay');
-  const refUsersSlider = document.getElementById('refUsersSlider');
-  const refUsersCountDisplay = document.getElementById('refUsersCountDisplay');
-
-  const calculateEarnings = () => {
-    if (!viewsSlider || !earningsDisplay) return;
-
-    const dailyViews = parseInt(viewsSlider.value, 10) || 5000;
-    const newUsers = refUsersSlider ? parseInt(refUsersSlider.value, 10) || 50 : 50;
-
-    // Display counts formatted
-    if (viewsCountDisplay) {
-      viewsCountDisplay.textContent = dailyViews.toLocaleString() + ' plays/day';
+  const toggleDrawer = (force) => {
+    const isOpen = typeof force === 'boolean' ? force : !mobileDrawer?.classList.contains('open');
+    if (isOpen) {
+      mobileDrawer?.classList.add('open');
+      mobileMenuBtn?.classList.add('open');
+      mobileMenuBtn?.setAttribute('aria-expanded', 'true');
+    } else {
+      mobileDrawer?.classList.remove('open');
+      mobileMenuBtn?.classList.remove('open');
+      mobileMenuBtn?.setAttribute('aria-expanded', 'false');
     }
-    if (refUsersCountDisplay) {
-      refUsersCountDisplay.textContent = newUsers.toLocaleString() + ' users/day';
+  };
+
+  mobileMenuBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDrawer();
+  });
+
+  mobileLinks.forEach(link => {
+    link.addEventListener('click', () => toggleDrawer(false));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (mobileDrawer?.classList.contains('open') && !mobileDrawer.contains(e.target) && !mobileMenuBtn?.contains(e.target)) {
+      toggleDrawer(false);
     }
+  });
 
-    // Calculation:
-    // Video CPM = $4.00 per 1,000 plays -> (dailyViews / 1000) * 4 * 30 days
-    // Referral CPA = $0.05 per user -> (newUsers * 0.05 * 30 days)
-    const monthlyVideoIncome = (dailyViews / 1000) * 4.0 * 30;
-    const monthlyRefIncome = newUsers * 0.05 * 30;
-    const totalMonthly = monthlyVideoIncome + monthlyRefIncome;
-
-    earningsDisplay.textContent = `$${Math.round(totalMonthly).toLocaleString()}/mo`;
-  };
-
-  if (viewsSlider) {
-    viewsSlider.addEventListener('input', calculateEarnings);
-  }
-  if (refUsersSlider) {
-    refUsersSlider.addEventListener('input', calculateEarnings);
-  }
-  calculateEarnings();
-
-  // ─────────────────────────────────────────────────────────────
-  // 5. Stat Counter Animation with IntersectionObserver
-  // ─────────────────────────────────────────────────────────────
-  const statNumbers = document.querySelectorAll('.stat-number');
-  let statsAnimated = false;
-
-  const animateCounters = () => {
-    statNumbers.forEach((stat) => {
-      const target = parseInt(stat.getAttribute('data-target'), 10);
-      const suffix = stat.getAttribute('data-suffix') || '';
-      const prefix = stat.getAttribute('data-prefix') || '';
-      const duration = 2000;
-      const startTime = performance.now();
-
-      const updateCounter = (currentTime) => {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        // Ease out quadratic
-        const easeProgress = 1 - (1 - progress) * (1 - progress);
-        const currentVal = Math.floor(easeProgress * target);
-
-        stat.textContent = `${prefix}${currentVal.toLocaleString()}${suffix}`;
-
-        if (progress < 1) {
-          requestAnimationFrame(updateCounter);
-        } else {
-          stat.textContent = `${prefix}${target.toLocaleString()}${suffix}`;
-        }
-      };
-
-      requestAnimationFrame(updateCounter);
-    });
-  };
-
-  const statsSection = document.querySelector('.stats-card-container');
-  if (statsSection && 'IntersectionObserver' in window) {
-    const statsObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !statsAnimated) {
-          statsAnimated = true;
-          animateCounters();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.25 });
-    statsObserver.observe(statsSection);
-  } else {
-    // Fallback
-    animateCounters();
-  }
-
-  // ─────────────────────────────────────────────────────────────
-  // 6. Download Modal Popup Logic
-  // ─────────────────────────────────────────────────────────────
-  const modalOverlay = document.getElementById('downloadModal');
-  const modalCloseBtn = document.getElementById('modalCloseBtn');
-  const triggerModalBtns = document.querySelectorAll('.trigger-download-modal');
+  // 3. Download & Action Popup Modal
+  const modal = document.getElementById('appModal');
+  const closeBtn = document.getElementById('modalCloseBtn');
+  const textCloseBtn = document.getElementById('modalTextCloseBtn');
+  const triggerBtns = document.querySelectorAll('.trigger-modal');
 
   const openModal = (e) => {
     if (e) e.preventDefault();
-    if (modalOverlay) {
-      modalOverlay.classList.add('active');
+    if (modal) {
+      modal.classList.add('active');
+      modal.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
     }
   };
 
   const closeModal = () => {
-    if (modalOverlay) {
-      modalOverlay.classList.remove('active');
+    if (modal) {
+      modal.classList.remove('active');
+      modal.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
     }
   };
 
-  triggerModalBtns.forEach((btn) => {
-    btn.addEventListener('click', openModal);
+  triggerBtns.forEach(btn => btn.addEventListener('click', openModal));
+  closeBtn?.addEventListener('click', closeModal);
+  textCloseBtn?.addEventListener('click', closeModal);
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
   });
 
-  if (modalCloseBtn) {
-    modalCloseBtn.addEventListener('click', closeModal);
-  }
-
-  if (modalOverlay) {
-    modalOverlay.addEventListener('click', (e) => {
-      if (e.target === modalOverlay) {
-        closeModal();
-      }
-    });
-  }
-
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalOverlay?.classList.contains('active')) {
-      closeModal();
+    if (e.key === 'Escape') {
+      if (modal?.classList.contains('active')) closeModal();
+      if (mobileDrawer?.classList.contains('open')) toggleDrawer(false);
     }
   });
 
-  // ─────────────────────────────────────────────────────────────
-  // 7. Smooth Scroll for Internal Anchors
-  // ─────────────────────────────────────────────────────────────
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener('click', function (e) {
+  // 4. Interactive FAQ Accordion
+  const faqCards = document.querySelectorAll('.faq-card');
+  faqCards.forEach(card => {
+    const btn = card.querySelector('.faq-question-btn');
+    btn?.addEventListener('click', () => {
+      const isActive = card.classList.contains('active');
+      // Optional: close other cards if accordion single mode is preferred, or allow multi-expand
+      // Let's toggle current card
+      if (isActive) {
+        card.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
+      } else {
+        card.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // 5. Smooth Anchor Scroll with Header Offset
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
       const targetId = this.getAttribute('href');
-      if (targetId === '#') return;
-      const targetElement = document.querySelector(targetId);
-      if (targetElement) {
+      if (!targetId || targetId === '#') return;
+      const targetEl = document.querySelector(targetId);
+      if (targetEl) {
         e.preventDefault();
-        const headerOffset = 80;
-        const elementPosition = targetElement.getBoundingClientRect().top;
+        const headerOffset = 76;
+        const elementPosition = targetEl.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
         window.scrollTo({
@@ -260,38 +126,5 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
-
-  // ─────────────────────────────────────────────────────────────
-  // 8. Copy Link / Share Toast feedback (helper)
-  // ─────────────────────────────────────────────────────────────
-  window.showToast = (message) => {
-    let toast = document.getElementById('siteToast');
-    if (!toast) {
-      toast = document.createElement('div');
-      toast.id = 'siteToast';
-      toast.style.position = 'fixed';
-      toast.style.bottom = '24px';
-      toast.style.right = '24px';
-      toast.style.background = '#0F172A';
-      toast.style.color = '#FFFFFF';
-      toast.style.padding = '12px 24px';
-      toast.style.borderRadius = '9999px';
-      toast.style.border = '1px solid #334155';
-      toast.style.fontSize = '14px';
-      toast.style.fontWeight = '600';
-      toast.style.boxShadow = 'none';
-      toast.style.zIndex = '9999';
-      toast.style.transition = 'all 0.2s ease';
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(10px)';
-      document.body.appendChild(toast);
-    }
-    toast.textContent = message;
-    toast.style.opacity = '1';
-    toast.style.transform = 'translateY(0)';
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(10px)';
-    }, 3000);
-  };
 });
+

@@ -164,7 +164,7 @@ async function runTests() {
       shareId: 'TEST_VIDEO_456',
       reason: 'General Content Violation',
       legalName: 'Grievance Officer India',
-      email: 'grievance-test@terabox.com',
+      email: 'info.airboxcloud@gmail.com',
     });
     console.log('Status:', aliasRes.status);
     console.log('Response:', aliasRes.body);
@@ -177,7 +177,7 @@ async function runTests() {
     // Test 5: Verify Reports Listed in Admin Safety Endpoint with Admin Auth
     console.log('--- TEST 5: Verify Admin Safety Reports Endpoint ---');
     const loginRes = await post(port, '/admin/api/auth/login', {
-      identifier: 'superadmin@terabox.mywire.org',
+      identifier: 'superadmin@airbox.one',
       password: 'TeraBox#SuperAdmin$2026!Secured',
     });
     console.log('Admin Login Status:', loginRes.status);

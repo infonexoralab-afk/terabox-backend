@@ -139,6 +139,13 @@ class ReferralService {
    */
   recordLinkClick(refCode) {
     if (!refCode) return;
+    let isProgramEnabled = true;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      isProgramEnabled = systemConfigStore.get('webmaster_program_enabled', true);
+    } catch (_) {}
+    if (!isProgramEnabled) return;
+
     const cleanRef = refCode.trim().toUpperCase();
     const count = (this.referralClickStats.get(cleanRef) || 0) + 1;
     this.referralClickStats.set(cleanRef, count);
@@ -165,6 +172,15 @@ class ReferralService {
   trackInstall({ refCode, installToken, deviceFingerprint, referrerClickTimestamp, installBeginTimestamp, clientIp }) {
     if (!refCode) {
       return { success: false, reason: 'Missing referral code' };
+    }
+
+    let isProgramEnabled = true;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      isProgramEnabled = systemConfigStore.get('webmaster_program_enabled', true);
+    } catch (_) {}
+    if (!isProgramEnabled) {
+      return { success: false, isProgramDisabled: true, reason: 'Webmaster program is disabled' };
     }
 
     const cleanRef = refCode.trim().toUpperCase();
@@ -244,6 +260,13 @@ class ReferralService {
    */
   onUserRegistered({ userId, email, name, deviceFingerprint, installToken, clientIp, explicitRefCode }) {
     if (!userId) return null;
+
+    let isProgramEnabled = true;
+    try {
+      const systemConfigStore = require('./systemConfigStore');
+      isProgramEnabled = systemConfigStore.get('webmaster_program_enabled', true);
+    } catch (_) {}
+    if (!isProgramEnabled) return null;
 
     const deviceKey = this.hashDeviceKey(deviceFingerprint);
 
@@ -593,8 +616,8 @@ class ReferralService {
 
     return {
       referralCode: refCode,
-      invitePlayUrl: `https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client&referrer=ref%3D${refCode}`,
-      inviteWebUrl: `https://terabox.mywire.org/join?ref=${refCode}`,
+      invitePlayUrl: `https://play.google.com/store/apps/details?id=com.airbox.cloud.storage&referrer=ref%3D${refCode}`,
+      inviteWebUrl: `https://airbox.one/join?ref=${refCode}`,
       ratePerUserUsd: this.getRewardRate(),
       summary: {
         totalClicks,

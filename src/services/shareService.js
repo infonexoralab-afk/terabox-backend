@@ -103,7 +103,7 @@ class ShareService extends EventEmitter {
       itemCount: Number(fileData.itemCount) || (fileData.children ? fileData.children.length : 0),
       children: Array.isArray(fileData.children) ? fileData.children : [],
       durationSeconds: Number(fileData.durationSeconds) || 0,
-      creatorName: fileData.creatorName || fileData.userName || fileData.email || 'TeraBox User',
+      creatorName: fileData.creatorName || fileData.userName || fileData.email || 'AirBox User',
       r2Key: fileData.r2Key || '',
       downloadUrl: downloadUrl,
       streamUrl: streamUrl,
@@ -231,7 +231,7 @@ class ShareService extends EventEmitter {
     return 0;
   }
 
-  // Render Human-Crafted, Responsive, Exact TeraBox Web Share Page
+  // Render Human-Crafted, Responsive, Exact AirBox Web Share Page
   renderWebPreviewHtml(share, explicitRefCode = '') {
     const activeRefCode = (explicitRefCode || share.referralCode || '').trim().toUpperCase();
     const formatBytes = (bytes) => {
@@ -252,7 +252,7 @@ class ShareService extends EventEmitter {
     };
 
     const formatCreatorName = (name) => {
-      if (!name || name === 'TeraBox User' || name === 'TeraBox Cloud User' || name === 'external') return 'TeraBox User';
+      if (!name || name === 'AirBox User' || name === 'AirBox Cloud User' || name === 'TeraBox User' || name === 'TeraBox Cloud User' || name === 'external') return 'AirBox User';
       const clean = String(name).trim();
       if (clean.includes('@')) {
         const [u, d] = clean.split('@');
@@ -268,9 +268,13 @@ class ShareService extends EventEmitter {
     const rawName = share.fileName || 'Shared File';
     const isFolder = share.isFolder === true || (share.children && share.children.length > 0) || !rawName.includes('.') || share.extension === 'folder' || share.extension === 'directory';
     const ext = isFolder ? '' : (share.extension || (rawName.includes('.') ? rawName.split('.').pop() : 'dat')).toLowerCase();
-    const isVideo = !isFolder && (share.isVideo === true || ['mp4', 'mkv', 'mov', 'avi', 'webm', 'flv', 'ts', 'm4v', '3gp', 'wmv', 'mpg'].includes(ext));
-    const isImage = !isFolder && ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp', 'heic', 'ico'].includes(ext);
-    const isApk = !isFolder && ext === 'apk';
+    const isVideo = !isFolder && (share.isVideo === true || ['mp4', 'mkv', 'mov', 'avi', 'webm', 'flv', 'ts', 'm4v', '3gp', 'wmv', 'mpg', 'mpeg', 'vob'].includes(ext));
+    const isImage = !isFolder && ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp', 'heic', 'ico', 'tiff'].includes(ext);
+    const isApk = !isFolder && ['apk', 'xapk', 'apks', 'aab'].includes(ext);
+    const isPdf = !isFolder && ext === 'pdf';
+    const isAudio = !isFolder && ['mp3', 'wav', 'flac', 'm4a', 'aac', 'ogg', 'wma', 'opus', 'mid', 'midi'].includes(ext);
+    const isArchive = !isFolder && ['zip', 'rar', '7z', 'tar', 'gz', 'iso', 'bz2', 'xz', 'tgz'].includes(ext);
+    const isJsonOrCode = !isFolder && ['json', 'js', 'ts', 'jsx', 'tsx', 'html', 'htm', 'css', 'py', 'java', 'c', 'cpp', 'dart', 'xml', 'yaml', 'yml', 'sql', 'sh', 'php', 'env', 'log', 'md', 'txt', 'ini', 'conf'].includes(ext);
 
     const childCount = (share.children ? share.children.length : 0) || share.itemCount || 0;
     const displaySize = formatBytes(share.sizeBytes || 0);
@@ -310,7 +314,7 @@ class ShareService extends EventEmitter {
       <div>Reference: ${share.code}</div>
       <div>Reason: ${share.banReason || 'DMCA Takedown Notice'}</div>
     </div>
-    <a href="/" class="btn">Go to TeraBox</a>
+    <a href="/" class="btn">Go to AirBox</a>
   </div>
 </body>
 </html>`;
@@ -322,54 +326,482 @@ class ShareService extends EventEmitter {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>${rawName} - TeraBox 1024GB storage</title>
+  <title>${rawName} - AirBox 1024 GB Free Cloud Storage</title>
+  <meta name="title" content="${rawName} - AirBox 1024 GB Free Cloud Storage">
+  <meta name="description" content="View, stream or download ${rawName} (${displaySize}) safely on AirBox. Claim 1024 GB permanent free cloud storage, fast photo backup and 4K media player.">
+  <meta name="robots" content="index, follow">
+  <link rel="icon" type="image/png" href="/app_logo.png">
+  <link rel="apple-touch-icon" href="/app_logo.png">
+
+  <!-- OpenGraph / Facebook / WhatsApp -->
+  <meta property="og:type" content="${isVideo ? 'video.other' : 'website'}">
+  <meta property="og:site_name" content="AirBox Cloud">
+  <meta property="og:title" content="${rawName} (${displaySize}) - AirBox Cloud">
+  <meta property="og:description" content="View, stream or download ${rawName} (${displaySize}) on AirBox. 1024 GB permanent free cloud storage.">
+  <meta property="og:image" content="/assets/images/hero_img.png">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${rawName} (${displaySize}) - AirBox Cloud">
+  <meta name="twitter:description" content="Stream or download ${rawName} with high-speed multi-part transfer on AirBox.">
+  <meta name="twitter:image" content="/assets/images/hero_img.png">
+
+  <!-- Schema.org Digital Document / Media Object JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "${isVideo ? 'VideoObject' : 'DigitalDocument'}",
+    "name": "${rawName.replace(/"/g, '\\"')}",
+    "description": "Shared file on AirBox Cloud Storage (${displaySize})",
+    "encodingFormat": "${ext}",
+    "contentSize": "${displaySize}",
+    "provider": {
+      "@type": "Organization",
+      "name": "AirBox",
+      "url": "https://airbox.one"
+    }
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root { --primary: #0066FF; --bg-card: #FFFFFF; --text-main: #0F172A; --text-muted: #64748B; --border-color: #E2E8F0; }
+    :root {
+      --primary: #0066FF;
+      --primary-hover: #0052CC;
+      --primary-light: #EFF6FF;
+      --bg-card: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; height: 100dvh; overflow: hidden; background-color: #FFFFFF; }
-    body { color: #0F172A; display: flex; flex-direction: column; justify-content: space-between; }
+    html, body {
+      min-height: 100%;
+      min-height: 100dvh;
+      background-color: #FFFFFF;
+    }
+    body {
+      color: #0F172A;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
     
-    .navbar { background: #FFFFFF; border-bottom: 1px solid #F1F5F9; padding: 10px 16px; height: 56px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 50; }
-    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .brand-logo { width: 36px; height: 36px; border-radius: 9px; background: #0066FF; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-weight: 800; font-size: 18px; }
-    .brand-text-container { display: flex; flex-direction: column; line-height: 1.2; }
-    .brand-name { font-size: 15px; font-weight: 800; color: #0F172A; letter-spacing: -0.3px; }
-    .brand-subtitle { font-size: 11px; font-weight: 500; color: #64748B; }
-    .nav-right { display: flex; align-items: center; gap: 10px; }
-    .btn-nav-app { background: #0066FF; color: #FFFFFF; font-size: 13px; font-weight: 700; padding: 8px 18px; border-radius: 9999px; border: none; cursor: pointer; box-shadow: none !important; transition: all 0.2s ease; }
-    .btn-nav-app:active { transform: scale(0.96); }
+    .navbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid #F1F5F9;
+      padding: 10px 16px;
+      height: 56px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      z-index: 50;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .brand-logo-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      border-radius: 9px;
+    }
+    .brand-text-container {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+    .brand-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: -0.3px;
+    }
+    .brand-subtitle {
+      font-size: 11px;
+      font-weight: 500;
+      color: #64748B;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-nav-app {
+      background: #0066FF;
+      color: #FFFFFF;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      box-shadow: none !important;
+      transition: all 0.2s ease;
+    }
+    .btn-nav-app:active {
+      transform: scale(0.96);
+      background: #0052CC;
+    }
 
-    .main-stage { flex: 1; max-width: 480px; width: 100%; margin: 0 auto; padding: 14px 16px 8px 16px; display: flex; flex-direction: column; min-height: 0; }
-    .uploader-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .uploader-name { font-size: 14.5px; font-weight: 700; color: #0F172A; }
-    .uploader-validity { font-size: 11.5px; color: #94A3B8; margin-top: 2px; }
-    .btn-more-circle { width: 34px; height: 34px; border-radius: 50%; background: #FFFFFF; border: 1px solid #E2E8F0; color: #64748B; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: none !important; }
-    .file-headline-title { font-size: 16px; font-weight: 800; color: #0F172A; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 12px; }
+    .main-stage {
+      flex: 1;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px 16px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      justify-content: flex-start;
+    }
+    .uploader-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .uploader-name {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #0F172A;
+    }
+    .uploader-validity {
+      font-size: 11.5px;
+      color: #94A3B8;
+      margin-top: 2px;
+    }
+    .btn-more-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      color: #64748B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: none !important;
+      transition: all 0.15s ease;
+    }
+    .btn-more-circle:active {
+      background: #F1F5F9;
+    }
+    .file-headline-title {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: #0F172A;
+      line-height: 1.35;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
 
-    .dropdown-menu { position: absolute; top: 48px; right: 0; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); width: 230px; z-index: 60; display: none; overflow: hidden; }
-    .dropdown-item { padding: 12px 16px; display: flex; align-items: center; gap: 12px; font-size: 13.5px; font-weight: 600; color: #1E293B; cursor: pointer; border-bottom: 1px solid #F8FAFC; }
-    .dropdown-item:hover { background: #F8FAFC; color: #0066FF; }
+    .dropdown-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      width: 230px;
+      z-index: 60;
+      display: none;
+      overflow: hidden;
+    }
+    .dropdown-item {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #1E293B;
+      cursor: pointer;
+      border-bottom: 1px solid #F8FAFC;
+    }
+    .dropdown-item:hover {
+      background: #F8FAFC;
+      color: #0066FF;
+    }
 
-    .media-player-container { background: radial-gradient(circle at 50% 35%, #2a201a 0%, #15100c 60%, #080605 100%); border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 16/9; max-height: clamp(170px, 32vh, 230px); cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; flex-shrink: 0; box-shadow: none !important; }
-    .center-view-in-app-btn { background: rgba(15, 23, 42, 0.88); border: 1px solid rgba(255, 255, 255, 0.15); color: #FFFFFF; padding: 7px 16px; border-radius: 9999px; display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; box-shadow: none !important; }
-    .pill-free-tag { background: #0066FF; color: #FFFFFF; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 9999px; }
-    .player-bottom-duration { position: absolute; bottom: 12px; left: 14px; color: rgba(255, 255, 255, 0.9); font-size: 12px; font-weight: 600; letter-spacing: 0.2px; }
+    /* Video Player Preview Container */
+    .media-player-container {
+      background: radial-gradient(circle at 50% 35%, #2a201a 0%, #15100c 60%, #080605 100%);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16/9;
+      max-height: clamp(170px, 32vh, 230px);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      flex-shrink: 0;
+      box-shadow: none !important;
+    }
+    .center-view-in-app-btn {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+      padding: 7px 16px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 700;
+      box-shadow: none !important;
+    }
+    .pill-free-tag {
+      background: #0066FF;
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+    .player-bottom-duration {
+      position: absolute;
+      bottom: 12px;
+      left: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
 
-    .image-preview-container { background: #0B0F19; border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 16/9; max-height: clamp(170px, 32vh, 230px); cursor: pointer; display: flex; justify-content: center; align-items: center; width: 100%; flex-shrink: 0; border: 1px solid #E2E8F0; box-shadow: none !important; }
-    .image-preview-tag { width: 100%; height: 100%; object-fit: cover; filter: blur(20px); -webkit-filter: blur(20px); transform: scale(1.18); pointer-events: none; }
+    /* Image Preview Container */
+    .image-preview-container {
+      background: #0B0F19;
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16/9;
+      max-height: clamp(170px, 32vh, 230px);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      flex-shrink: 0;
+      border: 1px solid #E2E8F0;
+      box-shadow: none !important;
+    }
+    .image-preview-tag {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(20px);
+      -webkit-filter: blur(20px);
+      transform: scale(1.18);
+      pointer-events: none;
+    }
     
-    .file-card-container { background: #FFFFFF; border-radius: 18px; border: 1.5px solid #E2E8F0; padding: 18px; display: flex; flex-direction: column; width: 100%; box-shadow: none !important; }
-    .file-icon-box { width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    /* Folder Card Container */
+    .folder-card-container {
+      background: #FFFFFF;
+      border-radius: 18px;
+      border: 1.5px solid #E2E8F0;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      box-shadow: none !important;
+      cursor: pointer;
+    }
+    .folder-header-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+    .folder-children-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      max-height: 140px;
+      overflow-y: auto;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 10px;
+      margin-top: 12px;
+    }
+    .folder-child-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background: #F8FAFC;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+    .folder-child-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+      color: #1E293B;
+      font-weight: 600;
+    }
+    .folder-child-size {
+      color: #94A3B8;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Clean, Professional Human-Designed File Card */
+    .file-hero-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1.5px solid #E2E8F0;
+      padding: 38px 20px 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      width: 100%;
+      cursor: pointer;
+      box-shadow: none !important;
+      transition: background-color 0.15s ease;
+    }
+    .file-hero-card:active {
+      background: #F8FAFC;
+    }
+    .file-hero-icon-container {
+      margin-bottom: 16px;
+    }
+    .file-hero-icon-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: none !important;
+    }
+    .file-hero-details {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 100%;
+    }
+    .file-hero-type {
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .file-hero-size {
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748B;
+    }
     
-    .bottom-bar-container { background: #FFFFFF; border-top: 1px solid #F1F5F9; padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px)); flex-shrink: 0; max-width: 480px; width: 100%; margin: 0 auto; }
-    .promo-notice-row { display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #334155; font-weight: 600; margin-bottom: 10px; }
-    .promo-notice-left { display: flex; align-items: center; gap: 6px; }
-    .bottom-buttons-row { display: flex; gap: 12px; }
-    .btn-bottom-dl { flex: 1; height: 46px; background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 12px; color: #0066FF; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: none !important; }
-    .btn-bottom-watch { flex: 1; height: 46px; background: #0066FF; border: none; border-radius: 12px; color: #FFFFFF; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; box-shadow: none !important; }
+    .bottom-bar-container {
+      background: #FFFFFF;
+      border-top: 1px solid #F1F5F9;
+      padding: 10px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+      flex-shrink: 0;
+      max-width: 480px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .promo-notice-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: #334155;
+      font-weight: 600;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    .promo-notice-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .bottom-buttons-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+    .btn-bottom-dl {
+      flex: 1;
+      height: 48px;
+      background: #EFF6FF;
+      border: 1.5px solid #BFDBFE;
+      border-radius: 14px;
+      color: #0066FF;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: none !important;
+      transition: all 0.15s ease;
+    }
+    .btn-bottom-dl:active {
+      transform: scale(0.97);
+      background: #DBEAFE;
+    }
+    .btn-bottom-watch {
+      flex: 1;
+      height: 48px;
+      background: #0066FF;
+      border: none;
+      border-radius: 14px;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: none !important;
+      transition: all 0.15s ease;
+    }
+    .btn-bottom-watch:active {
+      transform: scale(0.97);
+      background: #0052CC;
+    }
 
     .report-modal-overlay, .policy-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; z-index: 200; }
     .report-modal-card, .policy-modal-card { background: #FFFFFF; border-radius: 24px 24px 0 0; max-width: 500px; width: 100%; max-height: 90vh; max-height: 90dvh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -385,23 +817,30 @@ class ShareService extends EventEmitter {
     .modal-scrollable-body { padding: 16px 20px 24px 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
     
     /* Responsive Form Elements */
-    .form-section-title { font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 10px 0; }
-    .form-section-title:first-of-type { margin-top: 0; }
-    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; width: 100%; }
-    .form-label { font-size: 11.5px; font-weight: 700; color: #334155; }
-    .form-input, .form-select, .form-textarea { width: 100%; height: 42px; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 0 14px; font-size: 13px; color: #0F172A; background: #F8FAFC; transition: all 0.2s ease; outline: none; }
-    .form-textarea { height: 60px; padding: 10px 14px; resize: none; font-family: inherit; }
+    .form-section-header { display: flex; align-items: center; gap: 8px; margin: 18px 0 10px 0; }
+    .form-section-header:first-of-type { margin-top: 4px; }
+    .section-badge { width: 20px; height: 20px; border-radius: 6px; background: #EFF6FF; color: #0066FF; border: 1px solid #BFDBFE; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .section-title-text { font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.4px; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; width: 100%; box-sizing: border-box; }
+    .form-label { font-size: 11.5px; font-weight: 700; color: #334155; line-height: 1.3; margin-bottom: 4px; display: block; }
+    .form-input, .form-select, .form-textarea { width: 100%; height: 42px; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 0 13px; font-size: 13px; color: #0F172A; background: #F8FAFC; transition: all 0.15s ease; outline: none; box-sizing: border-box; }
+    .form-textarea { height: 58px; padding: 9px 13px; resize: none; font-family: inherit; }
     .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #0066FF; background: #FFFFFF; box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.12); }
-    .form-row-2 { display: flex; gap: 10px; width: 100%; }
-    .form-row-2 > .form-group { flex: 1; }
-    @media (max-width: 600px) {
+    .form-input.is-invalid, .form-select.is-invalid, .form-textarea.is-invalid { border-color: #EF4444 !important; background: #FEF2F2 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
+    .field-error-msg { font-size: 11px; font-weight: 600; color: #DC2626; margin-top: 3px; display: none; line-height: 1.3; }
+
+    .form-row-2 { display: flex; gap: 10px; width: 100%; align-items: flex-start; }
+    .form-row-2 > .form-group { flex: 1; min-width: 0; }
+    @media (max-width: 540px) {
       .form-row-2 { flex-direction: column; gap: 0; }
     }
 
     /* Custom Styled Legal Declarations Checkboxes */
     .legal-checkbox-container { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-    .legal-check-card { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; cursor: pointer; transition: all 0.15s ease; text-align: left; }
+    .legal-check-card { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 10px; cursor: pointer; transition: all 0.15s ease; text-align: left; box-sizing: border-box; }
     .legal-check-card:hover { border-color: #CBD5E1; background: #F1F5F9; }
+    .legal-check-card.is-invalid { border-color: #EF4444 !important; background: #FEF2F2 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important; }
     .legal-check-card input[type="checkbox"] { width: 18px; height: 18px; accent-color: #16A34A; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
     .legal-check-card-content { display: flex; flex-direction: column; gap: 2px; }
     .legal-check-title { font-size: 11.5px; font-weight: 700; color: #0F172A; }
@@ -411,29 +850,124 @@ class ShareService extends EventEmitter {
     .btn-submit-report:hover { background: #0052CC; }
     .btn-submit-report:disabled { background: #94A3B8; cursor: not-allowed; }
     
-    /* Statutory Policy Card Styles */
-    .policy-para { font-size: 12.5px; color: #334155; line-height: 1.6; margin-bottom: 10px; }
-    .statutory-card { background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 14px; margin-bottom: 12px; font-size: 12.5px; line-height: 1.55; color: #1E293B; }
-    .statutory-card-header { font-weight: 800; font-size: 13px; color: #0F172A; margin-bottom: 8px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px; }
-    .grievance-contact-card { background: #EFF6FF; border: 1.5px solid #BFDBFE; border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: #1E3A8A; line-height: 1.5; }
-    .grievance-contact-card-title { font-weight: 800; font-size: 12.5px; color: #1E3A8A; margin-bottom: 4px; }
+    /* Statutory Policy & Banner Styles */
+    .statutory-banner {
+      background: #F0F7FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin-bottom: 15px;
+      font-size: 12px;
+      color: #1E3A8A;
+      line-height: 1.6;
+      text-align: justify;
+      text-justify: inter-word;
+      word-break: normal;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    .statutory-banner strong {
+      font-weight: 800;
+      color: #1E3A8A;
+    }
+    .policy-para {
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.6;
+      margin-bottom: 8px;
+      text-align: justify;
+      text-justify: inter-word;
+      word-break: normal;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    .statutory-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 13px 15px;
+      margin-bottom: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #1E293B;
+      text-align: justify;
+      text-justify: inter-word;
+      word-break: normal;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+    .statutory-card-header {
+      font-weight: 800;
+      font-size: 13px;
+      color: #0F172A;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 6px;
+      text-align: left;
+    }
+    .statutory-card ul {
+      margin-top: 6px;
+      margin-bottom: 0;
+      padding-left: 18px;
+    }
+    .statutory-card ul li {
+      font-size: 11.5px;
+      color: #334155;
+      line-height: 1.55;
+      margin-bottom: 4px;
+      text-align: justify;
+      text-justify: inter-word;
+    }
+    .grievance-contact-card {
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: #1E3A8A;
+      line-height: 1.55;
+      text-align: justify;
+      text-justify: inter-word;
+    }
+    .grievance-contact-card-title {
+      font-weight: 800;
+      font-size: 12.5px;
+      color: #1E3A8A;
+      margin-bottom: 4px;
+      text-align: left;
+    }
     .grievance-email-link { color: #0066FF; font-weight: 700; text-decoration: none; }
     .grievance-email-link:hover { text-decoration: underline; }
     
-    .modal-bottom-actions { padding: 12px 20px calc(14px + env(safe-area-inset-bottom, 0px)) 20px; border-top: 1px solid #F1F5F9; display: flex; gap: 10px; flex-shrink: 0; background: #FFFFFF; }
-    .btn-report-direct { flex: 1.2; height: 44px; background: #0066FF; color: #FFFFFF; border: none; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
-    .btn-report-direct:hover { background: #0052CC; }
-    .btn-understood { flex: 1; height: 44px; background: #F1F5F9; color: #334155; border: none; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
-    .btn-understood:hover { background: #E2E8F0; }
+    .modal-bottom-actions { padding: 12px 20px calc(14px + env(safe-area-inset-bottom, 0px)) 20px; border-top: 1px solid #F1F5F9; display: flex; flex-shrink: 0; background: #FFFFFF; }
+    .btn-understood { width: 100%; height: 44px; background: #0066FF; color: #FFFFFF; border: none; border-radius: 12px; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+    .btn-understood:hover { background: #0052CC; }
+
+    @media (max-width: 600px) {
+      .report-modal-card, .policy-modal-card {
+        border-radius: 20px 20px 0 0;
+        max-height: 90vh;
+      }
+      .form-row-2 {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .modal-scrollable-body {
+        padding: 16px 16px 20px 16px;
+      }
+    }
   </style>
 </head>
 <body>
 
   <nav class="navbar">
     <div class="brand">
-      <div class="brand-logo">T</div>
+      <div class="brand-logo-wrap">
+        <img src="/app_logo.png" onerror="this.onerror=null; this.src='/favicon.png';" alt="AirBox" class="brand-logo-img" />
+      </div>
       <div class="brand-text-container">
-        <span class="brand-name">TeraBox</span>
+        <span class="brand-name">AirBox</span>
         <span class="brand-subtitle">1024GB storage</span>
       </div>
     </div>
@@ -460,25 +994,26 @@ class ShareService extends EventEmitter {
       </div>
     </div>
 
-    <h1 class="file-headline-title">${rawName}</h1>
+    <h1 class="file-headline-title" title="${rawName}">${rawName}</h1>
 
     ${isFolder ? `
-      <div class="file-card-container" style="cursor:pointer; text-align:left;" onclick="watchInApp()">
-        <div style="display:flex; align-items:center; gap:12px; width:100%; margin-bottom:10px;">
-          <div class="file-icon-box" style="background:#FFFBEB; border:1.5px solid #FDE68A;">
-            <svg viewBox="0 0 24 24" width="30" height="30" fill="#D97706"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+      <div class="folder-card-container" onclick="watchInApp()">
+        <div class="folder-header-row">
+          <div class="file-hero-icon-box" style="width:52px; height:52px; background:#FFFBEB; border:1.5px solid #FDE68A; flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#D97706"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
           </div>
-          <div style="flex:1;">
+          <div style="flex:1; text-align:left;">
             <div style="font-weight:800; font-size:15px; color:#0F172A;">Folder • ${childCount} Items</div>
-            <div style="font-size:12.5px; color:#64748B; font-weight:600;">Total: ${displaySize}</div>
+            <div style="font-size:12px; color:#64748B; font-weight:600; margin-top:2px;">Total: ${displaySize}</div>
           </div>
+          <span class="pill-free-tag">Cloud</span>
         </div>
         ${share.children && share.children.length > 0 ? `
-          <div style="display:flex; flex-direction:column; gap:5px; width:100%; max-height:140px; overflow-y:auto; border-top:1px solid #F1F5F9; padding-top:8px;">
+          <div class="folder-children-list">
             ${share.children.slice(0, 15).map(c => `
-              <div style="display:flex; align-items:center; justify-content:space-between; padding:5px 8px; background:#F8FAFC; border-radius:6px; font-size:12px;">
-                <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; color:#1E293B; font-weight:500;">${c.name}</span>
-                <span style="color:#94A3B8; font-size:11px;">${formatBytes(c.sizeBytes || 0)}</span>
+              <div class="folder-child-item">
+                <span class="folder-child-name">${c.name}</span>
+                <span class="folder-child-size">${formatBytes(c.sizeBytes || 0)}</span>
               </div>
             `).join('')}
             ${share.children.length > 15 ? `<div style="text-align:center; font-size:11px; color:#64748B; padding-top:4px;">+ ${share.children.length - 15} more files</div>` : ''}
@@ -504,20 +1039,85 @@ class ShareService extends EventEmitter {
         </div>
         <div class="player-bottom-duration" style="z-index:2;">IMAGE | ${displaySize}</div>
       </div>
+    ` : isJsonOrCode ? `
+      <div class="file-hero-card" onclick="downloadFileDirectly()">
+        <div class="file-hero-icon-container">
+          <div class="file-hero-icon-box" style="background:#EFF6FF;">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#0066FF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          </div>
+        </div>
+        <div class="file-hero-details">
+          <div class="file-hero-type" style="color:#0066FF;">${ext ? ext.toUpperCase() : 'CODE'}</div>
+          <div class="file-hero-size">${displaySize}</div>
+        </div>
+      </div>
+    ` : isPdf ? `
+      <div class="file-hero-card" onclick="downloadFileDirectly()">
+        <div class="file-hero-icon-container">
+          <div class="file-hero-icon-box" style="background:#FEF2F2;">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#DC2626" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+        </div>
+        <div class="file-hero-details">
+          <div class="file-hero-type" style="color:#DC2626;">PDF</div>
+          <div class="file-hero-size">${displaySize}</div>
+        </div>
+      </div>
+    ` : isAudio ? `
+      <div class="file-hero-card" onclick="downloadFileDirectly()">
+        <div class="file-hero-icon-container">
+          <div class="file-hero-icon-box" style="background:#FDF2F8;">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#DB2777" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+        </div>
+        <div class="file-hero-details">
+          <div class="file-hero-type" style="color:#DB2777;">${ext ? ext.toUpperCase() : 'AUDIO'}</div>
+          <div class="file-hero-size">${displaySize}</div>
+        </div>
+      </div>
+    ` : isArchive ? `
+      <div class="file-hero-card" onclick="downloadFileDirectly()">
+        <div class="file-hero-icon-container">
+          <div class="file-hero-icon-box" style="background:#FAF5FF;">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#9333EA" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+          </div>
+        </div>
+        <div class="file-hero-details">
+          <div class="file-hero-type" style="color:#9333EA;">${ext ? ext.toUpperCase() : 'ZIP'}</div>
+          <div class="file-hero-size">${displaySize}</div>
+        </div>
+      </div>
     ` : isApk ? `
-      <div class="file-card-container" onclick="downloadFileDirectly()">
-        <div class="file-icon-box" style="background:#ECFDF5; border:1px solid #A7F3D0;"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#059669" stroke-width="2"><path d="M4 10h16v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8z"/><path d="M7 6a5 5 0 0 1 10 0v4H7V6z"/><circle cx="9" cy="7" r="1"/><circle cx="15" cy="7" r="1"/></svg></div>
-        <div style="margin-top:8px; text-align:center;">
-          <span style="font-size:11px; font-weight:800; background:#ECFDF5; color:#059669; padding:3px 8px; border-radius:6px;">APK</span>
-          <div style="font-size:12.5px; font-weight:600; color:#64748B; margin-top:4px;">${displaySize}</div>
+      <div class="file-hero-card" onclick="downloadFileDirectly()">
+        <div class="file-hero-icon-container">
+          <div class="file-hero-icon-box" style="background:#ECFDF5;">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7.5" y1="5.5" x2="5.5" y2="3" />
+              <line x1="16.5" y1="5.5" x2="18.5" y2="3" />
+              <path d="M5 12.5C5 8.91 7.91 6 11.5 6H12.5C16.09 6 19 8.91 19 12.5H5Z" />
+              <circle cx="9" cy="9.5" r="0.75" fill="#059669" stroke="none" />
+              <circle cx="15" cy="9.5" r="0.75" fill="#059669" stroke="none" />
+              <path d="M5 14.5V17.5C5 19.43 6.57 21 8.5 21H15.5C17.43 21 19 19.43 19 17.5V14.5" />
+              <path d="M2.5 12.5V16C2.5 16.83 3.17 17.5 4 17.5" />
+              <path d="M21.5 12.5V16C21.5 16.83 20.83 17.5 20 17.5" />
+            </svg>
+          </div>
+        </div>
+        <div class="file-hero-details">
+          <div class="file-hero-type" style="color:#059669;">APK</div>
+          <div class="file-hero-size">${displaySize}</div>
         </div>
       </div>
     ` : `
-      <div class="file-card-container" onclick="downloadFileDirectly()">
-        <div class="file-icon-box" style="background:#EFF6FF; border:1px solid #BFDBFE;"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="#0066FF" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></div>
-        <div style="margin-top:8px; text-align:center;">
-          <span style="font-size:11px; font-weight:800; background:#EFF6FF; color:#0066FF; padding:3px 8px; border-radius:6px;">${ext ? ext.toUpperCase() : 'FILE'}</span>
-          <div style="font-size:12.5px; font-weight:600; color:#64748B; margin-top:4px;">${displaySize}</div>
+      <div class="file-hero-card" onclick="downloadFileDirectly()">
+        <div class="file-hero-icon-container">
+          <div class="file-hero-icon-box" style="background:#F0F9FF;">
+            <svg viewBox="0 0 24 24" width="38" height="38" fill="none" stroke="#0284C7" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+          </div>
+        </div>
+        <div class="file-hero-details">
+          <div class="file-hero-type" style="color:#0284C7;">${ext ? ext.toUpperCase() : 'FILE'}</div>
+          <div class="file-hero-size">${displaySize}</div>
         </div>
       </div>
     `}
@@ -526,7 +1126,7 @@ class ShareService extends EventEmitter {
   <div class="bottom-bar-container">
     <div class="promo-notice-row">
       <div class="promo-notice-left">
-        <span>${isFolder ? 'Shared folders are accessible exclusively in TeraBox App' : (isVideo || isImage) ? 'Media streams & downloads exclusively in TeraBox App' : 'Download TeraBox for permanent free 1024GB cloud storage'}</span>
+        <span>${isFolder ? 'Shared folders are accessible exclusively in AirBox App' : (isVideo || isImage) ? 'Media streams & downloads exclusively in AirBox App' : 'Download AirBox for permanent free 1024GB cloud storage'}</span>
       </div>
       <span style="color:#94A3B8; cursor:pointer;" onclick="this.parentElement.style.display='none'">✕</span>
     </div>
@@ -575,96 +1175,115 @@ class ShareService extends EventEmitter {
       </div>
       
       <div class="modal-scrollable-body" id="mainReportView">
-        <div style="background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:12px; padding:12px 14px; margin-bottom:16px; font-size:12px; color:#1E3A8A; line-height:1.45;">
-          <strong>Statutory Requirement:</strong> Under Rule 75 of Indian Copyright Rules 2013 and DMCA (17 U.S.C. § 512), all complaints must include verified claimant identity and proof of ownership. False claims carry legal liability.
+        <div class="statutory-banner">
+          <strong>Statutory Notice Requirement:</strong> Under Rule 75 of the Indian Copyright Rules, 2013 and Section 512(c) of the Digital Millennium Copyright Act (17 U.S.C. § 512), all submitted notices must provide verified claimant identity, legal authorization, and documentary proof of ownership. Submitting false or misleading claims creates direct civil and criminal liability.
         </div>
 
-        <form id="dmcaNoticeForm" onsubmit="submitStatutoryWebNotice(event)">
-          <div class="form-section-title">1. Claimant &amp; Rights Holder Identity</div>
+        <form id="dmcaNoticeForm" onsubmit="submitStatutoryWebNotice(event)" novalidate>
+          <div class="form-section-header">
+            <span class="section-badge">1</span>
+            <span class="section-title-text">Claimant &amp; Rights Holder Identity</span>
+          </div>
           
           <div class="form-group">
             <label class="form-label" for="web_legalName">Full Legal Name *</label>
-            <input type="text" id="web_legalName" class="form-input" placeholder="e.g. Rahul Sharma or Yash Raj Films Legal" required />
+            <input type="text" id="web_legalName" class="form-input" placeholder="Legal full name of copyright owner / claimant" oninput="clearFieldError('web_legalName')" />
+            <div class="field-error-msg" id="err_web_legalName"></div>
           </div>
 
           <div class="form-row-2">
             <div class="form-group">
-              <label class="form-label" for="web_org">Organization / Studio / Label (Optional)</label>
-              <input type="text" id="web_org" class="form-input" placeholder="e.g. Zee Entertainment, Sony Music" />
+              <label class="form-label" for="web_org">Organization / Label (Optional)</label>
+              <input type="text" id="web_org" class="form-input" placeholder="Studio, company or label name" oninput="clearFieldError('web_org')" />
+              <div class="field-error-msg" id="err_web_org"></div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="web_relationship">Legal Capacity / Relationship *</label>
-              <select id="web_relationship" class="form-select">
+              <label class="form-label" for="web_relationship">Legal Capacity / Role *</label>
+              <select id="web_relationship" class="form-select" onchange="clearFieldError('web_relationship')">
                 <option value="Copyright Owner">Copyright Owner</option>
                 <option value="Authorized Legal Counsel">Authorized Legal Counsel</option>
                 <option value="Exclusive Licensee">Exclusive Licensee</option>
                 <option value="Producer / Studio Representative">Producer / Studio Representative</option>
               </select>
+              <div class="field-error-msg" id="err_web_relationship"></div>
             </div>
           </div>
 
           <div class="form-row-2">
             <div class="form-group">
               <label class="form-label" for="web_email">Official Email Address *</label>
-              <input type="email" id="web_email" class="form-input" placeholder="legal@domain.com" required />
+              <input type="email" id="web_email" class="form-input" placeholder="claimant@officialdomain.com" oninput="clearFieldError('web_email')" />
+              <div class="field-error-msg" id="err_web_email"></div>
             </div>
             <div class="form-group">
-              <label class="form-label" for="web_phone">Direct Contact Phone Number *</label>
-              <input type="tel" id="web_phone" class="form-input" placeholder="+91 98765 43210" required />
+              <label class="form-label" for="web_phone">Contact Mobile (10 Digits) *</label>
+              <input type="tel" id="web_phone" class="form-input" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,10); clearFieldError('web_phone');" />
+              <div class="field-error-msg" id="err_web_phone"></div>
             </div>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="web_address">Physical Postal Mailing Address *</label>
-            <textarea id="web_address" class="form-textarea" placeholder="Complete postal address with PIN / Zip Code &amp; City" required></textarea>
+            <textarea id="web_address" class="form-textarea" placeholder="Complete physical postal mailing address" oninput="clearFieldError('web_address')"></textarea>
+            <div class="field-error-msg" id="err_web_address"></div>
           </div>
 
-          <div class="form-section-title">2. Copyrighted Work &amp; Ownership Evidence</div>
+          <div class="form-section-header">
+            <span class="section-badge">2</span>
+            <span class="section-title-text">Copyrighted Work &amp; Ownership Evidence</span>
+          </div>
           
           <div class="form-group">
             <label class="form-label" for="web_workTitle">Title of Original Copyrighted Work *</label>
-            <input type="text" id="web_workTitle" class="form-input" placeholder="e.g. Official Movie Title, Song Name, or Course Name" required />
+            <input type="text" id="web_workTitle" class="form-input" placeholder="Title of movie, video, music or artwork" oninput="clearFieldError('web_workTitle')" />
+            <div class="field-error-msg" id="err_web_workTitle"></div>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="web_proofUrl">Proof of Ownership URL or Reg Certificate Number *</label>
-            <input type="text" id="web_proofUrl" class="form-input" placeholder="Official YouTube link, publisher URL, or ROC / USCO Reg Number" required />
+            <input type="text" id="web_proofUrl" class="form-input" placeholder="https://official-link.com or Copyright Reg No." oninput="clearFieldError('web_proofUrl')" />
+            <div class="field-error-msg" id="err_web_proofUrl"></div>
           </div>
 
-          <div class="form-section-title">3. Statutory Sworn Declarations &amp; Signature</div>
+          <div class="form-section-header">
+            <span class="section-badge">3</span>
+            <span class="section-title-text">Statutory Sworn Declarations &amp; Signature</span>
+          </div>
 
           <div class="legal-checkbox-container">
-            <label class="legal-check-card">
-              <input type="checkbox" id="web_declGoodFaith" required />
+            <label class="legal-check-card" id="card_declGoodFaith">
+              <input type="checkbox" id="web_declGoodFaith" onchange="clearCheckboxError('card_declGoodFaith')" />
               <div class="legal-check-card-content">
                 <span class="legal-check-title">Good Faith Affirmation</span>
                 <span class="legal-check-desc">I have a good faith belief that use of the material is not authorized by the copyright owner, its agent, or the law (Section 52 Indian Copyright Act &amp; 17 U.S.C. § 512).</span>
               </div>
             </label>
 
-            <label class="legal-check-card">
-              <input type="checkbox" id="web_declPerjury" required />
+            <label class="legal-check-card" id="card_declPerjury">
+              <input type="checkbox" id="web_declPerjury" onchange="clearCheckboxError('card_declPerjury')" />
               <div class="legal-check-card-content">
                 <span class="legal-check-title">Statement Under Penalty of Perjury</span>
                 <span class="legal-check-desc">I swear, under penalty of perjury and applicable laws of India (including Bharatiya Nyaya Sanhita / IPC), that the information is accurate and I am the owner or authorized agent.</span>
               </div>
             </label>
 
-            <label class="legal-check-card">
-              <input type="checkbox" id="web_declLiability" required />
+            <label class="legal-check-card" id="card_declLiability">
+              <input type="checkbox" id="web_declLiability" onchange="clearCheckboxError('card_declLiability')" />
               <div class="legal-check-card-content">
                 <span class="legal-check-title">Acknowledgement of Legal Liability</span>
                 <span class="legal-check-desc">I acknowledge that submitting false, fraudulent, or bad-faith takedown notices creates civil liability for damages and criminal prosecution.</span>
               </div>
             </label>
+            <div class="field-error-msg" id="err_web_declarations"></div>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="web_signature">Electronic Signature (Type Full Legal Name) *</label>
-            <input type="text" id="web_signature" class="form-input" style="font-weight:700;" placeholder="Type your full legal name to execute this notice" required />
+            <input type="text" id="web_signature" class="form-input" style="font-weight:700;" placeholder="Type your full legal name as digital signature" oninput="clearFieldError('web_signature')" />
+            <div class="field-error-msg" id="err_web_signature"></div>
           </div>
 
-          <div id="web_reportError" style="display:none; color:#DC2626; font-size:12px; font-weight:700; margin-bottom:12px; background:#FEF2F2; border:1px solid #FECACA; padding:8px 12px; border-radius:8px;"></div>
+          <div id="web_reportError" style="display:none; color:#DC2626; font-size:12px; font-weight:700; margin-bottom:12px; background:#FEF2F2; border:1px solid #FECACA; padding:10px 14px; border-radius:10px; line-height:1.4;"></div>
 
           <button type="submit" class="btn-submit-report" id="btnSubmitWebDmca">Submit Legal Takedown Notice</button>
         </form>
@@ -683,7 +1302,7 @@ class ShareService extends EventEmitter {
     </div>
   </div>
 
-  <!-- Statutory Copyright & Grievance Policy Modal (Image 4 Bug Fix) -->
+  <!-- Statutory Copyright & Grievance Policy Modal -->
   <div class="policy-modal-overlay" id="policyModalOverlay" onclick="closePolicyModalOnOutside(event)">
     <div class="policy-modal-card">
       <div class="modal-top-header">
@@ -697,50 +1316,49 @@ class ShareService extends EventEmitter {
       </div>
 
       <div class="modal-scrollable-body">
-        <div style="background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:#1E3A8A; line-height:1.45;">
-          <strong>Statutory Policy:</strong> TeraBox strictly adheres to the Indian Copyright Act 1957, Information Technology (Intermediary Guidelines) Rules 2021 (Rule 3), Digital Millennium Copyright Act (17 U.S.C. § 512), and Google Play Developer Policies.
+        <div class="statutory-banner">
+          <strong>Statutory Policy:</strong> AirBox operates in full compliance with the Indian Copyright Act, 1957, Rule 3 of the Information Technology (Intermediary Guidelines) Rules, 2021, the Digital Millennium Copyright Act (17 U.S.C. § 512), and Google Play Developer Policies. AirBox functions strictly as a neutral cloud storage service and intermediary.
         </div>
 
         <div class="statutory-card">
-          <div class="statutory-card-header">1. Zero-Tolerance Anti-Piracy Policy</div>
-          <div class="policy-para" style="margin-bottom:0;">
-            TeraBox operates as a neutral intermediary under Section 79 of the Information Technology Act 2000. Unauthorized distribution of protected cinematographic films, music, software, literature, or broadcast signals is strictly prohibited. We maintain automated content hashing and 24/7 proactive compliance review.
+          <div class="statutory-card-header">1. Neutral Intermediary &amp; Safe Harbor</div>
+          <div class="policy-para" style="margin-bottom:0; text-align:justify;">
+            AirBox is a cloud storage platform operating as a neutral intermediary under Section 79 of the Information Technology Act 2000. Users maintain complete ownership and responsibility for files stored within their personal cloud storage. AirBox strictly prohibits unauthorized sharing of protected copyrighted materials, movies, music, literature, and software.
           </div>
         </div>
 
         <div class="statutory-card">
-          <div class="statutory-card-header">2. Statutory Notice Requirements</div>
-          <div class="policy-para" style="margin-bottom:6px;">
-            Under Rule 75 of Indian Copyright Rules 2013, all takedown notices must contain:
+          <div class="statutory-card-header">2. Notice &amp; Takedown Procedure</div>
+          <div class="policy-para" style="margin-bottom:8px; text-align:justify;">
+            Under Rule 75 of Indian Copyright Rules 2013 and DMCA guidelines, copyright holders or authorized legal representatives may submit takedown notices. To be processed, complaints must include:
           </div>
-          <ul style="padding-left:18px; font-size:11.5px; color:#334155; line-height:1.55;">
-            <li>Full verified legal identity and official contact details of the copyright owner or authorized counsel.</li>
-            <li>Clear title and description of the original copyrighted work.</li>
-            <li>Documentary proof of ownership (Registration certificate, publisher URL, or copyright registry number).</li>
-            <li>Specific link/share code of the allegedly infringing material.</li>
-            <li>Sworn statement under penalty of perjury and electronic digital signature.</li>
+          <ul style="padding-left:18px; font-size:11.5px; color:#334155; line-height:1.6; text-align:justify;">
+            <li>Full verified legal identity and official contact information of the copyright claimant.</li>
+            <li>Clear identification and description of the original copyrighted work.</li>
+            <li>Documentary evidence of ownership (Registration certificate, official publication URL, or registry record).</li>
+            <li>Specific file link or share code of the allegedly infringing material on AirBox.</li>
+            <li>A good faith sworn declaration and digital electronic signature.</li>
           </ul>
         </div>
 
         <div class="statutory-card">
-          <div class="statutory-card-header">3. Repeat Infringer 3-Strike Termination</div>
-          <div class="policy-para" style="margin-bottom:0;">
-            Accounts receiving 3 validated statutory copyright strikes within a 90-day period are permanently terminated and all stored files purged without notice.
+          <div class="statutory-card-header">3. Content Moderation &amp; Enforcement</div>
+          <div class="policy-para" style="margin-bottom:0; text-align:justify;">
+            Upon receipt of a verified statutory complaint, AirBox acts expeditiously to disable access to or remove the identified infringing content. We maintain automated content fingerprinting and proactive review mechanisms to protect intellectual property rights across our services.
           </div>
         </div>
 
         <div class="grievance-contact-card">
-          <div class="grievance-contact-card-title">Grievance &amp; Compliance Officer</div>
-          <div>Designated under Rule 3(2) of Information Technology Rules 2021.</div>
-          <div style="margin-top:4px;">
-            <strong>Email:</strong> <a href="mailto:grievance-compliance@terabox.app" class="grievance-email-link">grievance-compliance@terabox.app</a><br/>
-            <strong>Statutory SLA:</strong> 24 to 36 Hours for Takedown &amp; Grievance Redressal.
+          <div class="grievance-contact-card-title">Grievance &amp; Compliance Redressal</div>
+          <div>Designated Grievance Officer under Rule 3(2) of Information Technology Rules 2021.</div>
+          <div style="margin-top:6px;">
+            <strong>Email:</strong> <a href="mailto:info.airboxcloud@gmail.com" class="grievance-email-link">info.airboxcloud@gmail.com</a><br/>
+            <strong>Response SLA:</strong> 24 to 36 Hours for Takedown &amp; Grievance Redressal.
           </div>
         </div>
       </div>
 
       <div class="modal-bottom-actions">
-        <button class="btn-report-direct" onclick="openReportModal()">Report Infringement</button>
         <button class="btn-understood" onclick="closePolicyModal()">I Understand</button>
       </div>
     </div>
@@ -831,10 +1449,10 @@ class ShareService extends EventEmitter {
       var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
       var refParam = "${activeRefCode}";
       var playStoreUrl = refParam
-        ? "https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client&referrer=" + encodeURIComponent("utm_source=terabox_referral&utm_content=" + refParam)
-        : "https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client";
+        ? "https://play.google.com/store/apps/details?id=com.airbox.cloud.storage&referrer=" + encodeURIComponent("utm_source=airbox_referral&utm_content=" + refParam)
+        : "https://play.google.com/store/apps/details?id=com.airbox.cloud.storage";
       var deepLinkPath = "share/" + shareCode + (refParam ? "?ref=" + encodeURIComponent(refParam) : "");
-      var appIntentUrl = "intent://" + deepLinkPath + "#Intent;scheme=terabox;package=com.teracloud.app.terabox_client;S.browser_fallback_url=" + encodeURIComponent(playStoreUrl) + ";end;";
+      var appIntentUrl = "intent://" + deepLinkPath + "#Intent;scheme=terabox;package=com.airbox.cloud.storage;S.browser_fallback_url=" + encodeURIComponent(playStoreUrl) + ";end;";
       var iosDeepLink = "terabox://" + deepLinkPath;
 
       if (isAndroid) {
@@ -925,39 +1543,151 @@ class ShareService extends EventEmitter {
       if (event.target.id === 'policyModalOverlay') closePolicyModal();
     }
 
-    function submitStatutoryWebNotice(event) {
-      event.preventDefault();
-      var errEl = document.getElementById('web_reportError');
-      errEl.style.display = 'none';
+    function clearFieldError(fieldId) {
+      var el = document.getElementById(fieldId);
+      if (el) el.classList.remove('is-invalid');
+      var errEl = document.getElementById('err_' + fieldId);
+      if (errEl) {
+        errEl.innerText = '';
+        errEl.style.display = 'none';
+      }
+      var topErr = document.getElementById('web_reportError');
+      if (topErr) topErr.style.display = 'none';
+    }
 
-      var legalName = document.getElementById('web_legalName').value.trim();
+    function clearCheckboxError(cardId) {
+      var card = document.getElementById(cardId);
+      if (card) card.classList.remove('is-invalid');
+      var errEl = document.getElementById('err_web_declarations');
+      if (errEl) {
+        errEl.innerText = '';
+        errEl.style.display = 'none';
+      }
+      var topErr = document.getElementById('web_reportError');
+      if (topErr) topErr.style.display = 'none';
+    }
+
+    function showFieldError(fieldId, message) {
+      var el = document.getElementById(fieldId);
+      if (el) el.classList.add('is-invalid');
+      var errEl = document.getElementById('err_' + fieldId);
+      if (errEl) {
+        errEl.innerText = message;
+        errEl.style.display = 'block';
+      }
+    }
+
+    function submitStatutoryWebNotice(event) {
+      if (event && event.preventDefault) event.preventDefault();
+      var topErr = document.getElementById('web_reportError');
+      topErr.style.display = 'none';
+      topErr.innerText = '';
+
+      // Reset all field error states
+      var inputs = document.querySelectorAll('.form-input, .form-select, .form-textarea, .legal-check-card');
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].classList.remove('is-invalid');
+      }
+      var errorMsgs = document.querySelectorAll('.field-error-msg');
+      for (var j = 0; j < errorMsgs.length; j++) {
+        errorMsgs[j].style.display = 'none';
+        errorMsgs[j].innerText = '';
+      }
+
+      var legalNameEl = document.getElementById('web_legalName');
+      var legalName = legalNameEl.value.trim();
       var org = document.getElementById('web_org').value.trim();
       var relationship = document.getElementById('web_relationship').value;
-      var email = document.getElementById('web_email').value.trim();
-      var phone = document.getElementById('web_phone').value.trim();
-      var address = document.getElementById('web_address').value.trim();
-      var workTitle = document.getElementById('web_workTitle').value.trim();
-      var proofUrl = document.getElementById('web_proofUrl').value.trim();
+      var emailEl = document.getElementById('web_email');
+      var email = emailEl.value.trim();
+      var phoneEl = document.getElementById('web_phone');
+      var phone = phoneEl.value.trim();
+      var addressEl = document.getElementById('web_address');
+      var address = addressEl.value.trim();
+      var workTitleEl = document.getElementById('web_workTitle');
+      var workTitle = workTitleEl.value.trim();
+      var proofUrlEl = document.getElementById('web_proofUrl');
+      var proofUrl = proofUrlEl.value.trim();
       var declGoodFaith = document.getElementById('web_declGoodFaith').checked;
       var declPerjury = document.getElementById('web_declPerjury').checked;
       var declLiability = document.getElementById('web_declLiability').checked;
-      var signature = document.getElementById('web_signature').value.trim();
+      var signatureEl = document.getElementById('web_signature');
+      var signature = signatureEl.value.trim();
 
-      if (!legalName || !email || !phone || !address || !workTitle || !proofUrl || !signature) {
-        errEl.innerText = 'Please complete all required fields (*).';
-        errEl.style.display = 'block';
-        return;
+      var firstInvalidEl = null;
+
+      if (!legalName || legalName.length < 3) {
+        showFieldError('web_legalName', 'Please enter full legal name of claimant (at least 3 characters).');
+        if (!firstInvalidEl) firstInvalidEl = legalNameEl;
       }
 
-      if (!declGoodFaith || !declPerjury || !declLiability) {
-        errEl.innerText = 'You must agree to all statutory legal declarations.';
-        errEl.style.display = 'block';
-        return;
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailPattern.test(email)) {
+        showFieldError('web_email', 'Please enter a valid official email address (e.g. name@domain.com).');
+        if (!firstInvalidEl) firstInvalidEl = emailEl;
+      }
+
+      var cleanPhone = phone.replace(/[^0-9]/g, '');
+      if (cleanPhone.length !== 10) {
+        showFieldError('web_phone', 'Please enter a valid 10-digit mobile number.');
+        if (!firstInvalidEl) firstInvalidEl = phoneEl;
+      }
+
+      if (!address || address.length < 8) {
+        showFieldError('web_address', 'Please enter complete physical postal mailing address (min 8 characters).');
+        if (!firstInvalidEl) firstInvalidEl = addressEl;
+      }
+
+      if (!workTitle || workTitle.length < 2) {
+        showFieldError('web_workTitle', 'Please enter the title of the original copyrighted work.');
+        if (!firstInvalidEl) firstInvalidEl = workTitleEl;
+      }
+
+      if (!proofUrl || proofUrl.length < 4) {
+        showFieldError('web_proofUrl', 'Proof of ownership (official URL or Copyright Reg No.) is required.');
+        if (!firstInvalidEl) firstInvalidEl = proofUrlEl;
+      }
+
+      var declError = false;
+      if (!declGoodFaith) {
+        document.getElementById('card_declGoodFaith').classList.add('is-invalid');
+        declError = true;
+      }
+      if (!declPerjury) {
+        document.getElementById('card_declPerjury').classList.add('is-invalid');
+        declError = true;
+      }
+      if (!declLiability) {
+        document.getElementById('card_declLiability').classList.add('is-invalid');
+        declError = true;
+      }
+      if (declError) {
+        var declErrEl = document.getElementById('err_web_declarations');
+        if (declErrEl) {
+          declErrEl.innerText = 'You must affirm all 3 statutory declarations above.';
+          declErrEl.style.display = 'block';
+        }
+        if (!firstInvalidEl) firstInvalidEl = document.getElementById('card_declGoodFaith');
+      }
+
+      if (!signature || signature.length < 3) {
+        showFieldError('web_signature', 'Please type your full legal name as digital electronic signature.');
+        if (!firstInvalidEl) firstInvalidEl = signatureEl;
+      }
+
+      if (firstInvalidEl) {
+        topErr.innerText = 'Please correct the highlighted fields with required information.';
+        topErr.style.display = 'block';
+        firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (firstInvalidEl.focus && typeof firstInvalidEl.focus === 'function') {
+          firstInvalidEl.focus();
+        }
+        return false;
       }
 
       var btn = document.getElementById('btnSubmitWebDmca');
       btn.disabled = true;
-      btn.innerText = 'Verifying & Submitting Notice...';
+      btn.innerText = 'Submitting Statutory Notice...';
 
       fetch('/api/report/takedown', {
         method: 'POST',
@@ -966,10 +1696,10 @@ class ShareService extends EventEmitter {
           shareCode: shareCode,
           reason: 'Copyright Infringement / DMCA',
           legalName: legalName,
-          organization: org,
+          organization: org || 'Individual / Rights Holder',
           relationship: relationship,
           email: email,
-          phone: phone,
+          phone: cleanPhone,
           address: address,
           country: 'India',
           workTitle: workTitle,
@@ -990,16 +1720,19 @@ class ShareService extends EventEmitter {
           document.getElementById('successTicketId').innerText = data.reportId || data.ticketNumber || 'DMCA-IN-2026-SUBMITTED';
           document.getElementById('reportSuccessBox').style.display = 'block';
         } else {
-          errEl.innerText = (data && data.error) ? data.error : 'Submission failed. Please check details.';
-          errEl.style.display = 'block';
+          topErr.innerText = (data && data.error) ? data.error : 'Submission failed. Please check details.';
+          topErr.style.display = 'block';
+          topErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       })
       .catch(function(err) {
         btn.disabled = false;
         btn.innerText = 'Submit Legal Takedown Notice';
-        errEl.innerText = 'Network error submitting legal notice. Please try again.';
-        errEl.style.display = 'block';
+        topErr.innerText = 'Network error submitting legal notice. Please try again.';
+        topErr.style.display = 'block';
+        topErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
+      return false;
     }
   </script>
 </body>

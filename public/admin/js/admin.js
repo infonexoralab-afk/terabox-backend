@@ -1,5 +1,5 @@
-// TeraBox Enterprise Control Tower - Administrative Client Engine
-// Version: 4.1.0-PROD | Security: Super Admin Direct
+// AirBox Enterprise Control Tower - Administrative Client Engine
+// Complete Full-Stack Vanilla Architecture (Zero External Frameworks)
 
 const AdminApp = {
   state: {
@@ -60,6 +60,52 @@ const AdminApp = {
         this.loadDashboardStats();
       }
     }, 10000);
+  },
+
+  // -------------------------------------------------------------
+  // MODERN FLOATING TOAST NOTIFICATION ENGINE
+  // -------------------------------------------------------------
+  showToast(message, type = 'success', duration = 3500) {
+    let container = document.getElementById('admin-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'admin-toast-container';
+      container.className = 'admin-toast-container';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `admin-toast-item toast-${type}`;
+
+    let iconSvg = '';
+    if (type === 'success') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else if (type === 'error') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+    } else if (type === 'warning') {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+    } else {
+      iconSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+    }
+
+    toast.innerHTML = `
+      <span style="display:flex; align-items:center;">${iconSvg}</span>
+      <span style="flex:1;">${this.escapeHtml(message)}</span>
+    `;
+
+    toast.addEventListener('click', () => {
+      toast.classList.add('toast-hide');
+      setTimeout(() => toast.remove(), 250);
+    });
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.classList.add('toast-hide');
+        setTimeout(() => toast.remove(), 250);
+      }
+    }, duration);
   },
 
   // -------------------------------------------------------------
@@ -184,7 +230,7 @@ const AdminApp = {
     this.state.admin = null;
     localStorage.removeItem('tb_admin_token');
     if (this.state.ws) {
-      try { this.state.ws.close(); } catch (_) {}
+      try { this.state.ws.close(); } catch (_) { }
       this.state.ws = null;
     }
     this.showLogin();
@@ -206,7 +252,7 @@ const AdminApp = {
 
   startSession() {
     this.updateAdminHeader();
-    try { this.initWebSocket(); } catch (_) {}
+    try { this.initWebSocket(); } catch (_) { }
     this.switchTab(this.state.activeTab || 'overview');
   },
 
@@ -215,7 +261,7 @@ const AdminApp = {
       const nameEl = document.getElementById('current-admin-name');
       const emailEl = document.getElementById('current-admin-email');
       if (nameEl) nameEl.textContent = this.state.admin.displayName || this.state.admin.username || 'Super Admin';
-      if (emailEl) emailEl.textContent = this.state.admin.email || 'superadmin@terabox.mywire.org';
+      if (emailEl) emailEl.textContent = this.state.admin.email || 'superadmin@airbox.one';
     }
   },
 
@@ -242,7 +288,7 @@ const AdminApp = {
         try {
           const payload = JSON.parse(event.data);
           this.handleWebSocketMessage(payload);
-        } catch (_) {}
+        } catch (_) { }
       };
 
       this.state.ws.onclose = () => {
@@ -289,6 +335,13 @@ const AdminApp = {
       const hours = Math.floor(telemetry.uptimeSeconds / 3600);
       const mins = Math.floor((telemetry.uptimeSeconds % 3600) / 60);
       upVal.textContent = `${hours}h ${mins}m`;
+    }
+
+    // Update Node Badge
+    const nodeBadge = document.getElementById('vps-node-badge');
+    if (nodeBadge) {
+      const host = window.location.hostname || 'airbox.one';
+      nodeBadge.textContent = `VPS Node 213.136.67.9 (${host})`;
     }
   },
 
@@ -387,8 +440,19 @@ const AdminApp = {
   renderOverviewMetrics(s) {
     document.getElementById('metric-total-users').textContent = (s.totalUsers || 0).toLocaleString();
     document.getElementById('metric-active-users').textContent = `${s.activeUsers || 0} Active Accounts`;
-    
-    document.getElementById('metric-storage-gb').textContent = `${s.totalStorageGb || 0} GB`;
+
+    const storageGbFormatted = (s.totalStorageGb !== undefined && s.totalStorageGb !== null)
+      ? Number(s.totalStorageGb).toFixed(2)
+      : '0.00';
+    document.getElementById('metric-storage-gb').textContent = `${storageGbFormatted} GB`;
+    const storageSubtext = document.getElementById('metric-storage-subtext');
+    if (storageSubtext) {
+      if (s.r2ObjectsCount) {
+        storageSubtext.textContent = `Cloudflare R2 (${s.r2ObjectsCount} Objects, Zero Egress)`;
+      } else {
+        storageSubtext.textContent = 'Cloudflare R2 Bucket (Zero Egress)';
+      }
+    }
     document.getElementById('metric-webmaster-earnings').textContent = `$${(s.totalWebmasterEarningsUsd || 0).toFixed(2)}`;
     document.getElementById('metric-pending-payouts').textContent = `$${(s.pendingWithdrawalUsd || 0).toFixed(2)}`;
     document.getElementById('metric-total-withdrawn').textContent = `Total Paid: $${(s.totalWithdrawnUsd || 0).toFixed(2)}`;
@@ -407,11 +471,12 @@ const AdminApp = {
   },
 
   // -------------------------------------------------------------
-  // TAB 2: USERS & STORAGE QUOTAS
+  // -------------------------------------------------------------
+  // TAB 2: USERS, CALCULATIONS & DEEP INTELLIGENCE
   // -------------------------------------------------------------
   async loadUsers(search = '') {
     const tbody = document.getElementById('users-table-body');
-    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;">Loading user accounts...</td></tr>';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;">Loading user accounts & live calculations...</td></tr>';
 
     try {
       const q = search ? `?search=${encodeURIComponent(search)}` : '';
@@ -443,38 +508,539 @@ const AdminApp = {
         return (bytes / (1024 ** 2)).toFixed(0) + ' MB';
       };
 
-      const quotaStr = formatBytesHuman(u.totalSpaceBytes || 1099511627776);
-      const usedStr = formatBytesHuman(u.usedSpaceBytes || 0);
+      const quotaBytes = u.totalSpaceBytes || 1099511627776;
+      const usedBytes = u.usedSpaceBytes || 0;
+      const quotaStr = formatBytesHuman(quotaBytes);
+      const usedStr = formatBytesHuman(usedBytes);
+      const percentUsed = Math.min(100, Math.round((usedBytes / quotaBytes) * 1000) / 10);
+
       const isBanned = u.status === 'BANNED' || u.status === 'SUSPENDED';
       const identifier = u.email || u.phone || u.displayName || u.id;
+      const grossEarnings = (u.totalEarningsUsd || 0.0).toFixed(2);
+      const walletBal = (u.walletBalanceUsd || 0.0).toFixed(2);
+      const refsCount = u.referralsCount || 0;
+      const qualifiedRefs = u.qualifiedReferralsCount || 0;
 
       return `
         <tr>
-          <td><span class="mono-text">${u.id || 'N/A'}</span></td>
           <td>
-            <strong>${u.displayName || 'User'}</strong><br/>
-            <span style="color:var(--text-muted);font-size:12px;">${u.email || u.phone || 'No Email'}</span>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span class="mono-text" style="font-weight: 700; color: var(--text-primary); font-size: 12px;">${this.escapeHtml(u.id || 'N/A')}</span>
+              ${u.isVip ? '<span class="badge badge-warning" style="font-size: 10px; padding: 1px 6px;">VIP</span>' : ''}
+              ${u.isEnrolledWebmaster ? `<span class="badge badge-info" style="font-size: 10px; padding: 1px 6px;">${this.escapeHtml(u.referralCode || 'CREATOR')}</span>` : ''}
+            </div>
+            <div style="margin-top: 4px;">
+              <span class="badge ${isBanned ? 'badge-danger' : 'badge-success'}" style="font-size: 10.5px;">${u.status || 'ACTIVE'}</span>
+            </div>
           </td>
+
           <td>
-            <span class="badge ${isBanned ? 'badge-danger' : 'badge-success'}">${u.status || 'ACTIVE'}</span>
-            ${u.isVip ? '<span class="badge badge-warning" style="margin-left:4px;">VIP</span>' : ''}
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0;">
+                ${this.escapeHtml((u.displayName || u.email || 'U').charAt(0).toUpperCase())}
+              </div>
+              <div>
+                <strong style="color: var(--text-primary); font-size: 13px;">${this.escapeHtml(u.displayName || 'AirBox User')}</strong><br/>
+                <span style="color: var(--text-muted); font-size: 11.5px;">${this.escapeHtml(u.email || u.phone || 'No Email')}</span>
+              </div>
+            </div>
           </td>
+
           <td>
-            <span class="mono-text">${usedStr} / ${quotaStr}</span>
+            <strong style="color: #059669; font-size: 13.5px; font-family: var(--font-mono);">$${grossEarnings}</strong>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+              Avail: <span class="mono-text" style="color: #2563EB;">$${walletBal}</span>
+            </div>
           </td>
-          <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td>
+
           <td>
-            <button class="btn-sm btn-secondary" onclick="AdminApp.openQuotaModal('${u.id}', ${u.totalSpaceBytes || 1099511627776})">Set Quota</button>
-            <button class="btn-sm ${isBanned ? 'btn-secondary' : 'btn-danger'}" onclick="AdminApp.toggleUserStatus('${u.id}', '${isBanned ? 'ACTIVE' : 'BANNED'}')">
-              ${isBanned ? 'Unban' : 'Ban'}
-            </button>
-            <button class="btn-sm btn-danger" style="margin-left:4px;" onclick="AdminApp.deleteUserAccount('${u.id}', '${identifier}')">
-              Delete
-            </button>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <strong style="color: #7C3AED; font-size: 13px; font-family: var(--font-mono);">${refsCount}</strong>
+              <span style="font-size: 11px; color: var(--text-muted);">Users</span>
+            </div>
+            <div style="font-size: 10.5px; color: #059669; font-weight: 600; margin-top: 2px;">
+              ${qualifiedRefs} Qualified
+            </div>
+          </td>
+
+          <td>
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-primary);">
+              <span class="mono-text">${usedStr}</span> <span style="color: var(--text-muted); font-weight: 400;">/ ${quotaStr}</span>
+            </div>
+            <div class="progress-track" style="height: 4px; max-width: 140px; margin-top: 4px;">
+              <div class="progress-fill" style="width: ${percentUsed}%; background: ${percentUsed > 90 ? '#DC2626' : (percentUsed > 70 ? '#F59E0B' : '#0066FF')};"></div>
+            </div>
+            <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">
+              ${percentUsed}% utilized &bull; ${u.sharesCount || 0} shares
+            </div>
+          </td>
+
+          <td>
+            <span class="mono-text" style="font-size: 11.5px; color: var(--text-secondary);">
+              ${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}
+            </span>
+          </td>
+
+          <td style="text-align: right;">
+            <div style="display: inline-flex; align-items: center; gap: 4px; flex-wrap: nowrap;">
+              <button class="btn-sm btn-primary" onclick="AdminApp.openUserIntelligenceModal('${u.id}')" title="Deep User Intelligence & Calculations" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11.5px; font-weight: 700;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Inspect
+              </button>
+              <button class="btn-sm btn-secondary" onclick="AdminApp.openQuotaModal('${u.id}', ${quotaBytes})" title="Set Storage Quota" style="padding: 4px 7px; font-size: 11.5px;">
+                Quota
+              </button>
+              <button class="btn-sm ${isBanned ? 'btn-secondary' : 'btn-danger'}" onclick="AdminApp.toggleUserStatus('${u.id}', '${isBanned ? 'ACTIVE' : 'BANNED'}')" style="padding: 4px 7px; font-size: 11.5px;">
+                ${isBanned ? 'Unban' : 'Ban'}
+              </button>
+              <button class="btn-sm btn-danger" onclick="AdminApp.deleteUserAccount('${u.id}', '${identifier}')" title="Permanent Delete" style="padding: 4px 6px; font-size: 11.5px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
           </td>
         </tr>
       `;
     }).join('');
+  },
+
+  // -------------------------------------------------------------
+  // DEEP USER INTELLIGENCE & CALCULATION MODAL CONTROLLER
+  // -------------------------------------------------------------
+  async openUserIntelligenceModal(userId) {
+    const modal = document.getElementById('user-intelligence-modal');
+    if (!modal) return;
+
+    modal.style.display = 'flex';
+    this.state.currentModalUserId = userId;
+
+    // Reset fields to loading state
+    document.getElementById('uim-name').textContent = 'Loading User Profile...';
+    document.getElementById('uim-email').textContent = 'Fetching deep calculations & telemetry...';
+    document.getElementById('uim-phone').textContent = '-';
+    document.getElementById('uim-id').textContent = userId;
+    document.getElementById('uim-joined-date').textContent = '-';
+    document.getElementById('uim-kpi-gross-earnings').textContent = '...';
+    document.getElementById('uim-kpi-wallet-balance').textContent = '...';
+    document.getElementById('uim-kpi-referrals-count').textContent = '...';
+    document.getElementById('uim-kpi-storage-used').textContent = '...';
+
+    try {
+      const data = await this.api(`/users/${encodeURIComponent(userId)}/details`);
+      if (!data || !data.success) throw new Error((data && data.error) || 'Failed to fetch user intelligence');
+
+      this.state.currentModalUser = data;
+      this.populateUserIntelligenceModal(data);
+    } catch (err) {
+      console.error('[AdminApp] User details error:', err);
+      this.showToast(`Could not load user profile: ${err.message}`, 'error');
+      document.getElementById('uim-name').textContent = 'Notice: Profile Load Delayed';
+      document.getElementById('uim-email').innerHTML = `<span style="color:#EF4444; font-weight:600;">${this.escapeHtml(err.message)}</span> &bull; <button class="btn-sm btn-primary" onclick="AdminApp.openUserIntelligenceModal('${userId}')" style="padding:2px 8px; font-size:11px; margin-left:6px;">Retry Loading</button>`;
+    }
+  },
+
+  populateUserIntelligenceModal(d) {
+    const u = d.user || {};
+    const f = d.financials || {};
+    const r = d.referralNetwork || {};
+    const s = d.storage || {};
+
+    const formatBytesHuman = (bytes) => {
+      if (!bytes || bytes <= 0) return '0 MB';
+      if (bytes >= (1024 ** 4)) return (bytes / (1024 ** 4)).toFixed(1) + ' TB';
+      if (bytes >= (1024 ** 3)) {
+        const gb = bytes / (1024 ** 3);
+        return (gb % 1 === 0 ? gb.toFixed(0) : gb.toFixed(1)) + ' GB';
+      }
+      return (bytes / (1024 ** 2)).toFixed(0) + ' MB';
+    };
+
+    // 1. Header Profile Info
+    const avatarEl = document.getElementById('uim-avatar');
+    if (avatarEl) {
+      avatarEl.textContent = (u.displayName || u.email || 'U').charAt(0).toUpperCase();
+    }
+
+    document.getElementById('uim-name').textContent = u.displayName || 'AirBox User';
+    document.getElementById('uim-email').textContent = u.email || 'No Email';
+    document.getElementById('uim-phone').textContent = u.phone || 'N/A';
+    document.getElementById('uim-id').textContent = u.id || 'N/A';
+    document.getElementById('uim-joined-date').textContent = u.createdAt ? new Date(u.createdAt).toLocaleString() : 'N/A';
+
+    // Status Badge
+    const statusBadge = document.getElementById('uim-status-badge');
+    const isBanned = u.status === 'BANNED' || u.status === 'SUSPENDED';
+    if (statusBadge) {
+      statusBadge.className = `badge ${isBanned ? 'badge-danger' : 'badge-success'}`;
+      statusBadge.textContent = u.status || 'ACTIVE';
+    }
+
+    // VIP Badge
+    const vipBadge = document.getElementById('uim-vip-badge');
+    if (vipBadge) {
+      vipBadge.style.display = u.isVip ? 'inline-block' : 'none';
+    }
+
+    // Creator Badge
+    const creatorBadge = document.getElementById('uim-creator-badge');
+    if (creatorBadge) {
+      if (r.isEnrolled && r.referralCode) {
+        creatorBadge.style.display = 'inline-block';
+        creatorBadge.textContent = `CREATOR: ${r.referralCode}`;
+      } else {
+        creatorBadge.style.display = 'none';
+      }
+    }
+
+    // 2. 4 Calculation KPI Cards
+    // KPI 1: Gross Earnings
+    document.getElementById('uim-kpi-gross-earnings').textContent = `$${(f.grossEarningsUsd || 0).toFixed(2)}`;
+    document.getElementById('uim-kpi-earnings-breakdown').innerHTML = `Plays: <strong style="color:var(--text-primary);">$${(f.videoPlayEarningsUsd || 0).toFixed(2)}</strong> &bull; Referral CPA: <strong style="color:var(--text-primary);">$${(f.referralEarningsUsd || 0).toFixed(2)}</strong>`;
+
+    // KPI 2: Wallet & Payouts
+    document.getElementById('uim-kpi-wallet-balance').textContent = `$${(f.walletBalanceUsd || 0).toFixed(2)}`;
+    document.getElementById('uim-kpi-payouts-subtext').innerHTML = `Withdrawn: <strong style="color:var(--text-primary);">$${(f.totalWithdrawnUsd || 0).toFixed(2)}</strong> &bull; Pending: <strong style="color:#D97706;">$${(f.pendingWithdrawalsUsd || 0).toFixed(2)}</strong>`;
+
+    // KPI 3: Referral Network
+    const refStats = r.stats || {};
+    document.getElementById('uim-kpi-referrals-count').textContent = `${refStats.total || 0} Users`;
+    const parentRef = r.referredBy;
+    if (parentRef) {
+      document.getElementById('uim-kpi-referrer-subtext').innerHTML = `Referred by: <strong style="color:var(--primary);">${this.escapeHtml(parentRef.referralCode)}</strong> (${this.escapeHtml(parentRef.webmasterName || parentRef.webmasterEmail || 'Creator')})`;
+    } else {
+      document.getElementById('uim-kpi-referrer-subtext').textContent = 'Referred by: Direct Organic Registration';
+    }
+
+    // KPI 4: Cloud Storage
+    const usedHuman = formatBytesHuman(s.usedSpaceBytes || 0);
+    const totalHuman = formatBytesHuman(s.totalSpaceBytes || 1099511627776);
+    document.getElementById('uim-kpi-storage-used').textContent = `${usedHuman} / ${totalHuman}`;
+    const storageBar = document.getElementById('uim-kpi-storage-bar');
+    if (storageBar) {
+      const p = s.storagePercent || 0;
+      storageBar.style.width = `${p}%`;
+      storageBar.style.background = p > 90 ? '#DC2626' : (p > 70 ? '#F59E0B' : '#06B6D4');
+    }
+    document.getElementById('uim-kpi-shares-count').textContent = `${s.totalSharesCount || 0} Active Public Share Links`;
+
+    // Tab count badges
+    document.getElementById('uim-tab-ref-badge').textContent = refStats.total || 0;
+    document.getElementById('uim-tab-shares-badge').textContent = s.totalSharesCount || 0;
+
+    // 3. Tab 1: Financial Ledger & Earnings
+    document.getElementById('uim-active-plan').textContent = f.currentPlan === 'videoPlays' ? `Video Plays ($${(f.effectiveCpmRateUsd || 4.0).toFixed(2)} CPM)` : (f.currentPlan || 'Video Plays');
+    document.getElementById('uim-effective-cpm').textContent = `$${(f.effectiveCpmRateUsd || 4.0).toFixed(2)} / 1k views`;
+    document.getElementById('uim-cpa-bounty').textContent = `$${(f.cpaRewardUsd || (this.state.config && this.state.config.cpa_reward_per_install_usd) || 0.05).toFixed(2)} / Install`;
+    document.getElementById('uim-withdrawable-bal').textContent = `$${(f.walletBalanceUsd || 0).toFixed(2)} USD`;
+
+    const earnTbody = document.getElementById('uim-earnings-tbody');
+    const earningRecords = f.earningRecords || [];
+    if (earnTbody) {
+      if (earningRecords.length === 0) {
+        earnTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--text-muted);">No earnings ledger records found for this account.</td></tr>';
+      } else {
+        earnTbody.innerHTML = earningRecords.map(e => `
+          <tr>
+            <td><span class="mono-text" style="font-size:11.5px;">${e.recordedAt ? new Date(e.recordedAt).toLocaleString() : 'N/A'}</span></td>
+            <td><span class="badge badge-info" style="font-size:10px;">${this.escapeHtml((e.type || 'EARNING').toUpperCase())}</span></td>
+            <td><strong style="color:var(--text-primary); font-size:12px;">${this.escapeHtml(e.description || 'Credit')}</strong></td>
+            <td><strong style="color:#059669; font-family:var(--font-mono); font-size:12.5px;">+$${(Number(e.amountUsd) || 0).toFixed(2)}</strong></td>
+            <td><span class="mono-text" style="font-size:11px; color:var(--text-muted);">${this.escapeHtml(e.country || 'GLOBAL')}</span></td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    const withTbody = document.getElementById('uim-withdrawals-tbody');
+    const withdrawals = f.withdrawals || [];
+    if (withTbody) {
+      if (withdrawals.length === 0) {
+        withTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--text-muted);">No withdrawal requests recorded.</td></tr>';
+      } else {
+        withTbody.innerHTML = withdrawals.map(w => {
+          let statusBadgeClass = 'badge-warning';
+          if (w.status === 'completed' || w.status === 'approved') statusBadgeClass = 'badge-success';
+          if (w.status === 'rejected' || w.status === 'cancelled') statusBadgeClass = 'badge-danger';
+          return `
+            <tr>
+              <td><span class="mono-text" style="font-size:11.5px;">${w.requestedAt ? new Date(w.requestedAt).toLocaleString() : 'N/A'}</span></td>
+              <td><strong style="color:var(--text-primary); font-family:var(--font-mono); font-size:13px;">$${(Number(w.amountUsd) || 0).toFixed(2)}</strong></td>
+              <td><span class="badge badge-secondary" style="font-size:10.5px;">${this.escapeHtml(w.method || 'USDT')}</span></td>
+              <td><span class="mono-text" style="font-size:11px;">${this.escapeHtml(w.destination || w.account || 'N/A')}</span></td>
+              <td><span class="badge ${statusBadgeClass}" style="font-size:10px;">${(w.status || 'PENDING').toUpperCase()}</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    // 4. Tab 2: Referral Network Tree
+    const parentBox = document.getElementById('uim-parent-attribution-box');
+    const parentInfo = document.getElementById('uim-parent-info');
+    const parentBadgeCont = document.getElementById('uim-parent-badge-container');
+
+    if (parentRef) {
+      parentInfo.innerHTML = `Referred by: <strong style="color:var(--primary); font-family:var(--font-mono);">${this.escapeHtml(parentRef.referralCode)}</strong> &bull; ${this.escapeHtml(parentRef.webmasterName)} (<span class="mono-text">${this.escapeHtml(parentRef.webmasterEmail || 'No Email')}</span>)<br/><span style="font-size:11px; color:var(--text-muted);">Attributed on: ${new Date(parentRef.joinedAt).toLocaleString()} &bull; Reward: $${(parentRef.rewardUsd || 0.05).toFixed(2)}</span>`;
+      parentBadgeCont.innerHTML = `<span class="badge badge-success">QUALIFIED REFERRAL</span>`;
+    } else {
+      parentInfo.textContent = 'Organic Direct Signup (No referral link used during account creation)';
+      parentBadgeCont.innerHTML = `<span class="badge badge-info">DIRECT ORGANIC</span>`;
+    }
+
+    document.getElementById('uim-referred-summary-pill').textContent = `${refStats.qualified || 0} Qualified / ${refStats.total || 0} Total`;
+
+    const refUsersTbody = document.getElementById('uim-referred-users-tbody');
+    const refUsersList = r.referredUsers || [];
+    if (refUsersTbody) {
+      if (refUsersList.length === 0) {
+        refUsersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">No users have joined using this creator referral link yet.</td></tr>';
+      } else {
+        refUsersTbody.innerHTML = refUsersList.map(ru => {
+          let statusChip = '<span class="badge badge-success">QUALIFIED</span>';
+          if (ru.status === 'PENDING') statusChip = '<span class="badge badge-warning">PENDING</span>';
+          if (ru.status === 'REJECTED') statusChip = `<span class="badge badge-danger" title="${this.escapeHtml(ru.rejectionReason || 'Rejected')}">REJECTED</span>`;
+
+          return `
+            <tr>
+              <td>
+                <strong style="color:var(--text-primary); font-size:12.5px;">${this.escapeHtml(ru.referredUserName || 'AirBox User')}</strong><br/>
+                <span style="color:var(--text-muted); font-size:11px;">${this.escapeHtml(ru.referredUserEmail || ru.referredUserId)}</span>
+              </td>
+              <td>
+                <span class="mono-text" style="font-size:11.5px;">${ru.createdAt ? new Date(ru.createdAt).toLocaleDateString() : 'N/A'}</span>
+              </td>
+              <td>
+                <span class="badge badge-info" style="font-size:10px;">${this.escapeHtml(ru.milestone || 'USER_REGISTRATION')}</span>
+              </td>
+              <td>
+                <strong style="color:#059669; font-family:var(--font-mono); font-size:12.5px;">+$${(ru.rewardAmountUsd || 0.05).toFixed(2)}</strong>
+              </td>
+              <td>
+                ${statusChip}
+              </td>
+              <td>
+                <span class="mono-text" style="font-size:11px; color:var(--text-muted);">${this.escapeHtml(ru.clientIp || '127.0.0.1')}</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    // 5. Tab 3: Shared Content & Links
+    const sharesTbody = document.getElementById('uim-shares-tbody');
+    const sharesList = s.sharedLinks || [];
+    if (sharesTbody) {
+      if (sharesList.length === 0) {
+        sharesTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">No public shared links generated by this user.</td></tr>';
+      } else {
+        sharesTbody.innerHTML = sharesList.map(sh => `
+          <tr>
+            <td>
+              <strong class="mono-text" style="color:var(--primary); font-size:12px;">${this.escapeHtml(sh.code)}</strong>
+            </td>
+            <td>
+              <div style="font-weight:600; color:var(--text-primary); font-size:12.5px; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${this.escapeHtml(sh.fileName)}">
+                ${this.escapeHtml(sh.fileName)}
+              </div>
+            </td>
+            <td>
+              <span class="mono-text" style="font-size:11.5px;">${formatBytesHuman(sh.sizeBytes)}</span>
+            </td>
+            <td>
+              <span class="badge badge-info" style="font-family:var(--font-mono); font-size:11px;">${(sh.viewsCount || 0).toLocaleString()} views</span>
+            </td>
+            <td>
+              <span class="mono-text" style="font-size:11.5px; color:var(--text-muted);">${sh.createdAt ? new Date(sh.createdAt).toLocaleDateString() : 'N/A'}</span>
+            </td>
+            <td>
+              <a href="${encodeURI(sh.shareUrl || `https://airbox.one/s/${sh.code}`)}" target="_blank" class="btn-sm btn-secondary" style="text-decoration:none; font-size:11px; display:inline-flex; align-items:center; gap:3px;">
+                Open Link
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // 6. Tab 4: Form Controls Pre-fill
+    const currentQuotaBytes = s.totalSpaceBytes || 1099511627776;
+    let qVal = 1024;
+    let qUnit = 'GB';
+    if (currentQuotaBytes < (1024 ** 3)) {
+      qUnit = 'MB';
+      qVal = Math.round(currentQuotaBytes / (1024 ** 2));
+    } else if (currentQuotaBytes >= (1024 ** 4)) {
+      qUnit = 'TB';
+      qVal = (currentQuotaBytes / (1024 ** 4)).toFixed(1).replace(/\.0$/, '');
+    } else {
+      qUnit = 'GB';
+      qVal = Math.round(currentQuotaBytes / (1024 ** 3));
+    }
+
+    const quotaValInput = document.getElementById('uim-ctrl-quota-val');
+    const quotaUnitSelect = document.getElementById('uim-ctrl-quota-unit');
+    if (quotaValInput) quotaValInput.value = qVal;
+    if (quotaUnitSelect) quotaUnitSelect.value = qUnit;
+
+    const vipToggle = document.getElementById('uim-ctrl-vip-toggle');
+    if (vipToggle) vipToggle.value = u.isVip ? 'true' : 'false';
+
+    const statusSelect = document.getElementById('uim-ctrl-status-select');
+    if (statusSelect) statusSelect.value = u.status || 'ACTIVE';
+
+    const banReasonInput = document.getElementById('uim-ctrl-ban-reason');
+    if (banReasonInput) banReasonInput.value = u.banReason || '';
+  },
+
+  switchUserModalTab(subtabName) {
+    document.querySelectorAll('.user-subtab-btn').forEach(btn => {
+      if (btn.getAttribute('data-subtab') === subtabName) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+
+    document.querySelectorAll('.user-subtab-content').forEach(content => {
+      content.style.display = 'none';
+      content.classList.remove('active');
+    });
+
+    const target = document.getElementById(`uim-tab-content-${subtabName}`);
+    if (target) {
+      target.style.display = 'block';
+      target.classList.add('active');
+    }
+  },
+
+  setUserModalQuotaPreset(val, unit) {
+    const quotaValInput = document.getElementById('uim-ctrl-quota-val');
+    const quotaUnitSelect = document.getElementById('uim-ctrl-quota-unit');
+    if (quotaValInput) quotaValInput.value = val;
+    if (quotaUnitSelect) quotaUnitSelect.value = unit;
+  },
+
+  async submitUserModalQuota() {
+    const userId = this.state.currentModalUserId;
+    if (!userId) return;
+
+    const val = parseFloat(document.getElementById('uim-ctrl-quota-val').value);
+    const unit = document.getElementById('uim-ctrl-quota-unit').value;
+    if (!val || val <= 0) return this.showToast(`Please enter a valid positive storage quota in ${unit}`, 'warning');
+
+    let bytes = 0;
+    if (unit === 'MB') bytes = Math.round(val * 1024 * 1024);
+    else if (unit === 'TB') bytes = Math.round(val * 1024 * 1024 * 1024 * 1024);
+    else bytes = Math.round(val * 1024 * 1024 * 1024);
+
+    try {
+      await this.api(`/users/${encodeURIComponent(userId)}/quota`, {
+        method: 'PUT',
+        body: JSON.stringify({ quotaBytes: bytes, quotaValue: val, unit }),
+      });
+      this.showToast(`Storage quota updated to ${val} ${unit}`, 'success');
+      this.refreshCurrentUserModal();
+      this.loadUsers();
+    } catch (err) {
+      this.showToast(`Error updating quota: ${err.message}`, 'error');
+    }
+  },
+
+  async submitUserModalVip() {
+    const userId = this.state.currentModalUserId;
+    if (!userId) return;
+
+    const isVip = document.getElementById('uim-ctrl-vip-toggle').value === 'true';
+    const storageGb = parseFloat(document.getElementById('uim-ctrl-vip-storage').value) || 2048;
+
+    try {
+      await this.api(`/users/${encodeURIComponent(userId)}/vip`, {
+        method: 'PUT',
+        body: JSON.stringify({ isVip, storageGb, durationDays: 365 }),
+      });
+      this.showToast(isVip ? `Granted VIP status (${storageGb} GB allocation)` : 'Revoked VIP status', 'success');
+      this.refreshCurrentUserModal();
+      this.loadUsers();
+    } catch (err) {
+      this.showToast(`Error updating VIP status: ${err.message}`, 'error');
+    }
+  },
+
+  async submitUserModalStatus() {
+    const userId = this.state.currentModalUserId;
+    if (!userId) return;
+
+    const status = document.getElementById('uim-ctrl-status-select').value;
+    const reason = document.getElementById('uim-ctrl-ban-reason').value.trim();
+
+    if ((status === 'BANNED' || status === 'SUSPENDED') && !confirm(`Confirm changing user status to ${status}?`)) {
+      return;
+    }
+
+    try {
+      await this.api(`/users/${encodeURIComponent(userId)}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status, reason }),
+      });
+      this.showToast(`Account status updated to ${status}`, 'success');
+      this.refreshCurrentUserModal();
+      this.loadUsers();
+    } catch (err) {
+      this.showToast(`Error updating status: ${err.message}`, 'error');
+    }
+  },
+
+  async terminateUserSessionsFromModal() {
+    const userId = this.state.currentModalUserId;
+    if (!userId) return;
+
+    if (!confirm('Terminate all active login sessions on all mobile and web client devices for this user?')) return;
+
+    try {
+      await this.api(`/users/${encodeURIComponent(userId)}/terminate-sessions`, {
+        method: 'POST',
+      });
+      this.showToast('All active user sessions invalidated.', 'success');
+    } catch (err) {
+      this.showToast(`Error invalidating sessions: ${err.message}`, 'error');
+    }
+  },
+
+  async hardDeleteUserFromModal() {
+    const userId = this.state.currentModalUserId;
+    if (!userId) return;
+
+    const u = this.state.currentModalUser?.user;
+    const identifier = u?.email || u?.displayName || userId;
+
+    if (!confirm(`⚠️ DANGER: PERMANENT HARD PURGE\n\nPermanently delete user "${identifier}" and ALL associated Cloudflare R2 cloud files, folders, shares, and webmaster ledger records?\n\nThis action is irreversible and compliant with Google Play Data Deletion requirements.`)) {
+      return;
+    }
+
+    try {
+      await this.api(`/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE',
+      });
+      this.closeUserIntelligenceModal();
+      this.loadUsers();
+      this.showToast(`User "${identifier}" permanently purged.`, 'success');
+    } catch (err) {
+      this.showToast(`Error deleting user: ${err.message}`, 'error');
+    }
+  },
+
+  refreshCurrentUserModal() {
+    if (this.state.currentModalUserId) {
+      this.openUserIntelligenceModal(this.state.currentModalUserId);
+    }
+  },
+
+  closeUserIntelligenceModal() {
+    const modal = document.getElementById('user-intelligence-modal');
+    if (modal) modal.style.display = 'none';
+    this.state.currentModalUserId = null;
+    this.state.currentModalUser = null;
   },
 
   openQuotaModal(userId, currentBytes) {
@@ -723,10 +1289,11 @@ const AdminApp = {
   // -------------------------------------------------------------
   // TAB 4: STORAGE & DMCA COMPLIANCE & STRIKES
   // -------------------------------------------------------------
-  async loadStorage() {
+  async loadStorage(force = false) {
     try {
+      const q = force ? '?refresh=true' : '';
       const [storageData, reportsData, strikesData] = await Promise.all([
-        this.api('/storage/objects').catch(() => ({ bucket: 'terabox-cloud-storage', telemetry: {}, totalShares: 0 })),
+        this.api(`/storage/objects${q}`).catch(() => ({ bucket: 'terabox-cloud-storage', telemetry: {}, totalShares: 0 })),
         this.api('/safety/reports').catch(() => ({ reports: [] })),
         this.api('/safety/strikes').catch(() => ({ totalBannedShares: 0, totalStrikedUsers: 0, bannedShares: [], strikedUsers: [] })),
       ]);
@@ -734,6 +1301,25 @@ const AdminApp = {
       this.renderStorageView(storageData, reportsData.reports || [], strikesData);
     } catch (err) {
       console.warn('Storage load error:', err);
+    }
+  },
+
+  async syncR2Storage() {
+    this.showToast('Synchronizing R2 cloud storage telemetry and user quotas...', 'info');
+    try {
+      const res = await this.api('/storage/sync-r2', { method: 'POST' });
+      if (res && res.success) {
+        this.showToast(`✅ R2 Synced: ${res.totalStorageGb} GB across ${res.totalObjects} objects (${res.updatedUsersCount} users aligned)`, 'success');
+        await this.loadStorage(true);
+        await this.loadDashboardStats();
+        if (this.state.activeTab === 'users') {
+          await this.loadUsers();
+        }
+      } else {
+        throw new Error(res?.error || 'Failed to sync R2 storage');
+      }
+    } catch (err) {
+      this.showToast(`Sync error: ${err.message}`, 'error');
     }
   },
 
@@ -745,10 +1331,13 @@ const AdminApp = {
     this._dmcaSearchQuery = this._dmcaSearchQuery || '';
 
     // 1. Update Telemetry Metric Cards
-    const totalGb = data.telemetry?.totalGb || (data.telemetry?.totalBytes ? (data.telemetry.totalBytes / (1024**3)).toFixed(2) : '0.00');
+    const totalGb = (data.telemetry?.totalGb !== undefined && data.telemetry?.totalGb !== null)
+      ? Number(data.telemetry.totalGb).toFixed(2)
+      : (data.telemetry?.totalBytes ? (data.telemetry.totalBytes / (1024 ** 3)).toFixed(2) : '0.00');
     const totalObjects = data.telemetry?.totalObjects || 0;
     const userFolderCount = data.telemetry?.userFolderCount || 0;
     const bucketName = data.bucket || 'terabox-cloud-storage';
+    const cdnDomain = data.publicDomain || 'https://pub-d550feaadd484541bf0c3af429db5905.r2.dev';
     const totalShares = data.totalShares || 0;
     const totalStrikes = strikesData.totalStrikedUsers || 0;
     const totalBanned = strikesData.totalBannedShares || 0;
@@ -758,6 +1347,9 @@ const AdminApp = {
 
     const bucketEl = document.getElementById('storage-bucket-name');
     if (bucketEl) bucketEl.textContent = bucketName;
+
+    const cdnEl = document.getElementById('storage-cdn-domain');
+    if (cdnEl) cdnEl.textContent = cdnDomain.replace(/^https?:\/\//, '');
 
     const sharesEl = document.getElementById('storage-total-shares');
     if (sharesEl) sharesEl.textContent = `${totalShares} Active`;
@@ -826,7 +1418,7 @@ const AdminApp = {
   // -------------------------------------------------------------
   setDmcaFilter(filterStatus) {
     this._dmcaFilter = filterStatus || 'ALL';
-    
+
     // Update active tab styles
     ['ALL', 'PENDING_REVIEW', 'TAKEDOWN_EXECUTED', 'DISMISSED'].forEach(f => {
       const btn = document.getElementById(`filter-dmca-${f === 'ALL' ? 'all' : f === 'PENDING_REVIEW' ? 'pending' : f === 'TAKEDOWN_EXECUTED' ? 'takedown' : 'dismissed'}`);
@@ -1116,14 +1708,14 @@ const AdminApp = {
 
       const initial = (user.displayName ? user.displayName.charAt(0) : (user.email ? user.email.charAt(0) : 'U')).toUpperCase();
       if (avatarEl) avatarEl.textContent = initial;
-      if (nameEl) nameEl.textContent = user.displayName || user.name || 'TeraBox Creator';
+      if (nameEl) nameEl.textContent = user.displayName || user.name || 'AirBox Creator';
       if (emailEl) emailEl.textContent = user.email || 'No email on file';
       if (idEl) idEl.textContent = user.id || rawId;
 
       const isBanned = user.status === 'BANNED' || user.status === 'SUSPENDED';
       if (statusMetricEl) {
-        statusMetricEl.innerHTML = isBanned 
-          ? '<span class="badge badge-danger">ACCOUNT BANNED</span>' 
+        statusMetricEl.innerHTML = isBanned
+          ? '<span class="badge badge-danger">ACCOUNT BANNED</span>'
           : '<span class="badge badge-success">ACTIVE USER</span>';
       }
 
@@ -1165,9 +1757,9 @@ const AdminApp = {
                 <td><div style="font-weight:600; font-size:12px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${this.escapeHtml(s.fileName || s.name || 'File')}</div></td>
                 <td style="font-size:11px;">${this.formatBytes(s.sizeBytes || 0)}</td>
                 <td>
-                  ${isShareBanned 
-                    ? '<span class="badge badge-danger" style="font-size:9.5px;">BANNED</span>' 
-                    : '<span class="badge badge-success" style="font-size:9.5px;">ACTIVE</span>'}
+                  ${isShareBanned
+                ? '<span class="badge badge-danger" style="font-size:9.5px;">BANNED</span>'
+                : '<span class="badge badge-success" style="font-size:9.5px;">ACTIVE</span>'}
                 </td>
                 <td>
                   ${isShareBanned ? `
@@ -1255,7 +1847,7 @@ const AdminApp = {
 
     if (video) {
       video.src = url;
-      video.play().catch(() => {});
+      video.play().catch(() => { });
     }
 
     if (modal) modal.style.display = 'flex';
@@ -1304,7 +1896,7 @@ const AdminApp = {
     if (filenameEl) filenameEl.textContent = report.fileName || 'Reported Content';
     if (sharecodeEl) sharecodeEl.textContent = report.shareCode || 'N/A';
     if (creatorEl) creatorEl.textContent = `${report.creatorName || 'Creator'} (${report.creatorEmail || report.creatorUserId || 'Anonymous'})`;
-    
+
     if (claimantNameEl) claimantNameEl.textContent = report.legalName || report.reporterName || 'Complainant';
     if (orgEl) orgEl.textContent = report.organization || 'Independent Creator';
     if (relationshipEl) relationshipEl.textContent = report.relationship || 'Copyright Owner';
@@ -1728,6 +2320,70 @@ const AdminApp = {
 
     const minWd = document.getElementById('config-min-withdrawal');
     if (minWd) minWd.value = cfg.min_withdrawal_usd !== undefined ? cfg.min_withdrawal_usd : 10.0;
+
+    // Google Mobile Ads (AdMob) Monetization Engine bindings
+    const adsToggle = document.getElementById('config-ads-enabled-toggle');
+    if (adsToggle) {
+      adsToggle.checked = cfg.ads_enabled !== false;
+      this.onAdsToggleChange();
+    }
+
+    const prerollToggle = document.getElementById('config-preroll-ads-toggle');
+    if (prerollToggle) {
+      prerollToggle.checked = cfg.shared_video_preroll_ad_enabled !== false;
+    }
+
+    const admobAppId = document.getElementById('config-admob-app-id');
+    if (admobAppId) admobAppId.value = cfg.admob_app_id || 'ca-app-pub-3940256099942544~3347511713';
+
+    const rewardedUnit = document.getElementById('config-admob-rewarded-unit');
+    if (rewardedUnit) rewardedUnit.value = cfg.admob_rewarded_ad_unit_id || 'ca-app-pub-3940256099942544/5224354917';
+
+    const interstitialUnit = document.getElementById('config-admob-interstitial-unit');
+    if (interstitialUnit) interstitialUnit.value = cfg.admob_interstitial_ad_unit_id || 'ca-app-pub-3940256099942544/1033173712';
+
+    const bannerUnit = document.getElementById('config-admob-banner-unit');
+    if (bannerUnit) bannerUnit.value = cfg.admob_banner_ad_unit_id || 'ca-app-pub-3940256099942544/6300978111';
+
+    const appOpenUnit = document.getElementById('config-admob-app-open-unit');
+    if (appOpenUnit) appOpenUnit.value = cfg.admob_app_open_ad_unit_id || 'ca-app-pub-3940256099942544/9257390301';
+
+    const offlineCount = document.getElementById('config-offline-ad-count');
+    if (offlineCount) offlineCount.value = cfg.offline_download_ad_count !== undefined ? cfg.offline_download_ad_count : 2;
+
+    const uploadCount = document.getElementById('config-upload-ad-count');
+    if (uploadCount) uploadCount.value = cfg.upload_ad_count !== undefined ? cfg.upload_ad_count : 2;
+
+    const streamCount = document.getElementById('config-stream-ad-count');
+    if (streamCount) streamCount.value = cfg.video_stream_ad_count !== undefined ? cfg.video_stream_ad_count : 1;
+
+    const cloudSaveCount = document.getElementById('config-cloud-save-ad-count');
+    if (cloudSaveCount) cloudSaveCount.value = cfg.cloud_save_ad_count !== undefined ? cfg.cloud_save_ad_count : 1;
+
+    const turboTransferCount = document.getElementById('config-turbo-transfer-ad-count');
+    if (turboTransferCount) turboTransferCount.value = cfg.turbo_transfer_ad_count !== undefined ? cfg.turbo_transfer_ad_count : 1;
+
+    const cooldown = document.getElementById('config-interstitial-cooldown');
+    if (cooldown) cooldown.value = cfg.interstitial_capping_seconds !== undefined ? cfg.interstitial_capping_seconds : 180;
+
+    const appOpenCooldown = document.getElementById('config-app-open-cooldown');
+    if (appOpenCooldown) appOpenCooldown.value = cfg.app_open_cooldown_seconds !== undefined ? cfg.app_open_cooldown_seconds : 14400;
+  },
+
+  onAdsToggleChange() {
+    const adsToggle = document.getElementById('config-ads-enabled-toggle');
+    const badge = document.getElementById('config-ads-status-badge');
+    if (!adsToggle || !badge) return;
+
+    if (adsToggle.checked) {
+      badge.textContent = 'ADS ACTIVE';
+      badge.style.background = '#ECFDF5';
+      badge.style.color = '#065F46';
+    } else {
+      badge.textContent = 'GLOBAL ADS OFF';
+      badge.style.background = '#FEE2E2';
+      badge.style.color = '#991B1B';
+    }
   },
 
   async saveRemoteConfig() {
@@ -1736,12 +2392,42 @@ const AdminApp = {
     const latestVerInput = document.getElementById('config-latest-version');
     const minWdInput = document.getElementById('config-min-withdrawal');
 
+    const adsToggle = document.getElementById('config-ads-enabled-toggle');
+    const prerollToggle = document.getElementById('config-preroll-ads-toggle');
+    const admobAppId = document.getElementById('config-admob-app-id');
+    const rewardedUnit = document.getElementById('config-admob-rewarded-unit');
+    const interstitialUnit = document.getElementById('config-admob-interstitial-unit');
+    const bannerUnit = document.getElementById('config-admob-banner-unit');
+    const appOpenUnit = document.getElementById('config-admob-app-open-unit');
+    const offlineCount = document.getElementById('config-offline-ad-count');
+    const uploadCount = document.getElementById('config-upload-ad-count');
+    const streamCount = document.getElementById('config-stream-ad-count');
+    const cloudSaveCount = document.getElementById('config-cloud-save-ad-count');
+    const turboTransferCount = document.getElementById('config-turbo-transfer-ad-count');
+    const cooldown = document.getElementById('config-interstitial-cooldown');
+    const appOpenCooldown = document.getElementById('config-app-open-cooldown');
+
     const rawMinWd = minWdInput ? parseFloat(minWdInput.value) : 1.0;
     const updates = {
       maintenance_mode_enabled: maintToggle ? maintToggle.checked : false,
       force_update_min_version: minVerInput ? minVerInput.value.trim() : '1.0.0',
       force_update_latest_version: latestVerInput ? latestVerInput.value.trim() : '1.2.0',
       min_withdrawal_usd: !isNaN(rawMinWd) && rawMinWd >= 0 ? rawMinWd : 1.0,
+      // Ad Monetization Updates
+      ads_enabled: adsToggle ? adsToggle.checked : true,
+      shared_video_preroll_ad_enabled: prerollToggle ? prerollToggle.checked : true,
+      admob_app_id: admobAppId ? admobAppId.value.trim() : 'ca-app-pub-3940256099942544~3347511713',
+      admob_rewarded_ad_unit_id: rewardedUnit ? rewardedUnit.value.trim() : 'ca-app-pub-3940256099942544/5224354917',
+      admob_interstitial_ad_unit_id: interstitialUnit ? interstitialUnit.value.trim() : 'ca-app-pub-3940256099942544/1033173712',
+      admob_banner_ad_unit_id: bannerUnit ? bannerUnit.value.trim() : 'ca-app-pub-3940256099942544/6300978111',
+      admob_app_open_ad_unit_id: appOpenUnit ? appOpenUnit.value.trim() : 'ca-app-pub-3940256099942544/9257390301',
+      offline_download_ad_count: offlineCount ? parseInt(offlineCount.value, 10) ?? 2 : 2,
+      upload_ad_count: uploadCount ? parseInt(uploadCount.value, 10) ?? 2 : 2,
+      video_stream_ad_count: streamCount ? parseInt(streamCount.value, 10) ?? 1 : 1,
+      cloud_save_ad_count: cloudSaveCount ? parseInt(cloudSaveCount.value, 10) ?? 1 : 1,
+      turbo_transfer_ad_count: turboTransferCount ? parseInt(turboTransferCount.value, 10) ?? 1 : 1,
+      interstitial_capping_seconds: cooldown ? parseInt(cooldown.value, 10) || 180 : 180,
+      app_open_cooldown_seconds: appOpenCooldown ? parseInt(appOpenCooldown.value, 10) || 14400 : 14400,
     };
 
     try {
@@ -1757,7 +2443,7 @@ const AdminApp = {
           tab3MinWd.value = parseFloat(res.config.min_withdrawal_usd).toFixed(2);
         }
       }
-      this.showToast('Remote configuration updated and broadcasted to clients in real-time');
+      this.showToast('Remote & Ad configuration updated and broadcasted to clients in real-time');
     } catch (err) {
       alert(`Error saving configuration: ${err.message}`);
     }
@@ -1808,7 +2494,7 @@ const AdminApp = {
     const templates = {
       STORAGE_UPGRADE: {
         title: 'Free 1024 GB High-Speed Storage Boost!',
-        body: 'Your TeraBox account has been upgraded. Enjoy ultra-fast unlimited cloud backup & streaming.',
+        body: 'Your AirBox account has been upgraded. Enjoy ultra-fast unlimited cloud backup & streaming.',
         category: 'PROMOTION',
         target: 'ALL_USERS',
         actionUrl: '/storage',
@@ -1822,17 +2508,17 @@ const AdminApp = {
       },
       MAINTENANCE: {
         title: 'Scheduled System Performance Optimization',
-        body: 'TeraBox global servers will undergo scheduled enhancement for faster streaming speeds tonight.',
+        body: 'AirBox global servers will undergo scheduled enhancement for faster streaming speeds tonight.',
         category: 'ALERT',
         target: 'ALL_USERS',
         actionUrl: '',
       },
       SECURITY_UPDATE: {
-        title: 'New TeraBox App Security Update Available',
+        title: 'New AirBox App Security Update Available',
         body: 'Please update your mobile app to version 1.2.0 for enhanced security and faster multi-threaded downloads.',
         category: 'ANNOUNCEMENT',
         target: 'ALL_USERS',
-        actionUrl: 'https://terabox.mywire.org',
+        actionUrl: 'https://airbox.one',
       },
     };
 
@@ -1942,7 +2628,7 @@ const AdminApp = {
 
       tbody.innerHTML = history.map(item => {
         const timeStr = item.createdAt ? new Date(item.createdAt).toLocaleString() : 'Just now';
-        
+
         const targetBadge = item.target === 'WEBMASTERS_ONLY'
           ? '<span class="badge" style="background:#EEF2FF; color:#4F46E5; border:1px solid #C7D2FE; font-size:10px;">Webmasters Only</span>'
           : '<span class="badge" style="background:#EFF6FF; color:#1D4ED8; border:1px solid #BFDBFE; font-size:10px;">All Registered Users</span>';

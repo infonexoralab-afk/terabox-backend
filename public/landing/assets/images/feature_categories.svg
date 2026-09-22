@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="catBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0052D4"/>
+      <stop offset="0.5" stop-color="#2D68FF"/>
+      <stop offset="1" stop-color="#4B93FF"/>
+    </linearGradient>
+    <filter id="catShadow" x="-2" y="-1" width="68" height="68" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0052D4" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#catBg)" filter="url(#catShadow)"/>
+  <!-- Ambient glow circle -->
+  <circle cx="50" cy="14" r="16" fill="#FFFFFF" fill-opacity="0.12"/>
+  <!-- Bold Folder Back & Tab -->
+  <path d="M16 26C16 23.7909 17.7909 22 20 22H27.5C28.8261 22 30.0979 22.5268 31.0355 23.4645L33.5 25.9289C34.4376 26.8666 35.7094 27.3934 37.0355 27.3934H44C46.2091 27.3934 48 29.1825 48 31.3934V42C48 44.2091 46.2091 46 44 46H20C17.7909 46 16 44.2091 16 42V26Z" fill="#FFFFFF" fill-opacity="0.25"/>
+  <!-- Bold Front Folder Body -->
+  <rect x="16" y="28" width="32" height="18" rx="4" fill="#FFFFFF"/>
+  <!-- Inner Categories Indicator (Folder tab lines) -->
+  <rect x="22" y="34" width="8" height="6" rx="1.5" fill="#0052D4"/>
+  <rect x="34" y="34" width="8" height="6" rx="1.5" fill="#4B93FF"/>
+</svg>

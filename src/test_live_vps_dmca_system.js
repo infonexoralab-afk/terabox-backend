@@ -113,7 +113,7 @@ async function runLiveTests() {
   // Test 3: Admin Reports Dossier on Live VPS
   console.log('--- TEST 3: Admin Safety Reports Dossier on Live VPS ---');
   const loginRes = await post('/api/v1/admin/auth/login', {
-    identifier: 'superadmin@terabox.mywire.org',
+    identifier: 'superadmin@airbox.one',
     password: 'TeraBox#SuperAdmin$2026!Secured',
   });
   const adminToken = loginRes.body.token;

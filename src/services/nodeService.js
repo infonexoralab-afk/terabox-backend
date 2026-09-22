@@ -57,11 +57,37 @@ class NodeService {
         if (raw && raw.trim().length > 0) {
           const list = JSON.parse(raw);
           if (Array.isArray(list)) {
+            const seenUrls = new Set();
+            const seenNameSizes = new Set();
+            let purgedCount = 0;
+
             list.forEach(node => {
               if (node && node.id) {
+                if (!node.isDirectory) {
+                  const urlKey = node.downloadUrl ? node.downloadUrl.trim().toLowerCase() : '';
+                  const ownerKey = (node.userEmail || node.ownerId || '').trim().toLowerCase();
+                  const nameSizeKey = `${ownerKey}::${(node.name || '').trim().toLowerCase()}::${Number(node.sizeBytes || 0)}`;
+
+                  if (urlKey && seenUrls.has(urlKey)) {
+                    purgedCount++;
+                    return;
+                  }
+                  if (seenNameSizes.has(nameSizeKey)) {
+                    purgedCount++;
+                    return;
+                  }
+
+                  if (urlKey) seenUrls.add(urlKey);
+                  seenNameSizes.add(nameSizeKey);
+                }
                 this.nodes.set(node.id, node);
               }
             });
+
+            if (purgedCount > 0) {
+              console.log(`[NodeService] 🧹 Startup clean: Purged ${purgedCount} duplicate nodes from storage.`);
+              this.saveToDisk();
+            }
           }
         }
       }
@@ -194,7 +220,7 @@ class NodeService {
         if (!n || n.isDirectory) continue;
         const nOwner = (n.ownerId || '').trim().toLowerCase();
         const nEmail = (n.userEmail || '').trim().toLowerCase();
-        const ownerMatches = !ownerId || (nOwner === ownerId.toLowerCase()) || (userEmail && nEmail === userEmail);
+        const ownerMatches = (ownerId && nOwner === ownerId.toLowerCase()) || (userEmail && nEmail === userEmail);
 
         if (ownerMatches) {
           // Check downloadUrl match
@@ -230,7 +256,6 @@ class NodeService {
       mimeType,
       isDirectory: Boolean(nodeData.isDirectory),
       parentId: nodeData.parentId || existing?.parentId || null,
-      isSafeBox: Boolean(nodeData.isSafeBox || existing?.isSafeBox),
       isStarred: Boolean(nodeData.isStarred || existing?.isStarred),
       isTrash: isTrashed,
       isTrashed: isTrashed,
@@ -242,13 +267,32 @@ class NodeService {
       ownerId: ownerId || existing?.ownerId || '',
       userEmail: userEmail || existing?.userEmail || '',
       realDurationSeconds: Number(nodeData.realDurationSeconds || nodeData.durationSeconds || existing?.realDurationSeconds || 0),
-      isSavedFromShare: Boolean(nodeData.isSavedFromShare || existing?.isSavedFromShare),
+      isSavedFromShare: Boolean(nodeData.isSavedFromShare !== undefined ? nodeData.isSavedFromShare : existing?.isSavedFromShare),
       shareCode: nodeData.shareCode || existing?.shareCode || null,
       createdAt: existing?.createdAt || nodeData.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     this.nodes.set(id, node);
+
+    // Deep deduplication: Purge any other duplicate entries in this.nodes for this user
+    if (!nodeData.isDirectory) {
+      for (const [otherId, n] of this.nodes.entries()) {
+        if (otherId === id || !n || n.isDirectory) continue;
+        const nOwner = (n.ownerId || '').trim().toLowerCase();
+        const nEmail = (n.userEmail || '').trim().toLowerCase();
+        const ownerMatches = (ownerId && nOwner === ownerId.toLowerCase()) || (userEmail && nEmail === userEmail);
+        if (ownerMatches) {
+          const urlMatch = downloadUrl && n.downloadUrl && (n.downloadUrl === downloadUrl);
+          const nameSizeMatch = n.name && nodeData.name && (n.name.toLowerCase() === nodeData.name.toLowerCase()) && (Math.abs(Number(n.sizeBytes || 0) - sizeBytes) === 0);
+          if (urlMatch || nameSizeMatch) {
+            console.log(`[NodeService] 🧹 Purged duplicate node ${otherId} matching ${id} (${nodeData.name})`);
+            this.nodes.delete(otherId);
+          }
+        }
+      }
+    }
+
     this.saveToDisk();
     return node;
   }
@@ -472,7 +516,6 @@ class NodeService {
                 mimeType,
                 isDirectory: false,
                 parentId: null,
-                isSafeBox: false,
                 downloadUrl: publicUrl,
                 hlsStreamUrl: isVideo ? publicUrl : null,
                 ownerId: userId || userIdentifier,

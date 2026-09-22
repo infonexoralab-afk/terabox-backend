@@ -37,7 +37,23 @@ const DEFAULT_SYSTEM_CONFIG = {
     'We are upgrading our storage infrastructure. Services will be back online shortly.',
   force_update_min_version: '1.0.0',
   force_update_latest_version: '1.2.0',
-  play_store_url: 'https://play.google.com/store/apps/details?id=com.teracloud.app.terabox_client',
+  play_store_url: 'https://play.google.com/store/apps/details?id=com.airbox.cloud.storage',
+
+  // Google Mobile Ads (AdMob) Monetization Engine & Remote Switches
+  ads_enabled: true, // Master Switch: If false, disables all ads across entire app
+  shared_video_preroll_ad_enabled: true, // Show Pre-Roll video ad before shared video streams
+  admob_app_id: 'ca-app-pub-3940256099942544~3347511713', // AdMob App ID
+  admob_banner_ad_unit_id: 'ca-app-pub-3940256099942544/6300978111',
+  admob_interstitial_ad_unit_id: 'ca-app-pub-3940256099942544/1033173712',
+  admob_rewarded_ad_unit_id: 'ca-app-pub-3940256099942544/5224354917',
+  admob_app_open_ad_unit_id: 'ca-app-pub-3940256099942544/9257390301',
+  offline_download_ad_count: 2, // Free users must watch N rewarded ads for offline download (0 = disabled)
+  upload_ad_count: 2, // Free users must watch N rewarded ads before uploading files (0 = disabled)
+  video_stream_ad_count: 1, // Free users must watch N rewarded ads before streaming cloud videos (0 = disabled)
+  cloud_save_ad_count: 1, // Free users must watch N rewarded ads before saving shared links to cloud (0 = disabled)
+  turbo_transfer_ad_count: 1, // Free users must watch N rewarded ads for turbo transfer speed boost (0 = disabled)
+  interstitial_capping_seconds: 180, // Cooldown between interstitial ads (3 mins)
+  app_open_cooldown_seconds: 14400, // Cooldown between app open ads (4 hours)
 
   // System Metadata
   updated_at: new Date().toISOString(),
@@ -61,6 +77,9 @@ class SystemConfigStore {
       if (fs.existsSync(CONFIG_FILE)) {
         const raw = fs.readFileSync(CONFIG_FILE, 'utf8');
         const parsed = JSON.parse(raw || '{}');
+        // Clean legacy ad keys from parsed disk if present
+        ['applovin_sdk_key', 'applovin_rewarded_ad_unit_id', 'applovin_interstitial_ad_unit_id', 'applovin_banner_ad_unit_id', 'applovin_native_ad_unit_id', 'applovin_app_open_ad_unit_id'].forEach(k => delete parsed[k]);
+
         this.config = { ...DEFAULT_SYSTEM_CONFIG, ...parsed };
       } else {
         this._persistToDisk();
@@ -107,6 +126,21 @@ class SystemConfigStore {
       force_update_min_version: this.config.force_update_min_version,
       force_update_latest_version: this.config.force_update_latest_version,
       play_store_url: this.config.play_store_url,
+      // Google Mobile Ads (AdMob) Public Config
+      ads_enabled: this.config.ads_enabled !== false,
+      shared_video_preroll_ad_enabled: this.config.shared_video_preroll_ad_enabled !== false,
+      admob_app_id: this.config.admob_app_id || 'ca-app-pub-3940256099942544~3347511713',
+      admob_banner_ad_unit_id: this.config.admob_banner_ad_unit_id || 'ca-app-pub-3940256099942544/6300978111',
+      admob_interstitial_ad_unit_id: this.config.admob_interstitial_ad_unit_id || 'ca-app-pub-3940256099942544/1033173712',
+      admob_rewarded_ad_unit_id: this.config.admob_rewarded_ad_unit_id || 'ca-app-pub-3940256099942544/5224354917',
+      admob_app_open_ad_unit_id: this.config.admob_app_open_ad_unit_id || 'ca-app-pub-3940256099942544/9257390301',
+      offline_download_ad_count: parseInt(this.config.offline_download_ad_count, 10) ?? 2,
+      upload_ad_count: parseInt(this.config.upload_ad_count, 10) ?? 2,
+      video_stream_ad_count: parseInt(this.config.video_stream_ad_count, 10) ?? 1,
+      cloud_save_ad_count: parseInt(this.config.cloud_save_ad_count, 10) ?? 1,
+      turbo_transfer_ad_count: parseInt(this.config.turbo_transfer_ad_count, 10) ?? 1,
+      interstitial_capping_seconds: parseInt(this.config.interstitial_capping_seconds, 10) || 180,
+      app_open_cooldown_seconds: parseInt(this.config.app_open_cooldown_seconds, 10) || 14400,
     };
   }
 
@@ -144,7 +178,23 @@ class SystemConfigStore {
       if (key === 'global_cpm_rate_usd' || key === 'cpa_reward_per_install_usd' || key === 'min_withdrawal_usd' || key === 'default_storage_quota_bytes') {
         const parsed = parseFloat(rawValue);
         if (!isNaN(parsed)) value = parsed;
-      } else if (key === 'webmaster_program_enabled' || key === 'maintenance_mode_enabled') {
+      } else if (
+        key === 'offline_download_ad_count' ||
+        key === 'upload_ad_count' ||
+        key === 'video_stream_ad_count' ||
+        key === 'cloud_save_ad_count' ||
+        key === 'turbo_transfer_ad_count' ||
+        key === 'interstitial_capping_seconds' ||
+        key === 'app_open_cooldown_seconds'
+      ) {
+        const parsed = parseInt(rawValue, 10);
+        if (!isNaN(parsed)) value = parsed;
+      } else if (
+        key === 'webmaster_program_enabled' ||
+        key === 'maintenance_mode_enabled' ||
+        key === 'ads_enabled' ||
+        key === 'shared_video_preroll_ad_enabled'
+      ) {
         value = rawValue === true || rawValue === 'true' || rawValue === 1 || rawValue === '1';
       }
       if (this.config[key] !== value) {

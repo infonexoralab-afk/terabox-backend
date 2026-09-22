@@ -76,12 +76,23 @@ router.get('/dashboard/stats', async (req, res) => {
     let totalStorageBytes = 0;
     users.forEach(u => { totalStorageBytes += (u.usedSpaceBytes || 0); });
 
+    // Live Cloudflare R2 bucket telemetry sync
+    let r2ObjectsCount = 0;
+    try {
+      const r2Tele = await r2StorageService.getStorageTelemetry();
+      if (r2Tele && r2Tele.success && r2Tele.totalStorageBytes > 0) {
+        totalStorageBytes = r2Tele.totalStorageBytes;
+        r2ObjectsCount = r2Tele.totalObjects || 0;
+      }
+    } catch (_) {}
+
     let totalWebmasterEarningsUsd = 0;
     let pendingWithdrawalUsd = 0;
     let totalWithdrawnUsd = 0;
 
     webmasters.forEach(w => {
-      totalWebmasterEarningsUsd += (w.walletBalanceUsd || 0) + (w.totalWithdrawnUsd || 0);
+      const gross = (w.totalEarningsUsd !== undefined && w.totalEarningsUsd > 0) ? w.totalEarningsUsd : ((w.walletBalanceUsd || 0) + (w.totalWithdrawnUsd || 0));
+      totalWebmasterEarningsUsd += gross;
     });
 
     withdrawals.forEach(w => {
@@ -105,7 +116,9 @@ router.get('/dashboard/stats', async (req, res) => {
         totalUsers,
         activeUsers,
         totalStorageBytes,
-        totalStorageGb: Math.round((totalStorageBytes / (1024 * 1024 * 1024)) * 100) / 100,
+        totalStorageGb: Number((totalStorageBytes / (1024 * 1024 * 1024)).toFixed(2)),
+        totalStorageMb: Number((totalStorageBytes / (1024 * 1024)).toFixed(2)),
+        r2ObjectsCount,
         totalWebmasters: webmasters.length,
         totalWebmasterEarningsUsd: Math.round(totalWebmasterEarningsUsd * 100) / 100,
         pendingWithdrawalUsd: Math.round(pendingWithdrawalUsd * 100) / 100,
@@ -135,7 +148,7 @@ router.get('/dashboard/stats', async (req, res) => {
 });
 
 // -------------------------------------------------------------
-// 3. USER MANAGEMENT & QUOTAS
+// 3. USER MANAGEMENT, CALCULATION & DEEP INTELLIGENCE
 // -------------------------------------------------------------
 
 router.get('/users', (req, res) => {
@@ -162,15 +175,252 @@ router.get('/users', (req, res) => {
     const lim = Math.max(1, Math.min(parseInt(limit) || 50, 100));
     const paginated = list.slice((p - 1) * lim, p * lim);
 
+    // Enrich users with live calculations for the summary table
+    const allReferrals = Array.from(referralService.referrals.values());
+    const allShares = Array.from(shareService.shares.values());
+
+    const enrichedUsers = paginated.map(u => {
+      const cleanEmail = (u.email || '').toLowerCase();
+      const webmaster = webmasterService.getProfile(u.id) || (cleanEmail ? webmasterService.getProfile(cleanEmail) : null);
+      const refCode = webmaster?.referralCode || '';
+
+      // Count referrals made by this user
+      const userReferrals = allReferrals.filter(r => 
+        (r.webmasterUserId && r.webmasterUserId === u.id) ||
+        (refCode && r.webmasterRefCode === refCode) ||
+        (cleanEmail && r.webmasterEmail && r.webmasterEmail.toLowerCase() === cleanEmail)
+      );
+      const qualifiedRefs = userReferrals.filter(r => r.status === 'QUALIFIED').length;
+
+      // Count shares created by this user
+      const userShares = allShares.filter(s =>
+        (s.userId && s.userId === u.id) ||
+        (s.creatorUserId && s.creatorUserId === u.id) ||
+        (refCode && s.referralCode === refCode) ||
+        (cleanEmail && s.creatorName && s.creatorName.toLowerCase() === cleanEmail)
+      );
+
+      // Financial Calculation
+      const walletBalanceUsd = webmaster ? (webmaster.walletBalanceUsd || 0.0) : 0.0;
+      const totalWithdrawnUsd = webmaster ? (webmaster.totalWithdrawnUsd || 0.0) : 0.0;
+      const grossEarningsUsd = Math.round((walletBalanceUsd + totalWithdrawnUsd) * 100) / 100;
+
+      // Sanitize user object (Google Play privacy compliance: NEVER leak password hashes)
+      const sanitized = { ...u };
+      delete sanitized.passwordHash;
+      delete sanitized.activeTokens;
+
+      return {
+        ...sanitized,
+        totalEarningsUsd: grossEarningsUsd,
+        walletBalanceUsd,
+        totalWithdrawnUsd,
+        referralCode: refCode,
+        referralsCount: userReferrals.length,
+        qualifiedReferralsCount: qualifiedRefs,
+        pendingReferralsCount: userReferrals.filter(r => r.status === 'PENDING').length,
+        sharesCount: userShares.length,
+        isEnrolledWebmaster: !!(webmaster && webmaster.referralCode),
+      };
+    });
+
     res.json({
       success: true,
       total,
       page: p,
       limit: lim,
-      users: paginated,
+      users: enrichedUsers,
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Deep User Intelligence & Calculation Profile
+ * Returns complete earnings ledger, referral network hierarchy, cloud storage, shared links, and security status.
+ */
+router.get('/users/:id/details', (req, res) => {
+  try {
+    const getSafeConfig = (k, def) => {
+      try {
+        return (systemConfigStore && typeof systemConfigStore.get === 'function') ? systemConfigStore.get(k, def) : def;
+      } catch (_) {
+        return def;
+      }
+    };
+
+    const user = authService.getUser(req.params.id);
+    if (!user) return res.status(404).json({ success: false, error: 'User account not found' });
+
+    const cleanEmail = (user.email || '').toLowerCase().trim();
+    let webmaster = null;
+    try {
+      webmaster = webmasterService.getProfile(user.id) || (cleanEmail ? webmasterService.getProfile(cleanEmail) : null);
+    } catch (_) {}
+    const refCode = webmaster?.referralCode || '';
+
+    let allReferrals = [];
+    try {
+      allReferrals = referralService?.referrals ? Array.from(referralService.referrals.values()) : [];
+    } catch (_) {}
+
+    let allShares = [];
+    try {
+      allShares = shareService?.shares ? Array.from(shareService.shares.values()) : [];
+    } catch (_) {}
+
+    // 1. Who referred this user? (Attribution Hierarchy)
+    let referredBy = null;
+    const parentRef = allReferrals.find(r => 
+      (r.referredUserId && r.referredUserId === user.id) ||
+      (cleanEmail && r.referredUserEmail && r.referredUserEmail.toLowerCase() === cleanEmail)
+    );
+
+    if (parentRef) {
+      let parentWebmaster = null;
+      let parentUser = null;
+      try {
+        parentWebmaster = webmasterService.getProfile(parentRef.webmasterRefCode) || 
+                          webmasterService.getProfile(parentRef.webmasterUserId);
+        parentUser = parentRef.webmasterUserId ? authService.getUser(parentRef.webmasterUserId) : null;
+      } catch (_) {}
+
+      referredBy = {
+        referralId: parentRef.id || 'N/A',
+        referralCode: parentRef.webmasterRefCode || 'N/A',
+        webmasterUserId: parentRef.webmasterUserId || (parentWebmaster?.userId || 'N/A'),
+        webmasterName: parentUser?.displayName || (parentWebmaster?.email || 'AirBox Creator'),
+        webmasterEmail: parentUser?.email || parentWebmaster?.email || parentRef.webmasterEmail || '',
+        status: parentRef.status || 'QUALIFIED',
+        milestone: parentRef.qualificationMilestone || 'USER_REGISTRATION',
+        rewardUsd: Number(parentRef.rewardAmountUsd) || 0.05,
+        joinedAt: parentRef.createdAt || parentRef.qualifiedAt || user.createdAt || new Date().toISOString(),
+      };
+    }
+
+    // 2. All people referred by THIS user (Referral Network Tree)
+    const referredUsersList = allReferrals.filter(r =>
+      (r.webmasterUserId && r.webmasterUserId === user.id) ||
+      (refCode && r.webmasterRefCode === refCode) ||
+      (cleanEmail && r.webmasterEmail && r.webmasterEmail.toLowerCase() === cleanEmail)
+    ).map(r => {
+      let childUser = null;
+      try {
+        childUser = r.referredUserId ? authService.getUser(r.referredUserId) : null;
+      } catch (_) {}
+      return {
+        id: r.id || 'ref_' + Date.now(),
+        referredUserId: r.referredUserId || 'N/A',
+        referredUserName: childUser?.displayName || r.referredUserName || 'New User',
+        referredUserEmail: childUser?.email || r.referredUserEmail || 'N/A',
+        status: r.status || 'QUALIFIED',
+        milestone: r.qualificationMilestone || (r.milestoneDetails?.type || 'USER_REGISTRATION'),
+        rewardAmountUsd: r.rewardAmountUsd !== undefined ? Number(r.rewardAmountUsd) : 0.05,
+        createdAt: r.createdAt || new Date().toISOString(),
+        qualifiedAt: r.qualifiedAt || null,
+        clientIp: r.clientIp || '127.0.0.1',
+        rejectionReason: r.rejectionReason || null,
+      };
+    });
+
+    const referralStats = {
+      total: referredUsersList.length,
+      qualified: referredUsersList.filter(r => r.status === 'QUALIFIED').length,
+      pending: referredUsersList.filter(r => r.status === 'PENDING').length,
+      rejected: referredUsersList.filter(r => r.status === 'REJECTED').length,
+      totalEarnedUsd: Math.round(referredUsersList.filter(r => r.status === 'QUALIFIED').reduce((s, r) => s + (Number(r.rewardAmountUsd) || 0.05), 0) * 10000) / 10000,
+    };
+
+    // 3. Financial Breakdown & Calculations
+    const walletBalanceUsd = webmaster ? (Number(webmaster.walletBalanceUsd) || 0.0) : 0.0;
+    const totalWithdrawnUsd = webmaster ? (Number(webmaster.totalWithdrawnUsd) || 0.0) : 0.0;
+    const grossEarningsUsd = Math.round((walletBalanceUsd + totalWithdrawnUsd) * 10000) / 10000;
+
+    const allWithdrawals = (webmasterService && webmasterService.withdrawals) ? webmasterService.withdrawals : [];
+    const userWithdrawals = allWithdrawals.filter(w =>
+      (refCode && w.referralCode === refCode) ||
+      (w.userId && w.userId === user.id) ||
+      (cleanEmail && w.email && w.email.toLowerCase() === cleanEmail)
+    );
+
+    const pendingWithdrawalsUsd = userWithdrawals
+      .filter(w => w.status === 'pending')
+      .reduce((sum, w) => sum + (Number(w.amountUsd) || 0), 0);
+
+    const referralEarningsUsd = (webmaster?.referralProgram?.totalEarnedUsd !== undefined)
+      ? Number(webmaster.referralProgram.totalEarnedUsd)
+      : referralStats.totalEarnedUsd;
+
+    const videoPlayEarningsUsd = Math.max(0, Math.round((grossEarningsUsd - referralEarningsUsd) * 10000) / 10000);
+    const earningRecords = (webmaster?.earningRecords || []).slice(0, 50);
+
+    // 4. Cloud Storage & Shared Links
+    const userShares = allShares.filter(s =>
+      (s.userId && s.userId === user.id) ||
+      (s.creatorUserId && s.creatorUserId === user.id) ||
+      (refCode && s.referralCode === refCode) ||
+      (cleanEmail && s.creatorName && s.creatorName.toLowerCase() === cleanEmail)
+    ).map(s => ({
+      code: s.code || '',
+      fileName: s.fileName || s.name || 'Shared File',
+      sizeBytes: Number(s.sizeBytes) || 0,
+      viewsCount: Number(s.viewsCount) || 0,
+      downloadUrl: s.downloadUrl || '',
+      streamUrl: s.streamUrl || '',
+      isVideo: !!s.isVideo,
+      isFolder: !!s.isFolder,
+      createdAt: s.createdAt || new Date().toISOString(),
+      shareUrl: s.shareUrl || `https://airbox.one/s/${s.code || ''}`,
+    }));
+
+    const totalSpaceBytes = user.totalSpaceBytes || 1099511627776;
+    const usedSpaceBytes = user.usedSpaceBytes || 0;
+    const storagePercent = Math.min(100, Math.round((usedSpaceBytes / totalSpaceBytes) * 1000) / 10);
+
+    // Sanitize user object
+    const sanitizedUser = { ...user };
+    delete sanitizedUser.passwordHash;
+    delete sanitizedUser.activeTokens;
+
+    const globalCpm = getSafeConfig('global_cpm_rate_usd', 4.0);
+
+    res.json({
+      success: true,
+      user: sanitizedUser,
+      financials: {
+        grossEarningsUsd,
+        walletBalanceUsd,
+        totalWithdrawnUsd,
+        pendingWithdrawalsUsd: Math.round(pendingWithdrawalsUsd * 100) / 100,
+        referralEarningsUsd,
+        videoPlayEarningsUsd,
+        currentPlan: webmaster?.currentPlan || 'videoPlays',
+        customCpmRateUsd: webmaster?.custom_cpm_rate_usd || null,
+        globalCpmRateUsd: globalCpm,
+        effectiveCpmRateUsd: webmaster?.custom_cpm_rate_usd || globalCpm,
+        cpaRewardUsd: getSafeConfig('cpa_reward_per_install_usd', 0.05),
+        earningRecords,
+        withdrawals: userWithdrawals,
+      },
+      referralNetwork: {
+        referralCode: refCode,
+        isEnrolled: !!(webmaster && webmaster.referralCode),
+        referredBy,
+        stats: referralStats,
+        referredUsers: referredUsersList,
+      },
+      storage: {
+        totalSpaceBytes,
+        usedSpaceBytes,
+        storagePercent,
+        totalSharesCount: userShares.length,
+        sharedLinks: userShares,
+      },
+    });
+  } catch (err) {
+    console.error('[AdminRoutes] Error in /users/:id/details:', err);
+    res.status(500).json({ success: false, error: err.message || 'Internal server error while compiling user intelligence' });
   }
 });
 
@@ -178,7 +428,10 @@ router.get('/users/:id', (req, res) => {
   const user = authService.getUser(req.params.id);
   if (!user) return res.status(404).json({ success: false, error: 'User not found' });
   const webmaster = webmasterService.getProfile(user.id) || webmasterService.getProfile(user.email);
-  res.json({ success: true, user, webmaster });
+  const sanitized = { ...user };
+  delete sanitized.passwordHash;
+  delete sanitized.activeTokens;
+  res.json({ success: true, user: sanitized, webmaster });
 });
 
 router.put('/users/:id/quota', (req, res) => {
@@ -220,7 +473,42 @@ router.put('/users/:id/quota', (req, res) => {
     ip: req.socket.remoteAddress,
   });
 
-  res.json({ success: true, user: updated, quotaBytes: targetBytes, formatted: formattedStr });
+  const sanitized = { ...updated };
+  delete sanitized.passwordHash;
+  delete sanitized.activeTokens;
+
+  res.json({ success: true, user: sanitized, quotaBytes: targetBytes, formatted: formattedStr });
+});
+
+router.put('/users/:id/vip', (req, res) => {
+  const { isVip, storageGb, durationDays } = req.body;
+  const user = authService.getUser(req.params.id);
+  if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+  const gb = parseFloat(storageGb) || (isVip ? 2048 : 1024);
+  const storageBytes = Math.round(gb * 1024 * 1024 * 1024);
+  const days = parseInt(durationDays, 10) || 365;
+
+  const updated = authService.updateUserVip(req.params.id, !!isVip, {
+    storageBytes,
+    durationDays: days,
+    planId: isVip ? 'admin_vip_grant' : null,
+  });
+
+  adminAuthService.recordAuditLog({
+    adminId: req.admin.adminId,
+    email: req.admin.email,
+    action: 'USER_VIP_TOGGLE',
+    target: `USER:${req.params.id}`,
+    details: `${isVip ? 'Granted VIP Status (' + gb + ' GB for ' + days + ' days)' : 'Revoked VIP Status'}`,
+    ip: req.socket.remoteAddress,
+  });
+
+  const sanitized = { ...updated };
+  delete sanitized.passwordHash;
+  delete sanitized.activeTokens;
+
+  res.json({ success: true, user: sanitized });
 });
 
 router.put('/users/:id/status', (req, res) => {
@@ -242,28 +530,11 @@ router.put('/users/:id/status', (req, res) => {
     ip: req.socket.remoteAddress,
   });
 
-  res.json({ success: true, user: updated });
-});
+  const sanitized = { ...updated };
+  delete sanitized.passwordHash;
+  delete sanitized.activeTokens;
 
-router.delete('/users/:id', async (req, res) => {
-  const user = authService.getUser(req.params.id);
-  if (!user) return res.status(404).json({ success: false, error: 'User not found' });
-
-  const userId = user.id;
-  const userEmail = user.email;
-
-  const result = await authService.deleteUserAccount(userId, userEmail);
-
-  adminAuthService.recordAuditLog({
-    adminId: req.admin.adminId,
-    email: req.admin.email,
-    action: 'USER_ACCOUNT_PERMANENT_DELETE',
-    target: `USER:${userId}`,
-    details: `Permanently deleted user ${userEmail || userId} and wiped all cloud storage, files, webmasters, and referral records.`,
-    ip: req.socket.remoteAddress,
-  });
-
-  res.json({ success: true, message: 'User account and all associated data permanently deleted.' });
+  res.json({ success: true, user: sanitized });
 });
 
 router.post('/users/:id/terminate-sessions', (req, res) => {
@@ -285,6 +556,59 @@ router.post('/users/:id/terminate-sessions', (req, res) => {
   });
 
   res.json({ success: true, message: 'All active sessions invalidated' });
+});
+
+router.post('/users/:id/notify', (req, res) => {
+  const { title, body, actionUrl, priority } = req.body;
+  const user = authService.getUser(req.params.id);
+  if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+  if (!title || !body) {
+    return res.status(400).json({ success: false, error: 'Title and body are required' });
+  }
+
+  notificationService.saveBroadcastNotification({
+    title: (title || '').trim(),
+    body: (body || '').trim(),
+    target: 'ALL_USERS',
+    category: 'ALERT',
+    actionUrl: (actionUrl || '').trim(),
+    priority: priority || 'HIGH',
+    deliveredCount: 1,
+    senderAdmin: req.admin.email || req.admin.adminId || 'Super Admin',
+  });
+
+  adminAuthService.recordAuditLog({
+    adminId: req.admin.adminId,
+    email: req.admin.email,
+    action: 'USER_DIRECT_NOTIFY',
+    target: `USER:${req.params.id}`,
+    details: `Dispatched notification "${title}" directly to user ${user.email || user.id}`,
+    ip: req.socket.remoteAddress,
+  });
+
+  res.json({ success: true, message: `Notification dispatched to user ${user.email || user.id}` });
+});
+
+router.delete('/users/:id', async (req, res) => {
+  const user = authService.getUser(req.params.id);
+  if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+  const userId = user.id;
+  const userEmail = user.email;
+
+  const result = await authService.deleteUserAccount(userId, userEmail);
+
+  adminAuthService.recordAuditLog({
+    adminId: req.admin.adminId,
+    email: req.admin.email,
+    action: 'USER_ACCOUNT_PERMANENT_DELETE',
+    target: `USER:${userId}`,
+    details: `Permanently deleted user ${userEmail || userId} and wiped all cloud storage, files, webmasters, and referral records.`,
+    ip: req.socket.remoteAddress,
+  });
+
+  res.json({ success: true, message: 'User account and all associated data permanently deleted.' });
 });
 
 router.get('/deletion-queue', (req, res) => {
@@ -516,12 +840,20 @@ router.post('/referrals/batch-reject', (req, res) => {
 
 router.get('/storage/objects', async (req, res) => {
   try {
-    const telemetry = await r2StorageService.getStorageTelemetry();
+    const force = req.query.refresh === 'true' || req.query.force === 'true';
+    const telemetry = await r2StorageService.getStorageTelemetry(force);
     const shares = Array.from(shareService.shares.values());
     const users = authService.getAllUsersList();
 
     let totalUserUploadsBytes = 0;
     users.forEach(u => { totalUserUploadsBytes += (u.usedSpaceBytes || 0); });
+
+    const realBytes = (telemetry && telemetry.success && telemetry.totalStorageBytes > 0)
+      ? telemetry.totalStorageBytes
+      : totalUserUploadsBytes;
+
+    const realGb = Number((realBytes / (1024 * 1024 * 1024)).toFixed(2));
+    const realMb = Number((realBytes / (1024 * 1024)).toFixed(2));
 
     res.json({
       success: true,
@@ -530,14 +862,36 @@ router.get('/storage/objects', async (req, res) => {
       totalShares: shares.length,
       telemetry: {
         totalObjects: telemetry.totalObjects || 0,
-        totalBytes: telemetry.totalStorageBytes || totalUserUploadsBytes || 0,
-        totalGb: (telemetry.totalStorageGb !== undefined && telemetry.totalStorageGb > 0)
-          ? telemetry.totalStorageGb
-          : (Math.round((totalUserUploadsBytes / (1024 * 1024 * 1024)) * 100) / 100),
-        userFolderCount: telemetry.userFoldersCount || telemetry.userFolders?.length || (users.length > 0 ? users.length : 1),
+        totalBytes: realBytes,
+        totalGb: realGb,
+        totalMb: realMb,
+        userFolderCount: telemetry.userFoldersCount || (telemetry.userFolders?.length || 1),
         userFolders: telemetry.userFolders || [],
       },
       shares: shares.slice(0, 100),
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.post('/storage/sync-r2', async (req, res) => {
+  try {
+    const syncResult = await r2StorageService.syncAllUsersStorageFromR2(authService);
+    
+    adminAuthService.recordAuditLog({
+      adminId: req.admin.adminId,
+      email: req.admin.email,
+      action: 'R2_STORAGE_FORCE_SYNC',
+      target: 'CLOUDFLARE_R2',
+      details: `Deep synchronized storage quotas for all ${syncResult.totalUsers || 0} users from Cloudflare R2 bucket. Updated ${syncResult.updatedUsersCount || 0} user records. Total Storage: ${syncResult.totalStorageGb || 0} GB (${syncResult.totalObjects || 0} objects).`,
+      ip: req.socket.remoteAddress,
+    });
+
+    res.json({
+      success: true,
+      message: 'Cloudflare R2 storage telemetry and user quotas synchronized successfully.',
+      ...syncResult,
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -657,7 +1011,7 @@ router.get('/safety/reports', (req, res) => {
       if (user) {
         creatorUserId = user.id || creatorUserId;
         creatorEmail = user.email || creatorEmail;
-        creatorName = user.displayName || creatorName || 'TeraBox User';
+        creatorName = user.displayName || creatorName || 'AirBox User';
         creatorStatus = user.status || 'ACTIVE';
         creatorStrikes = (user.strikesCount !== undefined) ? user.strikesCount : (user.strikes ? user.strikes.length : creatorStrikes);
         userStrikesList = user.strikes || [];
@@ -992,7 +1346,7 @@ router.post('/safety/takedown', async (req, res) => {
 
     // 2. Issue strike to the content uploader
     let strikeResult = { success: false, strikesCount: 0, userBanned: false };
-    const adminEmail = req.admin?.email || 'superadmin@terabox.mywire.org';
+    const adminEmail = req.admin?.email || 'superadmin@airbox.one';
     const adminId = req.admin?.adminId || 'SUPER_ADMIN';
 
     if (creatorIdentifier) {
@@ -1035,13 +1389,13 @@ router.post('/safety/takedown', async (req, res) => {
         previewUrl: share ? (share.streamUrl || share.downloadUrl || '') : '',
         creatorUserId: creatorIdentifier || null,
         creatorEmail: (strikeResult?.user?.email) || (share?.creatorEmail) || (creatorIdentifier || 'Manual Admin Takedown'),
-        creatorName: (strikeResult?.user?.displayName) || (share?.creatorName) || 'TeraBox User',
+        creatorName: (strikeResult?.user?.displayName) || (share?.creatorName) || 'AirBox User',
         creatorStrikes: strikeResult?.strikesCount || 1,
         reason,
         isCopyrightClaim: true,
-        legalName: 'TeraBox Administrative Action',
+        legalName: 'AirBox Administrative Action',
         reporterName: adminEmail,
-        organization: 'TeraBox Trust & Safety',
+        organization: 'AirBox Trust & Safety',
         relationship: 'Platform Administrator',
         email: adminEmail,
         reporterEmail: adminEmail,

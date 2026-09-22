@@ -1,32 +1,44 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 const crypto = require('crypto');
 const fs = require('fs');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
 
 const ADMINS_FILE = path.join(__dirname, '../../data/admins.json');
 const AUDIT_LOGS_FILE = path.join(__dirname, '../../data/audit_logs.json');
-const ADMIN_SECRET_SALT = process.env.ADMIN_SECRET_SALT || 'terabox_admin_master_salt_2026';
-const JWT_SECRET = process.env.JWT_SECRET || env.jwtSecret || 'terabox_jwt_secret_key_2026';
-
-const DEFAULT_SUPER_ADMIN = {
-  id: 'adm_master_root_01',
-  email: 'superadmin@terabox.mywire.org',
-  username: 'admin_root',
-  passwordPlain: 'TeraBox#SuperAdmin$2026!Secured',
-  displayName: 'Master Super Administrator',
-  role: 'ROLE_SUPER_ADMIN',
-  status: 'ACTIVE',
-  createdAt: '2026-09-04T00:00:00.000Z',
-  lastLoginAt: null,
-  lastLoginIp: null,
-};
 
 class AdminAuthService {
   constructor() {
     this.admins = new Map(); // id or email or username -> adminObject
     this.auditLogs = [];
+    this.loginAttempts = new Map(); // ip -> { failedCount, lockedUntil }
     this._initDatastores();
+  }
+
+  _cleanEnvStr(val, fallback = '') {
+    if (!val) return fallback;
+    return String(val).trim().replace(/^["']|["']$/g, '').trim();
+  }
+
+  get adminSecretSalt() {
+    return this._cleanEnvStr(process.env.ADMIN_SECRET_SALT, 'airbox_admin_master_salt_2026_sec_entropy');
+  }
+
+  get jwtSecret() {
+    return this._cleanEnvStr(process.env.JWT_SECRET || env.jwtSecret, 'airbox_enterprise_jwt_master_secret_key_2026');
+  }
+
+  get superAdminEmail() {
+    return this._cleanEnvStr(process.env.ADMIN_SUPER_EMAIL, 'superadmin@airbox.one').toLowerCase();
+  }
+
+  get superAdminUsername() {
+    return this._cleanEnvStr(process.env.ADMIN_SUPER_USERNAME, 'admin_root').toLowerCase();
+  }
+
+  get superAdminPassword() {
+    return this._cleanEnvStr(process.env.ADMIN_SUPER_PASSWORD, '');
   }
 
   _initDatastores() {
@@ -51,6 +63,9 @@ class AdminAuthService {
         this._seedDefaultSuperAdmin();
       }
 
+      // Ensure Master Super Admin always exists and has verified hash
+      this._ensureSuperAdminIntegrity();
+
       // Load Audit Logs
       if (fs.existsSync(AUDIT_LOGS_FILE)) {
         const rawLogs = fs.readFileSync(AUDIT_LOGS_FILE, 'utf8');
@@ -62,21 +77,27 @@ class AdminAuthService {
   }
 
   _indexAdmin(adm) {
-    this.admins.set(adm.id, adm);
+    if (!adm) return;
+    if (adm.id) this.admins.set(adm.id, adm);
     if (adm.email) this.admins.set(adm.email.toLowerCase(), adm);
     if (adm.username) this.admins.set(adm.username.toLowerCase(), adm);
   }
 
   _seedDefaultSuperAdmin() {
-    const hashedPassword = this._hashPassword(DEFAULT_SUPER_ADMIN.passwordPlain);
+    const passwordToHash = this.superAdminPassword;
+    if (!passwordToHash) {
+      console.warn('[AdminAuthService] Warning: ADMIN_SUPER_PASSWORD not set in environment.');
+      return;
+    }
+    const hashedPassword = this._hashPassword(passwordToHash);
     const superAdminRecord = {
-      id: DEFAULT_SUPER_ADMIN.id,
-      email: DEFAULT_SUPER_ADMIN.email,
-      username: DEFAULT_SUPER_ADMIN.username,
+      id: 'adm_master_root_01',
+      email: this.superAdminEmail,
+      username: this.superAdminUsername,
       passwordHash: hashedPassword,
-      displayName: DEFAULT_SUPER_ADMIN.displayName,
-      role: DEFAULT_SUPER_ADMIN.role,
-      status: DEFAULT_SUPER_ADMIN.status,
+      displayName: 'Master Super Administrator',
+      role: 'ROLE_SUPER_ADMIN',
+      status: 'ACTIVE',
       createdAt: new Date().toISOString(),
       lastLoginAt: null,
       lastLoginIp: null,
@@ -89,16 +110,43 @@ class AdminAuthService {
       email: superAdminRecord.email,
       action: 'GENESIS_BOOTSTRAP',
       target: 'SYSTEM',
-      details: 'Default Super Admin seeded successfully with high-entropy master credentials.',
+      details: 'Super Administrator initialized with high-entropy cryptographic credentials.',
       ip: '127.0.0.1',
     });
-    console.log('[AdminAuthService] Master Super Admin initialized: superadmin@terabox.mywire.org');
+    console.log(`[AdminAuthService] Master Super Admin initialized: ${this.superAdminEmail}`);
+  }
+
+  _ensureSuperAdminIntegrity() {
+    let superAdmin = this.admins.get(this.superAdminEmail) || this.admins.get(this.superAdminUsername) || this.admins.get('adm_master_root_01');
+    const passwordToHash = this.superAdminPassword;
+
+    if (!superAdmin) {
+      this._seedDefaultSuperAdmin();
+    } else if (passwordToHash && superAdmin.passwordHash !== this._hashPassword(passwordToHash)) {
+      superAdmin.passwordHash = this._hashPassword(passwordToHash);
+      superAdmin.email = this.superAdminEmail;
+      superAdmin.username = this.superAdminUsername;
+      this._indexAdmin(superAdmin);
+      this._persistAdmins();
+    }
   }
 
   _hashPassword(password) {
+    if (!password) return '';
     return crypto
-      .pbkdf2Sync(password, ADMIN_SECRET_SALT, 10000, 64, 'sha512')
+      .pbkdf2Sync(password, this.adminSecretSalt, 25000, 64, 'sha512')
       .toString('hex');
+  }
+
+  /**
+   * Constant-time timing-safe hash comparison
+   */
+  _timingSafeCompare(a, b) {
+    if (typeof a !== 'string' || typeof b !== 'string') return false;
+    const bufA = Buffer.from(a, 'utf8');
+    const bufB = Buffer.from(b, 'utf8');
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
   }
 
   _persistAdmins() {
@@ -112,7 +160,6 @@ class AdminAuthService {
 
   _persistAuditLogs() {
     try {
-      // Keep up to 2000 most recent logs
       if (this.auditLogs.length > 2000) {
         this.auditLogs = this.auditLogs.slice(0, 2000);
       }
@@ -123,23 +170,40 @@ class AdminAuthService {
   }
 
   /**
-   * Direct Admin Authentication
+   * Direct Admin Authentication with Rate Limiting and Timing-Safe Verification
    */
   login(identifier, password, ipAddress = '127.0.0.1', userAgent = '') {
     if (!identifier || !password) {
       return { success: false, error: 'Identifier and password are required' };
     }
 
+    // 1. Brute-Force Rate Limiting Protection (5 failed attempts -> 15 min lock)
+    const now = Date.now();
+    const rateRecord = this.loginAttempts.get(ipAddress) || { failedCount: 0, lockedUntil: 0 };
+    if (rateRecord.lockedUntil > now) {
+      const remainingMin = Math.ceil((rateRecord.lockedUntil - now) / 60000);
+      return {
+        success: false,
+        error: `Security Lockout: Too many failed login attempts. Please retry in ${remainingMin} minute(s).`,
+      };
+    }
+
     const cleanId = identifier.trim().toLowerCase();
     const admin = this.admins.get(cleanId);
 
     if (!admin) {
+      rateRecord.failedCount += 1;
+      if (rateRecord.failedCount >= 5) {
+        rateRecord.lockedUntil = now + 15 * 60 * 1000; // 15 min lock
+      }
+      this.loginAttempts.set(ipAddress, rateRecord);
+
       this.recordAuditLog({
         adminId: 'UNKNOWN',
         email: cleanId,
         action: 'FAILED_LOGIN_ATTEMPT',
         target: 'AUTH',
-        details: 'Invalid administrative username/email',
+        details: `Invalid administrative identifier. IP: ${ipAddress} (Failures: ${rateRecord.failedCount})`,
         ip: ipAddress,
       });
       return { success: false, error: 'Invalid administrative credentials' };
@@ -150,25 +214,37 @@ class AdminAuthService {
     }
 
     const testHash = this._hashPassword(password.trim());
-    const isMasterPass = (cleanId === DEFAULT_SUPER_ADMIN.email.toLowerCase() || cleanId === DEFAULT_SUPER_ADMIN.username.toLowerCase()) && password.trim() === DEFAULT_SUPER_ADMIN.passwordPlain;
+    let isPasswordValid = this._timingSafeCompare(testHash, admin.passwordHash);
 
-    if (testHash !== admin.passwordHash && !isMasterPass) {
+    // Fallback: Check direct super admin master password match if hash differed due to salt migration
+    if (!isPasswordValid && this.superAdminPassword && (password.trim() === this.superAdminPassword) && (cleanId === this.superAdminEmail || cleanId === this.superAdminUsername || admin.role === 'ROLE_SUPER_ADMIN')) {
+      isPasswordValid = true;
+      admin.passwordHash = testHash;
+      this._persistAdmins();
+    }
+
+    if (!isPasswordValid) {
+      rateRecord.failedCount += 1;
+      if (rateRecord.failedCount >= 5) {
+        rateRecord.lockedUntil = now + 15 * 60 * 1000;
+      }
+      this.loginAttempts.set(ipAddress, rateRecord);
+
       this.recordAuditLog({
         adminId: admin.id,
         email: admin.email,
         action: 'FAILED_PASSWORD_ATTEMPT',
         target: 'AUTH',
-        details: 'Incorrect password entered',
+        details: `Incorrect password entered. (Failures: ${rateRecord.failedCount})`,
         ip: ipAddress,
       });
       return { success: false, error: 'Invalid administrative credentials' };
     }
 
-    if (isMasterPass && testHash !== admin.passwordHash) {
-      admin.passwordHash = testHash;
-    }
+    // Success -> Clear Rate Limit Record
+    this.loginAttempts.delete(ipAddress);
 
-    // Success -> Update Login Metadata
+    // Update Login Metadata
     admin.lastLoginAt = new Date().toISOString();
     admin.lastLoginIp = ipAddress;
     this._persistAdmins();
@@ -183,14 +259,14 @@ class AdminAuthService {
       issuedAt: Date.now(),
     };
 
-    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign(tokenPayload, this.jwtSecret, { expiresIn: '24h' });
 
     this.recordAuditLog({
       adminId: admin.id,
       email: admin.email,
       action: 'ADMIN_LOGIN_SUCCESS',
       target: 'AUTH',
-      details: 'Direct Super Admin authenticated successfully',
+      details: 'Super Administrator authenticated successfully',
       ip: ipAddress,
     });
 
@@ -228,8 +304,8 @@ class AdminAuthService {
   }
 
   getAuditLogs(limit = 100, page = 1) {
-    const lim = Math.max(1, Math.min(parseInt(limit) || 50, 200));
-    const p = Math.max(1, parseInt(page) || 1);
+    const lim = Math.max(1, Math.min(parseInt(limit, 10) || 50, 200));
+    const p = Math.max(1, parseInt(page, 10) || 1);
     const start = (p - 1) * lim;
     const paginated = this.auditLogs.slice(start, start + lim);
 
@@ -244,7 +320,7 @@ class AdminAuthService {
   verifyToken(token) {
     if (!token) return null;
     try {
-      return jwt.verify(token, JWT_SECRET);
+      return jwt.verify(token, this.jwtSecret);
     } catch (_) {
       return null;
     }
@@ -276,7 +352,7 @@ class AdminAuthService {
       }
 
       try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, this.jwtSecret);
         req.admin = decoded;
         next();
       } catch (err) {

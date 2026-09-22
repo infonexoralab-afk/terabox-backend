@@ -46,7 +46,7 @@
     <!-- App Main Storage Progress Bar Card -->
     <rect x="194" y="156" width="212" height="100" rx="16" fill="url(#blueGlow)"/>
     <text x="210" y="182" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="13" fill="#FFFFFF">Free Cloud Vault</text>
-    <text x="210" y="196" font-family="'Inter', sans-serif" font-weight="500" font-size="9" fill="#E0E7FF">Auto-Sync &amp; 4K Video Streaming</text>
+    <text x="210" y="196" font-family="'Inter', sans-serif" font-weight="500" font-size="9" fill="#E0E7FF">Fast Storage &amp; 4K Streaming</text>
     
     <!-- Storage Meter Bar -->
     <rect x="210" y="210" width="180" height="6" rx="3" fill="#FFFFFF" fill-opacity="0.25"/>
@@ -71,8 +71,8 @@
     <rect x="194" y="375" width="212" height="65" rx="14" fill="#F8FAFC" stroke="#E2E8F0"/>
     <circle cx="214" cy="407" r="10" fill="#DCFCE7"/>
     <path d="M211 407L213.5 409.5L217 404.5" stroke="#16A34A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="232" y="402" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="10" fill="#0F172A">Ultra-Fast Sync Active</text>
-    <text x="232" y="414" font-family="'Inter', sans-serif" font-weight="500" font-size="8" fill="#64748B">34.8 MB/s • 0 Error Lossless</text>
+    <text x="232" y="402" font-family="'Plus Jakarta Sans', sans-serif" font-weight="700" font-size="10" fill="#0F172A">Fast Upload Active</text>
+    <text x="232" y="414" font-family="'Inter', sans-serif" font-weight="500" font-size="8" fill="#64748B">34.8 MB/s • Error Free</text>
   </g>
 
   <!-- Left Floating Card: High-Speed Upload Badge -->
@@ -82,7 +82,7 @@
     <path d="M34 29V42M34 29L29 34M34 29L39 34" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     <text x="60" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="12" fill="#0F172A">Turbo Upload</text>
     <text x="60" y="46" font-family="'Inter', sans-serif" font-weight="800" font-size="13" fill="#059669">52.4 MB/s</text>
-    <text x="60" y="58" font-family="'Inter', sans-serif" font-weight="500" font-size="8.5" fill="#64748B">Concurrent Slices</text>
+    <text x="60" y="58" font-family="'Inter', sans-serif" font-weight="500" font-size="8.5" fill="#64748B">Multipart Chunks</text>
   </g>
 
   <!-- Right Floating Card: Webmaster Payout Badge -->
@@ -91,8 +91,8 @@
     <circle cx="35" cy="39" r="18" fill="#FEF3C7"/>
     <text x="35" y="45" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="16" fill="#D97706" text-anchor="middle">$</text>
     <text x="62" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="11.5" fill="#0F172A">Creator Earnings</text>
-    <text x="62" y="48" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="15" fill="#D97706">$4.00 CPM</text>
-    <text x="62" y="61" font-family="'Inter', sans-serif" font-weight="600" font-size="8.5" fill="#10B981">+ $0.05 per referral</text>
+    <text x="62" y="48" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="15" fill="#D97706">$3.00 CPM</text>
+    <text x="62" y="61" font-family="'Inter', sans-serif" font-weight="600" font-size="8.5" fill="#10B981">+ Referral Rewards</text>
   </g>
 
   <!-- Bottom Left Floating Security Badge -->
@@ -100,7 +100,7 @@
     <rect width="150" height="54" rx="14" fill="#FFFFFF" stroke="#E2E8F0"/>
     <circle cx="28" cy="27" r="12" fill="#EFF6FF"/>
     <path d="M28 20L34 23V27C34 30.5 31.5 33 28 34C24.5 33 22 30.5 22 27V23L28 20Z" fill="#005CE6"/>
-    <text x="46" y="25" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="10" fill="#0F172A">256-bit Vault</text>
-    <text x="46" y="37" font-family="'Inter', sans-serif" font-weight="600" font-size="8" fill="#64748B">Zero-Knowledge</text>
+    <text x="46" y="25" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="10" fill="#0F172A">Safe Box</text>
+    <text x="46" y="37" font-family="'Inter', sans-serif" font-weight="600" font-size="8" fill="#64748B">PIN Protected</text>
   </g>
 </svg>

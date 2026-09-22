@@ -157,7 +157,7 @@ class EmailService {
   <div class="wrapper">
     <div class="main-card">
       <div class="header-banner">
-        <div class="brand-logo">TeraBox Cloud</div>
+        <div class="brand-logo">AirBox Cloud</div>
         <div class="badge-sub">1024 GB SECURE CLOUD</div>
       </div>
       <div class="content-body">
@@ -171,12 +171,12 @@ class EmailService {
         </div>
 
         <div class="security-box">
-          🔒 <strong>Security Warning:</strong> Never share this 6-digit OTP code with anyone. TeraBox support will never ask for your verification code.
+          🔒 <strong>Security Warning:</strong> Never share this 6-digit OTP code with anyone. AirBox support will never ask for your verification code.
         </div>
       </div>
       <div class="footer-area">
-        Need assistance? Contact <a href="mailto:support@terabox.cloud" style="color: #0066FF; text-decoration: none;">support@terabox.cloud</a><br>
-        © ${new Date().getFullYear()} TeraBox Inc. All rights reserved.
+        Need assistance? Contact <a href="mailto:info.airboxcloud@gmail.com" style="color: #0066FF; text-decoration: none;">info.airboxcloud@gmail.com</a><br>
+        © ${new Date().getFullYear()} AirBox Inc. All rights reserved.
       </div>
     </div>
   </div>
@@ -190,7 +190,7 @@ class EmailService {
   async sendSignupOtp(email, otpCode) {
     const html = this._renderOtpTemplate({
       title: 'Verify Your Email Address',
-      subtitle: 'Use the 6-digit verification code below to complete your TeraBox 1024 GB Cloud Account signup',
+      subtitle: 'Use the 6-digit verification code below to complete your AirBox 1024 GB Cloud Account signup',
       otpCode,
       recipientEmail: email,
     });
@@ -203,9 +203,9 @@ class EmailService {
     if (this.transporter) {
       try {
         await this.transporter.sendMail({
-          from: '"TeraBox Security" <no-reply@terabox.cloud>',
+          from: '"AirBox Security" <no-reply@airbox.one>',
           to: email,
-          subject: `${otpCode} is your TeraBox verification code`,
+          subject: `${otpCode} is your AirBox verification code`,
           html,
         });
         console.log(`[EmailService] ✅ Email OTP sent to ${email} via SMTP`);
@@ -222,7 +222,7 @@ class EmailService {
   async sendForgotPasswordOtp(email, otpCode) {
     const html = this._renderOtpTemplate({
       title: 'Reset Your Account Password',
-      subtitle: 'Use the 6-digit verification code below to reset your TeraBox password',
+      subtitle: 'Use the 6-digit verification code below to reset your AirBox password',
       otpCode,
       recipientEmail: email,
     });
@@ -235,9 +235,9 @@ class EmailService {
     if (this.transporter) {
       try {
         await this.transporter.sendMail({
-          from: '"TeraBox Security" <security@terabox.cloud>',
+          from: '"AirBox Security" <security@airbox.one>',
           to: email,
-          subject: `${otpCode} is your TeraBox password reset code`,
+          subject: `${otpCode} is your AirBox password reset code`,
           html,
         });
         console.log(`[EmailService] ✅ Forgot password OTP sent to ${email}`);

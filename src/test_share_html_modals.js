@@ -20,7 +20,7 @@ assert(html.includes('id="policyModalOverlay"'), 'policyModalOverlay ID must be 
 assert(html.includes('Copyright &amp; Grievance Policy') || html.includes('Copyright & Grievance Policy'), 'Policy title must be present');
 assert(html.includes('openPolicyModal()'), 'openPolicyModal function must be present');
 assert(html.includes('closePolicyModal()'), 'closePolicyModal function must be present');
-assert(html.includes('grievance-compliance@terabox.app'), 'Grievance email must be present');
+assert(html.includes('info.airboxcloud@gmail.com'), 'Grievance email must be present');
 
 // Verify DMCA Notice Form & Responsiveness
 assert(html.includes('id="reportModalOverlay"'), 'reportModalOverlay ID must be present');

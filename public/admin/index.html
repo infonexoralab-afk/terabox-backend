@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TeraBox Control Tower | Master Administration</title>
-  
-  <!-- Modern Typography (Matching TeraBox Clean White Client) -->
+  <title>AirBox Control Tower | Master Administration</title>
+
+  <!-- Modern Typography (Matching AirBox Clean White Client) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+
   <!-- Master Stylesheet -->
-  <link rel="stylesheet" href="/admin/css/admin.css?v=5.0.0" />
+  <link rel="stylesheet" href="/admin/css/admin.css?v=5.5.0" />
 </head>
+
 <body>
 
   <!-- =============================================================
@@ -22,12 +26,13 @@
     <div class="login-card">
       <div class="login-header">
         <div class="login-logo">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
             <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
           </svg>
         </div>
         <h1 class="login-title">Control Tower</h1>
-        <p class="login-subtitle">TeraBox Global Infrastructure Management</p>
+        <p class="login-subtitle">AirBox Global Infrastructure Management</p>
       </div>
 
       <div id="login-error" class="login-error-box" style="display: none;"></div>
@@ -35,15 +40,18 @@
       <form id="login-form">
         <div class="form-group">
           <label class="form-label" for="login-identifier">Super Admin Identifier</label>
-          <input type="text" id="login-identifier" class="form-input" placeholder="superadmin@terabox.mywire.org or admin_root" required autocomplete="username" />
+          <input type="text" id="login-identifier" class="form-input" placeholder="superadmin@airbox.one or admin_root"
+            required autocomplete="username" />
         </div>
 
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <label class="form-label" for="login-password" style="margin-bottom: 0;">Master Password</label>
-            <button type="button" id="btn-toggle-pwd" onclick="AdminApp.togglePasswordVisibility()" style="background: none; border: none; font-size: 11.5px; color: var(--primary); font-weight: 700; cursor: pointer; padding: 0;">Show</button>
+            <button type="button" id="btn-toggle-pwd" onclick="AdminApp.togglePasswordVisibility()"
+              style="background: none; border: none; font-size: 11.5px; color: var(--primary); font-weight: 700; cursor: pointer; padding: 0;">Show</button>
           </div>
-          <input type="password" id="login-password" class="form-input" placeholder="Enter secure administrator password" required autocomplete="current-password" />
+          <input type="password" id="login-password" class="form-input"
+            placeholder="Enter secure administrator password" required autocomplete="current-password" />
         </div>
 
         <button type="submit" id="btn-login-submit" class="btn btn-primary btn-block" style="margin-top: 24px;">
@@ -59,65 +67,105 @@
   <div id="app-container" style="display: none;">
     <!-- SIDEBAR BACKDROP FOR MOBILE -->
     <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="AdminApp.toggleMobileSidebar(false)"></div>
-    
+
     <!-- LEFT SIDEBAR NAVIGATION -->
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" style="color:var(--primary);">
             <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
           </svg>
         </div>
         <div class="sidebar-brand-text">
-          <h2>TERABOX</h2>
+          <h2>AIRBOX</h2>
           <span>CONTROL TOWER</span>
         </div>
       </div>
 
       <nav class="sidebar-nav">
         <div class="nav-section-label">INFRASTRUCTURE & USERS</div>
-        
+
         <a href="#" class="nav-item active" data-tab="overview">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect width="7" height="9" x="3" y="3" rx="1" />
+            <rect width="7" height="5" x="14" y="3" rx="1" />
+            <rect width="7" height="9" x="14" y="12" rx="1" />
+            <rect width="7" height="5" x="3" y="16" rx="1" />
+          </svg>
           <span>Overview</span>
         </a>
 
         <a href="#" class="nav-item" data-tab="users">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
           <span>Users & Quotas</span>
         </a>
 
         <div class="nav-section-label">MONETIZATION & GROWTH</div>
 
         <a href="#" class="nav-item" data-tab="webmasters">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="m4.93 4.93 4.24 4.24" />
+            <path d="m14.83 9.17 4.24-4.24" />
+            <path d="m14.83 14.83 4.24 4.24" />
+            <path d="m9.17 14.83-4.24 4.24" />
+            <circle cx="12" cy="12" r="4" />
+          </svg>
           <span>Webmaster Center</span>
         </a>
 
         <a href="#" class="nav-item" data-tab="financials">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect width="20" height="14" x="2" y="5" rx="2" />
+            <line x1="2" x2="22" y1="10" y2="10" />
+          </svg>
           <span>Financials & Payouts</span>
         </a>
 
         <div class="nav-section-label">SYSTEM & STORAGE</div>
 
         <a href="#" class="nav-item" data-tab="storage">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" x2="12" y1="3" y2="15" />
+          </svg>
           <span>Storage & DMCA</span>
         </a>
 
         <a href="#" class="nav-item" data-tab="vps">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect width="20" height="8" x="2" y="2" rx="2" ry="2" />
+            <rect width="20" height="8" x="2" y="14" rx="2" ry="2" />
+            <line x1="6" x2="6.01" y1="6" y2="6" />
+            <line x1="6" x2="6.01" y1="18" y2="18" />
+          </svg>
           <span>VPS & PM2 Cluster</span>
         </a>
 
         <a href="#" class="nav-item" data-tab="config">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
           <span>Remote Config</span>
         </a>
 
         <a href="#" class="nav-item" data-tab="audit">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" x2="8" y1="13" y2="13" />
+            <line x1="16" x2="8" y1="17" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
           <span>Audit Logs</span>
         </a>
       </nav>
@@ -128,10 +176,11 @@
           <div class="admin-avatar">SA</div>
           <div class="admin-details">
             <div id="current-admin-name" class="admin-name">Super Admin</div>
-            <div id="current-admin-email" class="admin-email">superadmin@terabox.mywire.org</div>
+            <div id="current-admin-email" class="admin-email">superadmin@airbox.one</div>
           </div>
         </div>
-        <button id="btn-logout" class="btn btn-secondary btn-block" style="margin-top: 12px; font-size: 12px; padding: 8px;">
+        <button id="btn-logout" class="btn btn-secondary btn-block"
+          style="margin-top: 12px; font-size: 12px; padding: 8px;">
           Sign Out
         </button>
       </div>
@@ -139,12 +188,18 @@
 
     <!-- MAIN CONTENT AREA -->
     <main class="main-wrapper">
-      
+
       <!-- TOP NAVIGATION BAR -->
       <header class="top-bar">
         <div class="top-bar-left">
-          <button id="mobile-menu-btn" class="mobile-toggle-btn" aria-label="Toggle Navigation" onclick="AdminApp.toggleMobileSidebar(true)">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <button id="mobile-menu-btn" class="mobile-toggle-btn" aria-label="Toggle Navigation"
+            onclick="AdminApp.toggleMobileSidebar(true)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+              stroke-linecap="round">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
           </button>
           <div id="ws-status-pill" class="status-indicator">
             <span class="status-dot"></span> Telemetry Connected
@@ -181,7 +236,10 @@
               <div class="metric-header">
                 <span class="metric-title">TOTAL REGISTERED USERS</span>
                 <span class="metric-icon-wrap">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                  </svg>
                 </span>
               </div>
               <div class="metric-value" id="metric-total-users">0</div>
@@ -192,18 +250,25 @@
               <div class="metric-header">
                 <span class="metric-title">R2 CLOUD STORAGE USED</span>
                 <span class="metric-icon-wrap">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                  </svg>
                 </span>
               </div>
               <div class="metric-value" id="metric-storage-gb">0 GB</div>
-              <div class="metric-subtext">Cloudflare R2 Bucket (Zero Egress)</div>
+              <div class="metric-subtext" id="metric-storage-subtext">Cloudflare R2 Bucket (Zero Egress)</div>
             </div>
 
             <div class="card card-metric">
               <div class="metric-header">
                 <span class="metric-title">WEBMASTER EARNINGS</span>
                 <span class="metric-icon-wrap">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="m4.93 4.93 4.24 4.24" />
+                    <circle cx="12" cy="12" r="4" />
+                  </svg>
                 </span>
               </div>
               <div class="metric-value" id="metric-webmaster-earnings">$0.00</div>
@@ -214,7 +279,10 @@
               <div class="metric-header">
                 <span class="metric-title">PENDING WITHDRAWALS</span>
                 <span class="metric-icon-wrap">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect width="20" height="14" x="2" y="5" rx="2" />
+                    <line x1="2" x2="22" y1="10" y2="10" />
+                  </svg>
                 </span>
               </div>
               <div class="metric-value" id="metric-pending-payouts">$0.00</div>
@@ -227,9 +295,9 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Live Host Performance</h3>
-                <span class="badge badge-info">VPS Node 148.113.55.6</span>
+                <span class="badge badge-info" id="vps-node-badge">VPS Node 213.136.67.9 (airbox.one)</span>
               </div>
-              
+
               <div class="telemetry-bar-row">
                 <div class="telemetry-label-row">
                   <span>Host CPU Utilization</span>
@@ -250,7 +318,8 @@
                 </div>
               </div>
 
-              <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+              <div
+                style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
                 <span style="color: var(--text-muted); font-size: 13px;">Continuous Host Uptime</span>
                 <strong id="live-uptime-val" class="mono-text">0h 0m</strong>
               </div>
@@ -288,8 +357,10 @@
               <p class="page-subtitle">Manage cloud storage allocations, VIP privileges, and account security</p>
             </div>
             <div class="filter-controls">
-              <input type="text" id="user-search-input" class="form-input" placeholder="Search by ID, Email, or Name..." onkeyup="if(event.key==='Enter') AdminApp.loadUsers(this.value)" />
-              <button class="btn btn-primary" onclick="AdminApp.loadUsers(document.getElementById('user-search-input').value)">Search</button>
+              <input type="text" id="user-search-input" class="form-input" placeholder="Search by ID, Email, or Name..."
+                onkeyup="if(event.key==='Enter') AdminApp.loadUsers(this.value)" />
+              <button class="btn btn-primary"
+                onclick="AdminApp.loadUsers(document.getElementById('user-search-input').value)">Search</button>
             </div>
           </div>
 
@@ -298,16 +369,20 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>User ID</th>
+                    <th>User ID & Status</th>
                     <th>Account Profile</th>
-                    <th>Status</th>
-                    <th>Storage Allocation</th>
+                    <th>Earnings ($ USD)</th>
+                    <th>Referrals</th>
+                    <th>Cloud Storage Allocation</th>
                     <th>Registered</th>
-                    <th>Actions</th>
+                    <th style="text-align: right;">User Management</th>
                   </tr>
                 </thead>
                 <tbody id="users-table-body">
-                  <tr><td colspan="6" style="text-align:center;padding:24px;">Loading user records...</td></tr>
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:24px;">Loading user records & live calculations...
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -333,15 +408,18 @@
                 <h3 class="card-title">Master Program Killswitch</h3>
               </div>
               <p style="color: var(--text-secondary); font-size: 13.5px; margin-bottom: 20px; line-height: 1.5;">
-                When disabled, all mobile users (both new and existing creators) receive the executive <strong>Coming Soon / Program Upgrades in Progress</strong> modal upon tapping Webmaster Center.
+                When disabled, all mobile users (both new and existing creators) receive the executive <strong>Coming
+                  Soon / Program Upgrades in Progress</strong> modal upon tapping Webmaster Center.
               </p>
-              
+
               <div style="display: flex; align-items: center; gap: 16px;">
                 <label class="switch">
-                  <input type="checkbox" id="webmaster-master-toggle" onchange="AdminApp.toggleWebmasterProgram(this)" />
+                  <input type="checkbox" id="webmaster-master-toggle"
+                    onchange="AdminApp.toggleWebmasterProgram(this)" />
                   <span class="slider"></span>
                 </label>
-                <strong id="webmaster-toggle-label" style="font-size: 14px;">PROGRAM ACTIVE (Normal Creator Dashboard)</strong>
+                <strong id="webmaster-toggle-label" style="font-size: 14px;">PROGRAM ACTIVE (Normal Creator
+                  Dashboard)</strong>
               </div>
             </div>
 
@@ -356,8 +434,10 @@
 
               <div style="display: flex; gap: 12px; align-items: center;">
                 <div style="position: relative; max-width: 180px; width: 100%;">
-                  <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-weight: 700;">$</span>
-                  <input type="number" id="global-cpm-input" class="form-input" style="padding-left: 28px; font-weight: 700;" step="0.50" min="0.00" value="4.00" />
+                  <span
+                    style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-weight: 700;">$</span>
+                  <input type="number" id="global-cpm-input" class="form-input"
+                    style="padding-left: 28px; font-weight: 700;" step="0.50" min="0.00" value="4.00" />
                 </div>
                 <button class="btn btn-primary" onclick="AdminApp.updateGlobalCpm()">
                   Save Global CPM
@@ -376,8 +456,10 @@
 
               <div style="display: flex; gap: 12px; align-items: center;">
                 <div style="position: relative; max-width: 180px; width: 100%;">
-                  <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-weight: 700;">$</span>
-                  <input type="number" id="cpa-reward-input" class="form-input" style="padding-left: 28px; font-weight: 700;" step="0.01" min="0.00" value="0.05" />
+                  <span
+                    style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-weight: 700;">$</span>
+                  <input type="number" id="cpa-reward-input" class="form-input"
+                    style="padding-left: 28px; font-weight: 700;" step="0.01" min="0.00" value="0.05" />
                 </div>
                 <button class="btn btn-primary" onclick="AdminApp.updateCpaReward()">
                   Save Referral Reward
@@ -396,8 +478,10 @@
 
               <div style="display: flex; gap: 12px; align-items: center;">
                 <div style="position: relative; max-width: 180px; width: 100%;">
-                  <span style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-weight: 700;">$</span>
-                  <input type="number" id="webmaster-min-withdrawal-input" class="form-input" style="padding-left: 28px; font-weight: 700;" step="0.50" min="0.50" value="1.00" />
+                  <span
+                    style="position: absolute; left: 14px; top: 12px; color: var(--text-muted); font-weight: 700;">$</span>
+                  <input type="number" id="webmaster-min-withdrawal-input" class="form-input"
+                    style="padding-left: 28px; font-weight: 700;" step="0.50" min="0.50" value="1.00" />
                 </div>
                 <button class="btn btn-primary" onclick="AdminApp.updateMinWithdrawal()">
                   Save Minimum Limit
@@ -424,7 +508,9 @@
                   </tr>
                 </thead>
                 <tbody id="webmasters-table-body">
-                  <tr><td colspan="6" style="text-align:center;padding:24px;">Loading webmasters...</td></tr>
+                  <tr>
+                    <td colspan="6" style="text-align:center;padding:24px;">Loading webmasters...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -438,10 +524,18 @@
           <div class="page-title-row">
             <div>
               <h1 class="page-title">Cloudflare R2 Object Storage & DMCA Compliance</h1>
-              <p class="page-subtitle">User-isolated cloud storage hierarchy with Google Play 24-hour DMCA takedowns and creator strikes</p>
+              <p class="page-subtitle">User-isolated cloud storage hierarchy with Google Play 24-hour DMCA takedowns and
+                creator strikes</p>
             </div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-              <button class="btn btn-secondary" onclick="AdminApp.loadStorage()">
+              <button class="btn btn-primary" onclick="AdminApp.syncR2Storage()"
+                style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                </svg>
+                Sync R2 Storage
+              </button>
+              <button class="btn btn-secondary" onclick="AdminApp.loadStorage(true)">
                 Refresh Data
               </button>
               <button class="btn btn-secondary" onclick="AdminApp.scrubOrphans()">
@@ -462,7 +556,8 @@
               </div>
               <div class="metric-value" id="storage-total-gb">0.00 GB</div>
               <div class="metric-subtext">
-                Bucket: <strong id="storage-bucket-name" class="mono-text" style="color:var(--primary);">terabox-cloud-storage</strong>
+                Bucket: <strong id="storage-bucket-name" class="mono-text"
+                  style="color:var(--primary);">terabox-cloud-storage</strong>
               </div>
               <div style="margin-top: 6px; font-size: 11.5px; color: var(--text-secondary);">
                 Structure: <span class="mono-text" style="color:#059669; font-weight:700;">users/{user_email}/</span>
@@ -476,7 +571,8 @@
               </div>
               <div class="metric-value" id="storage-total-shares">0 Active</div>
               <div class="metric-subtext">
-                CDN: <span class="mono-text" style="font-size: 11px;">pub-8fd9280d96574f828fd93e5a593ca48e.r2.dev</span>
+                CDN: <span class="mono-text" id="storage-cdn-domain"
+                  style="font-size: 11px;">pub-d550feaadd484541bf0c3af429db5905.r2.dev</span>
               </div>
               <div style="margin-top: 6px; font-size: 11.5px; color: var(--text-secondary);">
                 Total Cloud Objects: <strong id="storage-total-objects" class="mono-text">0 files</strong>
@@ -488,7 +584,8 @@
                 <span class="metric-title">DMCA STRIKES & COMPLIANCE</span>
                 <span class="badge badge-warning">24h Google Play SLA</span>
               </div>
-              <div class="metric-value" id="storage-total-strikes" style="color: var(--status-danger);">0 Strikes Issued</div>
+              <div class="metric-value" id="storage-total-strikes" style="color: var(--status-danger);">0 Strikes Issued
+              </div>
               <div class="metric-subtext">
                 Banned Videos: <strong id="storage-total-banned" class="mono-text">0</strong>
               </div>
@@ -511,20 +608,39 @@
                 </p>
               </div>
               <div class="dmca-header-actions">
-                <button class="btn btn-danger btn-sm" onclick="AdminApp.clearAllDmcaReports()" style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; height: 36px; padding: 0 12px; border-radius: 8px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                <button class="btn btn-danger btn-sm" onclick="AdminApp.clearAllDmcaReports()"
+                  style="display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; height: 36px; padding: 0 12px; border-radius: 8px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
                   Delete All Reports
                 </button>
                 <div class="dmca-search-wrapper">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                  <input type="text" id="dmca-search-input" class="form-input dmca-search-input" placeholder="Search Ticket ID, Code, Creator, Work..." oninput="AdminApp.filterDmcaReports()" />
-                  <button id="dmca-search-clear" onclick="AdminApp.clearDmcaSearch()" class="search-clear-btn">✕</button>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    class="search-icon">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="dmca-search-input" class="form-input dmca-search-input"
+                    placeholder="Search Ticket ID, Code, Creator, Work..." oninput="AdminApp.filterDmcaReports()" />
+                  <button id="dmca-search-clear" onclick="AdminApp.clearDmcaSearch()"
+                    class="search-clear-btn">✕</button>
                 </div>
                 <div class="filter-pill-group">
-                  <button class="btn-filter active" id="filter-dmca-all" onclick="AdminApp.setDmcaFilter('ALL')">All (<span id="count-dmca-all">0</span>)</button>
-                  <button class="btn-filter" id="filter-dmca-pending" onclick="AdminApp.setDmcaFilter('PENDING_REVIEW')">Pending (<span id="count-dmca-pending">0</span>)</button>
-                  <button class="btn-filter" id="filter-dmca-takedown" onclick="AdminApp.setDmcaFilter('TAKEDOWN_EXECUTED')">Takedowns (<span id="count-dmca-takedown">0</span>)</button>
-                  <button class="btn-filter" id="filter-dmca-dismissed" onclick="AdminApp.setDmcaFilter('DISMISSED')">Dismissed (<span id="count-dmca-dismissed">0</span>)</button>
+                  <button class="btn-filter active" id="filter-dmca-all" onclick="AdminApp.setDmcaFilter('ALL')">All
+                    (<span id="count-dmca-all">0</span>)</button>
+                  <button class="btn-filter" id="filter-dmca-pending"
+                    onclick="AdminApp.setDmcaFilter('PENDING_REVIEW')">Pending (<span
+                      id="count-dmca-pending">0</span>)</button>
+                  <button class="btn-filter" id="filter-dmca-takedown"
+                    onclick="AdminApp.setDmcaFilter('TAKEDOWN_EXECUTED')">Takedowns (<span
+                      id="count-dmca-takedown">0</span>)</button>
+                  <button class="btn-filter" id="filter-dmca-dismissed"
+                    onclick="AdminApp.setDmcaFilter('DISMISSED')">Dismissed (<span
+                      id="count-dmca-dismissed">0</span>)</button>
                 </div>
               </div>
             </div>
@@ -542,7 +658,9 @@
                   </tr>
                 </thead>
                 <tbody id="dmca-table-body">
-                  <tr><td colspan="7" style="text-align:center;padding:24px;">Loading DMCA reports...</td></tr>
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:24px;">Loading DMCA reports...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -572,7 +690,9 @@
                   </tr>
                 </thead>
                 <tbody id="strikes-table-body">
-                  <tr><td colspan="6" style="text-align:center;padding:24px;">Loading strikes & banned content...</td></tr>
+                  <tr>
+                    <td colspan="6" style="text-align:center;padding:24px;">Loading strikes & banned content...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -605,7 +725,9 @@
                   </tr>
                 </thead>
                 <tbody id="withdrawals-table-body">
-                  <tr><td colspan="7" style="text-align:center;padding:24px;">Loading withdrawal requests...</td></tr>
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:24px;">Loading withdrawal requests...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -642,7 +764,7 @@
             <div class="card card-metric">
               <div class="metric-title">PLATFORM / ARCH</div>
               <div class="metric-value" id="vps-platform" style="font-size: 20px;">linux (x64)</div>
-              <div class="metric-subtext">Ubuntu 22.04 LTS (148.113.55.6)</div>
+              <div class="metric-subtext" id="vps-os-subtext">Ubuntu 24.04 LTS (213.136.67.9)</div>
             </div>
 
             <div class="card card-metric">
@@ -674,7 +796,9 @@
                   </tr>
                 </thead>
                 <tbody id="snapshots-table-body">
-                  <tr><td colspan="4" style="text-align:center;padding:20px;">No snapshots created yet.</td></tr>
+                  <tr>
+                    <td colspan="4" style="text-align:center;padding:20px;">No snapshots created yet.</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -701,8 +825,10 @@
 
               <div class="form-group" style="margin-bottom: 20px;">
                 <label style="display: flex; align-items: center; gap: 14px; cursor: pointer;">
-                  <input type="checkbox" id="config-maintenance-toggle" style="width: 20px; height: 20px; accent-color: var(--primary);" />
-                  <span style="font-weight: 600; font-size: 14.5px;">Enable Maintenance Mode (Restricts Mobile App Access)</span>
+                  <input type="checkbox" id="config-maintenance-toggle"
+                    style="width: 20px; height: 20px; accent-color: var(--primary);" />
+                  <span style="font-weight: 600; font-size: 14.5px;">Enable Maintenance Mode (Restricts Mobile App
+                    Access)</span>
                 </label>
               </div>
 
@@ -726,6 +852,162 @@
               </button>
             </div>
 
+            <!-- GOOGLE MOBILES ADS (ADMOB) & REWARDED AD GATES MONETIZATION ENGINE -->
+            <div class="card" style="border: 1.5px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+              <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <h3 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px;">
+                    <span
+                      style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10B981;"></span>
+                    Google Mobile Ads (AdMob) &amp; Rewarded Ads Engine
+                  </h3>
+                  <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0 0;">
+                    Manage master switches, rewarded ad counts per action, frequency caps, and real-time AdMob IDs.
+                  </p>
+                </div>
+                <span id="config-ads-status-badge"
+                  style="background: #ECFDF5; color: #065F46; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                  ADS ACTIVE
+                </span>
+              </div>
+
+              <!-- SECTION 1: MASTER SWITCHES -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+                <div style="background: #F8FAFC; padding: 12px 14px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                  <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="config-ads-enabled-toggle" onchange="AdminApp.onAdsToggleChange()"
+                      style="width: 20px; height: 20px; accent-color: #10B981;" />
+                    <div>
+                      <span style="font-weight: 700; font-size: 13px; color: #1E293B;">Global Ads Master Switch</span>
+                      <p style="font-size: 11px; color: #64748B; margin: 1px 0 0 0;">If OFF, disables all ads across entire app.</p>
+                    </div>
+                  </label>
+                </div>
+
+                <div style="background: #F8FAFC; padding: 12px 14px; border-radius: 8px; border: 1px solid #E2E8F0;">
+                  <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" id="config-preroll-ads-toggle"
+                      style="width: 20px; height: 20px; accent-color: #2563EB;" />
+                    <div>
+                      <span style="font-weight: 700; font-size: 13px; color: #1E293B;">Shared Video Pre-Roll Ads</span>
+                      <p style="font-size: 11px; color: #64748B; margin: 1px 0 0 0;">Plays sponsor video ad before shared stream.</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- SECTION 2: REWARDED AD GATES (ACTION COUNTS) -->
+              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <div style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">
+                    🎯 Rewarded Video Ad Counts per User Action
+                  </div>
+                  <span style="font-size: 11px; font-weight: 600; color: #64748B;">0 = Free Bypass (No Ads)</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Offline Download</label>
+                    <input type="number" id="config-offline-ad-count" class="form-input" min="0" max="10" value="2"
+                      style="font-size: 13px; font-weight: 700;" />
+                    <span style="font-size: 10.5px; color: #64748B;">Watch N ads to save</span>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Cloud File Upload</label>
+                    <input type="number" id="config-upload-ad-count" class="form-input" min="0" max="10" value="2"
+                      style="font-size: 13px; font-weight: 700;" />
+                    <span style="font-size: 10.5px; color: #64748B;">Watch N ads to upload</span>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Video Stream Play</label>
+                    <input type="number" id="config-stream-ad-count" class="form-input" min="0" max="10" value="1"
+                      style="font-size: 13px; font-weight: 700;" />
+                    <span style="font-size: 10.5px; color: #64748B;">Watch N ads to play</span>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Save to Cloud</label>
+                    <input type="number" id="config-cloud-save-ad-count" class="form-input" min="0" max="10" value="1"
+                      style="font-size: 13px; font-weight: 700;" />
+                    <span style="font-size: 10.5px; color: #64748B;">Watch N ads on save</span>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Turbo Transfer</label>
+                    <input type="number" id="config-turbo-transfer-ad-count" class="form-input" min="0" max="10" value="1"
+                      style="font-size: 13px; font-weight: 700;" />
+                    <span style="font-size: 10.5px; color: #64748B;">Watch N ads for boost</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECTION 3: FREQUENCY CAPPING & TIMING -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 12px; font-weight: 700;">Interstitial Cooldown (Seconds)</label>
+                  <input type="number" id="config-interstitial-cooldown" class="form-input" min="10" max="1800" value="180" />
+                  <span style="font-size: 11px; color: #64748B;">Minimum wait time between full-screen interstitials (e.g. 180s = 3m)</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 12px; font-weight: 700;">App Open Ad Cooldown (Seconds)</label>
+                  <input type="number" id="config-app-open-cooldown" class="form-input" min="60" max="86400" value="14400" />
+                  <span style="font-size: 11px; color: #64748B;">Minimum wait time between cold launch open ads (e.g. 14400s = 4 hours)</span>
+                </div>
+              </div>
+
+              <!-- SECTION 4: ADMOB LIVE UNIT IDS -->
+              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                <div style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+                  🔑 Live Google AdMob Ad Unit Identifiers
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" style="font-size: 12px; font-weight: 600;">Google AdMob App ID</label>
+                  <input type="text" id="config-admob-app-id" class="form-input"
+                    placeholder="ca-app-pub-3940256099942544~3347511713"
+                    style="font-family: monospace; font-size: 12px;" />
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <div class="form-group">
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Rewarded Video Unit ID</label>
+                    <input type="text" id="config-admob-rewarded-unit" class="form-input"
+                      placeholder="ca-app-pub-3940256099942544/5224354917"
+                      style="font-family: monospace; font-size: 11.5px;" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Interstitial Unit ID</label>
+                    <input type="text" id="config-admob-interstitial-unit" class="form-input"
+                      placeholder="ca-app-pub-3940256099942544/1033173712"
+                      style="font-family: monospace; font-size: 11.5px;" />
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 0;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">Adaptive Banner Unit ID</label>
+                    <input type="text" id="config-admob-banner-unit" class="form-input"
+                      placeholder="ca-app-pub-3940256099942544/6300978111"
+                      style="font-family: monospace; font-size: 11.5px;" />
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" style="font-size: 12px; font-weight: 600;">App Open Unit ID</label>
+                    <input type="text" id="config-admob-app-open-unit" class="form-input"
+                      placeholder="ca-app-pub-3940256099942544/9257390301"
+                      style="font-family: monospace; font-size: 11.5px;" />
+                  </div>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" onclick="AdminApp.saveRemoteConfig()"
+                style="margin-top: 4px; background: #059669; border-color: #059669; width: 100%; padding: 12px; font-size: 14px; font-weight: 700;">
+                💾 Save &amp; Broadcast Ad Configuration to All Devices
+              </button>
+            </div>
+
           </div>
 
           <!-- GLOBAL PUSH NOTIFICATION DISPATCHER & LIVE PREVIEW -->
@@ -745,10 +1027,14 @@
               <div style="margin-bottom: 12px;">
                 <label class="form-label" style="font-size: 12px; margin-bottom: 6px;">Quick Presets & Templates</label>
                 <div class="template-pills-wrapper">
-                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('STORAGE_UPGRADE')">🎁 1024 GB Storage Boost</span>
-                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('CPM_BONUS')">💰 $4.00 CPM Earnings Boost</span>
-                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('MAINTENANCE')">⚠️ Scheduled Maintenance</span>
-                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('SECURITY_UPDATE')">🛡️ Security & App Update</span>
+                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('STORAGE_UPGRADE')">🎁 1024 GB
+                    Storage Boost</span>
+                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('CPM_BONUS')">💰 $4.00 CPM
+                    Earnings Boost</span>
+                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('MAINTENANCE')">⚠️ Scheduled
+                    Maintenance</span>
+                  <span class="template-pill" onclick="AdminApp.applyNotificationTemplate('SECURITY_UPDATE')">🛡️
+                    Security & App Update</span>
                 </div>
               </div>
 
@@ -757,7 +1043,9 @@
                   <label class="form-label">Notification Title</label>
                   <span id="push-title-count" class="char-counter">0 / 80</span>
                 </div>
-                <input type="text" id="push-title" class="form-input" placeholder="e.g. Free 1024 GB Storage Upgrades Live!" maxlength="80" oninput="AdminApp.handlePushInputUpdate()" />
+                <input type="text" id="push-title" class="form-input"
+                  placeholder="e.g. Free 1024 GB Storage Upgrades Live!" maxlength="80"
+                  oninput="AdminApp.handlePushInputUpdate()" />
               </div>
 
               <div class="form-group">
@@ -765,7 +1053,9 @@
                   <label class="form-label">Message Body</label>
                   <span id="push-body-count" class="char-counter">0 / 300</span>
                 </div>
-                <textarea id="push-body" class="form-input" rows="3" placeholder="Enter message text to broadcast to user devices..." maxlength="300" oninput="AdminApp.handlePushInputUpdate()"></textarea>
+                <textarea id="push-body" class="form-input" rows="3"
+                  placeholder="Enter message text to broadcast to user devices..." maxlength="300"
+                  oninput="AdminApp.handlePushInputUpdate()"></textarea>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
@@ -789,13 +1079,19 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label">Action / Deep Link <span style="color:var(--text-muted); font-weight:normal;">(Optional)</span></label>
-                <input type="text" id="push-action-url" class="form-input" placeholder="e.g. /webmaster or /storage or https://terabox.mywire.org" />
+                <label class="form-label">Action / Deep Link <span
+                    style="color:var(--text-muted); font-weight:normal;">(Optional)</span></label>
+                <input type="text" id="push-action-url" class="form-input"
+                  placeholder="e.g. /webmaster or /storage or https://airbox.one" />
               </div>
 
               <div style="display: flex; gap: 10px; margin-top: 14px; align-items: center;">
-                <button id="btn-broadcast-push" class="btn btn-primary" onclick="AdminApp.sendBroadcastPush()" style="display: inline-flex; align-items: center; gap: 6px;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <button id="btn-broadcast-push" class="btn btn-primary" onclick="AdminApp.sendBroadcastPush()"
+                  style="display: inline-flex; align-items: center; gap: 6px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
                   Broadcast Notification
                 </button>
                 <button class="btn btn-secondary" onclick="AdminApp.clearPushForm()" style="font-size: 12.5px;">
@@ -823,14 +1119,17 @@
                   <div class="bubble-top-row">
                     <div class="bubble-app-brand">
                       <div class="bubble-app-icon">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+                          <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+                        </svg>
                       </div>
-                      <span class="bubble-app-name">TeraBox Cloud</span>
+                      <span class="bubble-app-name">AirBox Cloud</span>
                     </div>
                     <span class="bubble-time">now</span>
                   </div>
                   <div id="preview-bubble-title" class="bubble-title">Free 1024 GB Storage Upgrades Live!</div>
-                  <div id="preview-bubble-body" class="bubble-body">Log in now to claim your high-speed cloud storage quota upgrade.</div>
+                  <div id="preview-bubble-body" class="bubble-body">Log in now to claim your high-speed cloud storage
+                    quota upgrade.</div>
                   <div id="preview-bubble-category" class="bubble-category-badge">ANNOUNCEMENT</div>
                 </div>
               </div>
@@ -839,16 +1138,22 @@
 
           <!-- RECENT PUSH BROADCAST HISTORY -->
           <div class="card" style="margin-top: 24px; padding: 0;">
-            <div class="card-header" style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="card-header"
+              style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <h3 class="card-title" style="margin: 0; font-size: 15px;">Recent Push Broadcast History</h3>
                 <span id="broadcast-total-badge" class="badge badge-info">0 Sent</span>
                 <span id="broadcast-reach-badge" class="badge badge-success">0 Delivered</span>
               </div>
               <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary btn-sm" onclick="AdminApp.loadBroadcastHistory()" style="padding: 4px 10px; font-size: 12px;">Refresh History</button>
-                <button class="btn btn-danger btn-sm" onclick="AdminApp.clearAllBroadcastHistory()" style="padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <button class="btn btn-secondary btn-sm" onclick="AdminApp.loadBroadcastHistory()"
+                  style="padding: 4px 10px; font-size: 12px;">Refresh History</button>
+                <button class="btn btn-danger btn-sm" onclick="AdminApp.clearAllBroadcastHistory()"
+                  style="padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
                   Clear All History
                 </button>
               </div>
@@ -867,7 +1172,9 @@
                   </tr>
                 </thead>
                 <tbody id="broadcast-history-table-body">
-                  <tr><td colspan="7" style="text-align:center;padding:24px;">No push notifications broadcasted yet.</td></tr>
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:24px;">No push notifications broadcasted yet.</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -898,7 +1205,9 @@
                   </tr>
                 </thead>
                 <tbody id="audit-table-body">
-                  <tr><td colspan="5" style="text-align:center;padding:24px;">Loading audit trail...</td></tr>
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:24px;">Loading audit trail...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -924,8 +1233,10 @@
         <div class="form-group">
           <label class="form-label" style="font-weight: 600;">Storage Quota Amount & Unit</label>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <input type="number" id="quota-value-input" class="form-input" min="1" step="any" value="1024" style="flex: 2;" oninput="AdminApp.updateQuotaPreview()" />
-            <select id="quota-unit-select" class="form-input" style="flex: 1; max-width: 110px;" onchange="AdminApp.updateQuotaPreview()">
+            <input type="number" id="quota-value-input" class="form-input" min="1" step="any" value="1024"
+              style="flex: 2;" oninput="AdminApp.updateQuotaPreview()" />
+            <select id="quota-unit-select" class="form-input" style="flex: 1; max-width: 110px;"
+              onchange="AdminApp.updateQuotaPreview()">
               <option value="MB">MB</option>
               <option value="GB" selected>GB</option>
               <option value="TB">TB</option>
@@ -937,16 +1248,26 @@
         </div>
 
         <div class="form-group" style="margin-top: 14px;">
-          <label class="form-label" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Quick Presets:</label>
+          <label class="form-label"
+            style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block;">Quick
+            Presets:</label>
           <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(50, 'MB')">50 MB</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(500, 'MB')">500 MB</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(10, 'GB')">10 GB</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(100, 'GB')">100 GB</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(1024, 'GB')">1024 GB (1 TB)</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(2, 'TB')">2 TB</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(4, 'TB')">4 TB</button>
-            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;" onclick="AdminApp.setQuotaPreset(5, 'TB')">5 TB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(50, 'MB')">50 MB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(500, 'MB')">500 MB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(10, 'GB')">10 GB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(100, 'GB')">100 GB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(1024, 'GB')">1024 GB (1 TB)</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(2, 'TB')">2 TB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(4, 'TB')">4 TB</button>
+            <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+              onclick="AdminApp.setQuotaPreset(5, 'TB')">5 TB</button>
           </div>
         </div>
       </div>
@@ -963,15 +1284,19 @@
       <div class="modal-header">
         <div>
           <h3 class="modal-title" id="preview-modal-title">Review Reported Video</h3>
-          <span id="preview-modal-subtitle" style="font-size: 12px; color: var(--text-secondary); display: block; margin-top: 2px;">Inspect media content before taking enforcement action</span>
+          <span id="preview-modal-subtitle"
+            style="font-size: 12px; color: var(--text-secondary); display: block; margin-top: 2px;">Inspect media
+            content before taking enforcement action</span>
         </div>
         <button class="btn-sm btn-secondary" onclick="AdminApp.closeVideoPreview()">X</button>
       </div>
       <div class="modal-body">
         <div class="video-player-container">
-          <video id="preview-video-element" controls preload="metadata" playsinline style="width: 100%; border-radius: 6px; outline: none;"></video>
+          <video id="preview-video-element" controls preload="metadata" playsinline
+            style="width: 100%; border-radius: 6px; outline: none;"></video>
         </div>
-        <div style="background: var(--bg-subtle); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border-subtle); font-size: 13px;">
+        <div
+          style="background: var(--bg-subtle); padding: 14px 16px; border-radius: 8px; border: 1px solid var(--border-subtle); font-size: 13px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
             <span style="color: var(--text-secondary);">Share Code:</span>
             <strong id="preview-meta-sharecode" class="mono-text" style="color: var(--primary);">-</strong>
@@ -986,13 +1311,16 @@
           </div>
           <div style="display: flex; justify-content: space-between;">
             <span style="color: var(--text-secondary);">Direct Cloud Link:</span>
-            <a id="preview-meta-link" href="#" target="_blank" class="mono-text" style="color: var(--primary); text-decoration: underline; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Open in New Tab</a>
+            <a id="preview-meta-link" href="#" target="_blank" class="mono-text"
+              style="color: var(--primary); text-decoration: underline; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Open
+              in New Tab</a>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="AdminApp.closeVideoPreview()">Close Preview</button>
-        <button id="preview-btn-takedown" class="btn btn-danger" onclick="AdminApp.executeTakedownFromPreview()">Execute 1-Click Takedown</button>
+        <button id="preview-btn-takedown" class="btn btn-danger" onclick="AdminApp.executeTakedownFromPreview()">Execute
+          1-Click Takedown</button>
       </div>
     </div>
   </div>
@@ -1004,22 +1332,29 @@
         <div>
           <div style="display: flex; align-items: center; gap: 8px;">
             <span class="badge badge-danger" style="font-size: 11px;">STATUTORY NOTICE</span>
-            <span id="dossier-ticket-id" class="mono-text" style="font-weight: 700; font-size: 13px; color: var(--primary);">-</span>
+            <span id="dossier-ticket-id" class="mono-text"
+              style="font-weight: 700; font-size: 13px; color: var(--primary);">-</span>
           </div>
           <h3 class="modal-title" style="margin-top: 4px; font-size: 17px;">Copyright Infringement Legal Dossier</h3>
         </div>
         <button class="btn-sm btn-secondary" onclick="AdminApp.closeLegalClaimModal()">✕</button>
       </div>
-      <div class="modal-body" style="max-height: 72vh; overflow-y: auto; padding: 18px 24px; display: flex; flex-direction: column; gap: 16px;">
-        
+      <div class="modal-body"
+        style="max-height: 72vh; overflow-y: auto; padding: 18px 24px; display: flex; flex-direction: column; gap: 16px;">
+
         <!-- SECTION 1: REPORTED CONTENT SUMMARY -->
-        <div style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px;">
-          <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">Reported TeraBox Content</div>
+        <div
+          style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px;">
+          <div
+            style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+            Reported AirBox Content</div>
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div id="dossier-filename" style="font-weight: 700; font-size: 13.5px; color: var(--text-primary);">-</div>
+              <div id="dossier-filename" style="font-weight: 700; font-size: 13.5px; color: var(--text-primary);">-
+              </div>
               <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
-                Share Code: <strong id="dossier-sharecode" class="mono-text" style="color: var(--primary);">-</strong> &bull; Uploader: <span id="dossier-creator">-</span>
+                Share Code: <strong id="dossier-sharecode" class="mono-text" style="color: var(--primary);">-</strong>
+                &bull; Uploader: <span id="dossier-creator">-</span>
               </div>
             </div>
             <div id="dossier-preview-btn-container"></div>
@@ -1028,37 +1363,48 @@
 
         <!-- SECTION 2: COMPLAINANT LEGAL IDENTITY -->
         <div>
-          <div style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div
+            style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
             1. Verified Complainant &amp; Rights Holder Identity
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12.5px;">
-            <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
+            <div
+              style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
               <div style="font-size: 11px; color: var(--text-muted);">Full Legal Name</div>
               <strong id="dossier-claimant-name" style="color: var(--text-primary);">-</strong>
             </div>
-            <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
+            <div
+              style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
               <div style="font-size: 11px; color: var(--text-muted);">Organization / Studio / Label</div>
               <strong id="dossier-org" style="color: var(--text-primary);">-</strong>
             </div>
-            <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
+            <div
+              style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
               <div style="font-size: 11px; color: var(--text-muted);">Relationship / Capacity</div>
               <strong id="dossier-relationship" style="color: var(--text-primary);">-</strong>
             </div>
-            <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
+            <div
+              style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
               <div style="font-size: 11px; color: var(--text-muted);">Official Email Address</div>
               <strong id="dossier-email" style="color: var(--primary);">-</strong>
             </div>
-            <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
+            <div
+              style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
               <div style="font-size: 11px; color: var(--text-muted);">Direct Phone Number</div>
               <strong id="dossier-phone" style="color: var(--text-primary);">-</strong>
             </div>
-            <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
+            <div
+              style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px;">
               <div style="font-size: 11px; color: var(--text-muted);">Jurisdiction / Country</div>
               <strong id="dossier-country" style="color: var(--text-primary);">-</strong>
             </div>
           </div>
-          <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px; margin-top: 10px; font-size: 12.5px;">
+          <div
+            style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 10px 12px; border-radius: 6px; margin-top: 10px; font-size: 12.5px;">
             <div style="font-size: 11px; color: var(--text-muted);">Physical Mailing Address (Statutory Rule 75)</div>
             <div id="dossier-address" style="color: var(--text-primary); font-weight: 500; margin-top: 2px;">-</div>
           </div>
@@ -1066,17 +1412,22 @@
 
         <!-- SECTION 3: COPYRIGHTED WORK & PROOF -->
         <div>
-          <div style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <div
+            style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
             2. Original Copyrighted Work &amp; Ownership Evidence
           </div>
-          <div style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 6px; font-size: 12.5px; display: flex; flex-direction: column; gap: 8px;">
+          <div
+            style="background: #FFFFFF; border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 6px; font-size: 12.5px; display: flex; flex-direction: column; gap: 8px;">
             <div>
               <div style="font-size: 11px; color: var(--text-muted);">Work Title &amp; Category</div>
               <strong id="dossier-work-title" style="font-size: 13.5px; color: var(--text-primary);">-</strong>
             </div>
             <div>
-              <div style="font-size: 11px; color: var(--text-muted);">Proof of Ownership Link or Registration Certificate</div>
+              <div style="font-size: 11px; color: var(--text-muted);">Proof of Ownership Link or Registration
+                Certificate</div>
               <div id="dossier-proof-container" style="margin-top: 4px;">-</div>
             </div>
           </div>
@@ -1084,27 +1435,37 @@
 
         <!-- SECTION 4: SWORN STATUTORY DECLARATIONS & SIGNATURE -->
         <div>
-          <div style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <div
+            style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 11 12 14 22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
             3. Sworn Legal Declarations &amp; Electronic Signature
           </div>
-          <div style="background: #F8FAFC; border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 6px; font-size: 12px; line-height: 1.5; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
+          <div
+            style="background: #F8FAFC; border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 6px; font-size: 12px; line-height: 1.5; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px;">
             <div style="display: flex; gap: 6px; align-items: flex-start;">
               <span style="color: var(--status-success); font-weight: 800;">✓</span>
-              <span><strong>Good Faith Belief:</strong> Confirmed under Section 52(1) Indian Copyright Act &amp; 17 U.S.C. § 512.</span>
+              <span><strong>Good Faith Belief:</strong> Confirmed under Section 52(1) Indian Copyright Act &amp; 17
+                U.S.C. § 512.</span>
             </div>
             <div style="display: flex; gap: 6px; align-items: flex-start;">
               <span style="color: var(--status-success); font-weight: 800;">✓</span>
-              <span><strong>Sworn Under Perjury:</strong> Confirmed under Indian Penal Code / Bharatiya Nyaya Sanhita.</span>
+              <span><strong>Sworn Under Perjury:</strong> Confirmed under Indian Penal Code / Bharatiya Nyaya
+                Sanhita.</span>
             </div>
             <div style="display: flex; gap: 6px; align-items: flex-start;">
               <span style="color: var(--status-success); font-weight: 800;">✓</span>
-              <span><strong>Legal Liability Acknowledged:</strong> Complainant accepts full liability for false claims.</span>
+              <span><strong>Legal Liability Acknowledged:</strong> Complainant accepts full liability for false
+                claims.</span>
             </div>
-            <div style="border-top: 1px solid var(--border-subtle); padding-top: 8px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
+            <div
+              style="border-top: 1px solid var(--border-subtle); padding-top: 8px; margin-top: 4px; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <span style="color: var(--text-muted);">Electronic Signature:</span>
-                <strong id="dossier-signature" style="color: var(--text-primary); font-size: 13px; margin-left: 4px;">-</strong>
+                <strong id="dossier-signature"
+                  style="color: var(--text-primary); font-size: 13px; margin-left: 4px;">-</strong>
               </div>
               <div style="font-size: 11px; color: var(--text-muted);">
                 IP: <span id="dossier-client-ip" class="mono-text">-</span> &bull; <span id="dossier-date">-</span>
@@ -1114,11 +1475,14 @@
         </div>
 
       </div>
-      <div class="modal-footer" style="border-top: 1px solid var(--border-subtle); padding-top: 14px; display: flex; justify-content: space-between;">
+      <div class="modal-footer"
+        style="border-top: 1px solid var(--border-subtle); padding-top: 14px; display: flex; justify-content: space-between;">
         <button class="btn btn-secondary" onclick="AdminApp.closeLegalClaimModal()">Close Dossier</button>
         <div style="display: flex; gap: 8px;">
-          <button id="dossier-btn-dismiss" class="btn btn-secondary" onclick="AdminApp.dismissReportFromDossier()">Dismiss Notice</button>
-          <button id="dossier-btn-takedown" class="btn btn-danger" onclick="AdminApp.executeTakedownFromDossier()">Execute 1-Click Takedown &amp; Strike</button>
+          <button id="dossier-btn-dismiss" class="btn btn-secondary"
+            onclick="AdminApp.dismissReportFromDossier()">Dismiss Notice</button>
+          <button id="dossier-btn-takedown" class="btn btn-danger"
+            onclick="AdminApp.executeTakedownFromDossier()">Execute 1-Click Takedown &amp; Strike</button>
         </div>
       </div>
     </div>
@@ -1134,26 +1498,31 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label">Share Code or Full Link</label>
-          <input type="text" id="manual-takedown-code" class="form-input" placeholder="e.g. TBX_M1N52BHG or https://terabox.mywire.org/s/TBX_..." />
+          <input type="text" id="manual-takedown-code" class="form-input"
+            placeholder="e.g. TBX_M1N52BHG or https://airbox.one/s/TBX_..." />
         </div>
         <div class="form-group">
           <label class="form-label">Violation Category / Reason</label>
           <select id="manual-takedown-reason" class="form-input">
             <option value="DMCA Copyright Infringement">DMCA Copyright Infringement / Piracy</option>
             <option value="Child Safety & Exploitation (CSAM)">Child Safety & Exploitation (Immediate Ban)</option>
-            <option value="Pornography / Non-consensual Adult Content">Pornography / Non-consensual Adult Content</option>
+            <option value="Pornography / Non-consensual Adult Content">Pornography / Non-consensual Adult Content
+            </option>
             <option value="Violence & Harmful Content">Violence & Harmful Content</option>
             <option value="Privacy Violation / Doxxing">Privacy Violation / Doxxing</option>
             <option value="Malware & Malicious Software">Malware & Malicious Software</option>
           </select>
         </div>
-        <div style="background: var(--status-warning-bg); border: 1px solid var(--status-warning-border); padding: 10px 14px; border-radius: 8px; font-size: 12px; color: var(--status-warning); line-height: 1.4;">
-          Executing takedown will instantly revoke public access to this share link, record a copyright strike on the uploader's account for administrative review, and log the event in the audit trail.
+        <div
+          style="background: var(--status-warning-bg); border: 1px solid var(--status-warning-border); padding: 10px 14px; border-radius: 8px; font-size: 12px; color: var(--status-warning); line-height: 1.4;">
+          Executing takedown will instantly revoke public access to this share link, record a copyright strike on the
+          uploader's account for administrative review, and log the event in the audit trail.
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="AdminApp.closeManualTakedownModal()">Cancel</button>
-        <button class="btn btn-danger" onclick="AdminApp.submitManualTakedown()">Execute Takedown & Issue Strike</button>
+        <button class="btn btn-danger" onclick="AdminApp.submitManualTakedown()">Execute Takedown & Issue
+          Strike</button>
       </div>
     </div>
   </div>
@@ -1163,7 +1532,9 @@
     <div class="modal-card" style="max-width: 760px; width: 95%;">
       <div class="modal-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
         <div style="display: flex; align-items: center; gap: 12px;">
-          <div id="creator-modal-avatar" style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;">U</div>
+          <div id="creator-modal-avatar"
+            style="width: 42px; height: 42px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;">
+            U</div>
           <div>
             <h3 class="modal-title" id="creator-modal-name" style="margin: 0; font-size: 17px;">Creator Profile</h3>
             <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
@@ -1175,40 +1546,57 @@
         </div>
         <button class="btn-sm btn-secondary" onclick="AdminApp.closeCreatorModal()">✕</button>
       </div>
-      <div class="modal-body" style="max-height: 72vh; overflow-y: auto; padding: 18px 24px; display: flex; flex-direction: column; gap: 16px;">
+      <div class="modal-body"
+        style="max-height: 72vh; overflow-y: auto; padding: 18px 24px; display: flex; flex-direction: column; gap: 16px;">
         <!-- METRICS ROW -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-          <div style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
-            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Account Status</div>
-            <div id="creator-metric-status" style="margin-top: 4px;"><span class="badge badge-success">ACTIVE</span></div>
+          <div
+            style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Account
+              Status</div>
+            <div id="creator-metric-status" style="margin-top: 4px;"><span class="badge badge-success">ACTIVE</span>
+            </div>
           </div>
-          <div style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
-            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Copyright Strikes</div>
-            <div id="creator-metric-strikes" style="margin-top: 4px; font-weight: 800; font-size: 15px; color: var(--status-danger);">0 Strikes</div>
+          <div
+            style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+              Copyright Strikes</div>
+            <div id="creator-metric-strikes"
+              style="margin-top: 4px; font-weight: 800; font-size: 15px; color: var(--status-danger);">0 Strikes</div>
           </div>
-          <div style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
-            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Shares</div>
-            <div id="creator-metric-shares" style="margin-top: 4px; font-weight: 800; font-size: 15px; color: var(--primary);">0 Uploads</div>
+          <div
+            style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total
+              Shares</div>
+            <div id="creator-metric-shares"
+              style="margin-top: 4px; font-weight: 800; font-size: 15px; color: var(--primary);">0 Uploads</div>
           </div>
-          <div style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
-            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">DMCA Complaints</div>
-            <div id="creator-metric-reports" style="margin-top: 4px; font-weight: 800; font-size: 15px; color: var(--status-warning);">0 Notices</div>
+          <div
+            style="background: var(--bg-subtle); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">DMCA
+              Complaints</div>
+            <div id="creator-metric-reports"
+              style="margin-top: 4px; font-weight: 800; font-size: 15px; color: var(--status-warning);">0 Notices</div>
           </div>
         </div>
 
         <!-- SECTION: STRIKE HISTORY -->
         <div style="border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden;">
-          <div style="background: var(--bg-subtle); padding: 10px 14px; font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
+          <div
+            style="background: var(--bg-subtle); padding: 10px 14px; font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
             Copyright Strike Enforcement Records
           </div>
-          <div id="creator-strikes-list" style="padding: 12px 14px; font-size: 12.5px; max-height: 160px; overflow-y: auto;">
-            <div style="color: var(--text-muted); text-align: center; padding: 12px;">No strikes issued to this creator.</div>
+          <div id="creator-strikes-list"
+            style="padding: 12px 14px; font-size: 12.5px; max-height: 160px; overflow-y: auto;">
+            <div style="color: var(--text-muted); text-align: center; padding: 12px;">No strikes issued to this creator.
+            </div>
           </div>
         </div>
 
         <!-- SECTION: CREATOR SHARED LINKS & CONTENT -->
         <div style="border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden;">
-          <div style="background: var(--bg-subtle); padding: 10px 14px; font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
+          <div
+            style="background: var(--bg-subtle); padding: 10px 14px; font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.5px;">
             All Shared Files &amp; Links by this Creator
           </div>
           <div id="creator-shares-list" style="padding: 0; max-height: 200px; overflow-y: auto;">
@@ -1223,22 +1611,528 @@
                 </tr>
               </thead>
               <tbody id="creator-shares-tbody">
-                <tr><td colspan="5" style="text-align:center;padding:16px;">Loading user content...</td></tr>
+                <tr>
+                  <td colspan="5" style="text-align:center;padding:16px;">Loading user content...</td>
+                </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      <div class="modal-footer" style="border-top: 1px solid var(--border-subtle); padding-top: 14px; display: flex; justify-content: space-between;">
-        <button class="btn btn-secondary" onclick="AdminApp.closeCreatorModal()">Close Profile</button>
-        <div style="display: flex; gap: 8px;">
-          <button id="creator-btn-ban" class="btn btn-danger" onclick="AdminApp.toggleBanFromCreatorModal()">Ban Account</button>
-        </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary"
+          onclick="document.getElementById('creator-history-modal').style.display='none'">Close Profile</button>
       </div>
     </div>
   </div>
 
+  <!-- =============================================================
+       4. DEEP USER INTELLIGENCE & CALCULATION DASHBOARD MODAL
+       ============================================================= -->
+  <div id="user-intelligence-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card user-intelligence-card">
+
+      <!-- MODAL HEADER -->
+      <div class="user-modal-header">
+        <div class="user-modal-profile-row">
+          <div id="uim-avatar" class="user-modal-avatar">U</div>
+          <div class="user-modal-profile-info">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <h2 id="uim-name" class="user-modal-title">User Profile</h2>
+              <span id="uim-status-badge" class="badge badge-success">ACTIVE</span>
+              <span id="uim-vip-badge" class="badge badge-warning" style="display: none;">VIP ACCOUNT</span>
+              <span id="uim-creator-badge" class="badge badge-info" style="display: none;">CREATOR TBX0000</span>
+            </div>
+            <div class="user-modal-meta-row">
+              <span class="user-meta-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <strong id="uim-email">-</strong>
+              </span>
+              <span class="user-meta-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                Phone: <strong id="uim-phone" class="mono-text">-</strong>
+              </span>
+              <span class="user-meta-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                UID: <strong id="uim-id" class="mono-text" style="color: var(--primary);">-</strong>
+              </span>
+              <span class="user-meta-chip">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                Joined: <span id="uim-joined-date" class="mono-text">-</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="AdminApp.closeUserIntelligenceModal()"
+          aria-label="Close Modal">✕</button>
+      </div>
+
+      <!-- MODAL BODY -->
+      <div class="user-modal-body">
+
+        <!-- 4-CARD CALCULATION & KPI STRIP -->
+        <div class="user-kpi-grid">
+
+          <!-- KPI 1: GROSS EARNINGS & CPM -->
+          <div class="user-kpi-card">
+            <div class="user-kpi-label-row">
+              <span class="user-kpi-label">TOTAL GROSS EARNINGS</span>
+              <span class="user-kpi-icon-wrap" style="color: #10B981; background: #ECFDF5;">$</span>
+            </div>
+            <div class="user-kpi-value" id="uim-kpi-gross-earnings" style="color: #059669;">$0.00</div>
+            <div class="user-kpi-subtext" id="uim-kpi-earnings-breakdown">
+              Plays: $0.00 &bull; Referrals: $0.00
+            </div>
+          </div>
+
+          <!-- KPI 2: WALLET BALANCE & PAYOUTS -->
+          <div class="user-kpi-card">
+            <div class="user-kpi-label-row">
+              <span class="user-kpi-label">WALLET &amp; PAYOUTS</span>
+              <span class="user-kpi-icon-wrap" style="color: #3B82F6; background: #EFF6FF;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect width="20" height="14" x="2" y="5" rx="2" />
+                  <line x1="2" x2="22" y1="10" y2="10" />
+                </svg>
+              </span>
+            </div>
+            <div class="user-kpi-value" id="uim-kpi-wallet-balance" style="color: #2563EB;">$0.00</div>
+            <div class="user-kpi-subtext" id="uim-kpi-payouts-subtext">
+              Withdrawn: $0.00 &bull; Pending: $0.00
+            </div>
+          </div>
+
+          <!-- KPI 3: REFERRAL NETWORK HIERARCHY -->
+          <div class="user-kpi-card">
+            <div class="user-kpi-label-row">
+              <span class="user-kpi-label">REFERRAL NETWORK</span>
+              <span class="user-kpi-icon-wrap" style="color: #8B5CF6; background: #F5F3FF;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </span>
+            </div>
+            <div class="user-kpi-value" id="uim-kpi-referrals-count" style="color: #7C3AED;">0 Users</div>
+            <div class="user-kpi-subtext" id="uim-kpi-referrer-subtext">
+              Referred by: Direct Organic
+            </div>
+          </div>
+
+          <!-- KPI 4: CLOUD STORAGE ALLOCATION -->
+          <div class="user-kpi-card">
+            <div class="user-kpi-label-row">
+              <span class="user-kpi-label">CLOUD STORAGE USED</span>
+              <span class="user-kpi-icon-wrap" style="color: #06B6D4; background: #ECFEFF;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" x2="12" y1="3" y2="15" />
+                </svg>
+              </span>
+            </div>
+            <div class="user-kpi-value" id="uim-kpi-storage-used" style="color: #0891B2;">0 GB / 1024 GB</div>
+            <div class="progress-track" style="height: 5px; margin-top: 6px; margin-bottom: 4px;">
+              <div id="uim-kpi-storage-bar" class="progress-fill" style="width: 0%; background: #06B6D4;"></div>
+            </div>
+            <div class="user-kpi-subtext" id="uim-kpi-shares-count">
+              0 Active Public Share Links
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SUB-TABS NAVIGATION -->
+        <div class="user-subtabs-nav">
+          <button class="user-subtab-btn active" data-subtab="financials"
+            onclick="AdminApp.switchUserModalTab('financials')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="12" x2="12" y1="2" y2="22" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            Financial Ledger
+          </button>
+          <button class="user-subtab-btn" data-subtab="referrals" onclick="AdminApp.switchUserModalTab('referrals')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Referral Tree (<span id="uim-tab-ref-badge">0</span>)
+          </button>
+          <button class="user-subtab-btn" data-subtab="shares" onclick="AdminApp.switchUserModalTab('shares')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" x2="12" y1="3" y2="15" />
+            </svg>
+            Shared Files (<span id="uim-tab-shares-badge">0</span>)
+          </button>
+          <button class="user-subtab-btn" data-subtab="controls" onclick="AdminApp.switchUserModalTab('controls')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+            Account Controls
+          </button>
+        </div>
+
+        <!-- SUB-TAB 1: FINANCIAL LEDGER & EARNINGS -->
+        <div id="uim-tab-content-financials" class="user-subtab-content active">
+
+          <div class="user-section-banner">
+            <div>
+              <div
+                style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 3px;">
+                Current Active Plan</div>
+              <strong id="uim-active-plan" style="font-size: 13.5px; color: var(--primary);">Video Plays ($4.00
+                CPM)</strong>
+            </div>
+            <div>
+              <div
+                style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 3px;">
+                Effective CPM Rate</div>
+              <strong id="uim-effective-cpm" class="mono-text" style="font-size: 13.5px; color: #059669;">$4.00 / 1k
+                views</strong>
+            </div>
+            <div>
+              <div
+                style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 3px;">
+                Referral CPA Bounty</div>
+              <strong id="uim-cpa-bounty" class="mono-text" style="font-size: 13.5px; color: #7C3AED;">$0.05 /
+                Install</strong>
+            </div>
+            <div>
+              <div
+                style="font-size: 10.5px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 3px;">
+                Withdrawable Balance</div>
+              <strong id="uim-withdrawable-bal" class="mono-text" style="font-size: 13.5px; color: #2563EB;">$0.00
+                USD</strong>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px;">
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Itemized
+              Earnings Transaction History</h4>
+            <div class="uim-table-scroll" style="max-height: 240px; overflow-y: auto;">
+              <table class="data-table" style="margin: 0; min-width: 580px;">
+                <thead>
+                  <tr>
+                    <th>Date &amp; Time</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                    <th>Reward Earned</th>
+                    <th>Location / Audit</th>
+                  </tr>
+                </thead>
+                <tbody id="uim-earnings-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:16px;">No earnings recorded yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px;">
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Payout &amp;
+              Withdrawal Requests</h4>
+            <div class="uim-table-scroll" style="max-height: 200px; overflow-y: auto;">
+              <table class="data-table" style="margin: 0; min-width: 540px;">
+                <thead>
+                  <tr>
+                    <th>Requested At</th>
+                    <th>Amount ($)</th>
+                    <th>Payment Method</th>
+                    <th>Destination Account</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="uim-withdrawals-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center;padding:16px;">No payout requests made.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SUB-TAB 2: REFERRAL NETWORK TREE -->
+        <div id="uim-tab-content-referrals" class="user-subtab-content" style="display: none;">
+
+          <!-- PARENT ATTRIBUTION CARD -->
+          <div id="uim-parent-attribution-box" class="parent-attribution-card">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="parent-attribution-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <polyline points="16 11 18 13 22 9" />
+                </svg>
+              </div>
+              <div>
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                  Parent Referrer Attribution</div>
+                <div id="uim-parent-info"
+                  style="font-size: 12.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">
+                  Organic Direct Signup (No Referrer Code Used)
+                </div>
+              </div>
+            </div>
+            <div id="uim-parent-badge-container">
+              <span class="badge badge-info">DIRECT REGISTRATION</span>
+            </div>
+          </div>
+
+          <!-- REFERRED USERS LIST TABLE -->
+          <div style="margin-top: 18px;">
+            <div
+              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0;">
+                Users Referred by this Creator
+              </h4>
+              <span id="uim-referred-summary-pill" class="badge badge-success" style="font-size: 11px;">0 Total
+                Qualified</span>
+            </div>
+
+            <div class="uim-table-scroll" style="max-height: 280px; overflow-y: auto;">
+              <table class="data-table" style="margin: 0; min-width: 620px;">
+                <thead>
+                  <tr>
+                    <th>Referred User Profile</th>
+                    <th>Joined Date</th>
+                    <th>Milestone Status</th>
+                    <th>CPA Bounty</th>
+                    <th>Status</th>
+                    <th>IP / Device</th>
+                  </tr>
+                </thead>
+                <tbody id="uim-referred-users-tbody">
+                  <tr>
+                    <td colspan="6" style="text-align:center;padding:20px;">No referred users found for this account.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SUB-TAB 3: SHARED CONTENT & LINKS -->
+        <div id="uim-tab-content-shares" class="user-subtab-content" style="display: none;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0;">
+              All Shared Files &amp; Monetized Links
+            </h4>
+            <span id="uim-shares-count-pill" class="badge badge-info" style="font-size: 11px;">0 Active Links</span>
+          </div>
+
+          <div class="uim-table-scroll" style="max-height: 320px; overflow-y: auto;">
+            <table class="data-table" style="margin: 0; min-width: 560px;">
+              <thead>
+                <tr>
+                  <th>Share Code</th>
+                  <th>File Name</th>
+                  <th>Size</th>
+                  <th>Views / Plays</th>
+                  <th>Created Date</th>
+                  <th>Public Link</th>
+                </tr>
+              </thead>
+              <tbody id="uim-shares-tbody">
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:20px;">No shared links created by this user.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 4: ACCOUNT CONTROLS & SECURITY -->
+        <div id="uim-tab-content-controls" class="user-subtab-content" style="display: none;">
+          <div class="user-controls-grid">
+
+            <!-- SECTION A: STORAGE QUOTA OVERRIDE -->
+            <div class="control-box">
+              <div>
+                <h4 class="control-box-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                  </svg>
+                  Cloud Storage Allocation Override
+                </h4>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                  Directly adjust this user's storage quota in Cloudflare R2 / Server storage.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 6px; flex: 1; min-width: 160px;">
+                  <input type="number" id="uim-ctrl-quota-val" class="form-input" min="1" step="any" value="1024"
+                    style="flex: 2;" />
+                  <select id="uim-ctrl-quota-unit" class="form-input" style="flex: 1; min-width: 70px;">
+                    <option value="MB">MB</option>
+                    <option value="GB" selected>GB</option>
+                    <option value="TB">TB</option>
+                  </select>
+                </div>
+                <button class="btn btn-primary btn-sm" style="white-space: nowrap; height: 38px; padding: 0 14px;"
+                  onclick="AdminApp.submitUserModalQuota()">Apply Quota</button>
+              </div>
+
+              <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px;">
+                <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+                  onclick="AdminApp.setUserModalQuotaPreset(500, 'MB')">500 MB</button>
+                <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+                  onclick="AdminApp.setUserModalQuotaPreset(10, 'GB')">10 GB</button>
+                <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+                  onclick="AdminApp.setUserModalQuotaPreset(100, 'GB')">100 GB</button>
+                <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+                  onclick="AdminApp.setUserModalQuotaPreset(1024, 'GB')">1 TB</button>
+                <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+                  onclick="AdminApp.setUserModalQuotaPreset(2, 'TB')">2 TB</button>
+                <button type="button" class="btn-sm btn-secondary" style="font-size: 11px; padding: 3px 8px;"
+                  onclick="AdminApp.setUserModalQuotaPreset(5, 'TB')">5 TB</button>
+              </div>
+            </div>
+
+            <!-- SECTION B: VIP STATUS PRIVILEGES -->
+            <div class="control-box">
+              <div>
+                <h4 class="control-box-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                  VIP Membership &amp; Speed Boost
+                </h4>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                  Grant VIP badge, unlocked 4K high-speed playback, and extra cloud quota.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <select id="uim-ctrl-vip-toggle" class="form-input" style="flex: 1.2; min-width: 140px;">
+                  <option value="true">Grant VIP Status</option>
+                  <option value="false">Revoke VIP (Standard)</option>
+                </select>
+                <input type="number" id="uim-ctrl-vip-storage" class="form-input" placeholder="Quota (GB)" value="2048"
+                  style="flex: 1; min-width: 90px;" />
+                <button class="btn btn-primary btn-sm" style="white-space: nowrap; height: 38px; padding: 0 14px;"
+                  onclick="AdminApp.submitUserModalVip()">Save VIP</button>
+              </div>
+            </div>
+
+            <!-- SECTION C: ACCOUNT STATUS (ACTIVE/BAN/SUSPEND) -->
+            <div class="control-box">
+              <div>
+                <h4 class="control-box-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="4.93" x2="19.07" y1="4.93" y2="19.07" />
+                  </svg>
+                  Account Status &amp; Policy Ban
+                </h4>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                  Instantly ban or suspend this user account for terms of service violations.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px;">
+                <select id="uim-ctrl-status-select" class="form-input" style="flex: 1; min-width: 150px;">
+                  <option value="ACTIVE">ACTIVE (Normal Access)</option>
+                  <option value="SUSPENDED">SUSPENDED (Temporary Lock)</option>
+                  <option value="BANNED">BANNED (Permanent Lockout)</option>
+                </select>
+                <button class="btn btn-danger btn-sm" style="white-space: nowrap; height: 38px; padding: 0 14px;"
+                  onclick="AdminApp.submitUserModalStatus()">Update Status</button>
+              </div>
+              <input type="text" id="uim-ctrl-ban-reason" class="form-input"
+                placeholder="Reason for ban / suspension..." style="font-size: 12px;" />
+            </div>
+
+            <!-- SECTION D: SECURITY & SESSIONS -->
+            <div class="control-box">
+              <div>
+                <h4 class="control-box-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  Session Security &amp; Communications
+                </h4>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px; line-height: 1.4;">
+                  Invalidate login tokens on all client devices or perform Google Play account purge.
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm"
+                  style="flex: 1; min-width: 140px; height: 38px; justify-content: center;"
+                  onclick="AdminApp.terminateUserSessionsFromModal()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                    <line x1="12" x2="12" y1="2" y2="12" />
+                  </svg>
+                  Terminate Sessions
+                </button>
+                <button class="btn btn-danger btn-sm"
+                  style="flex: 1; min-width: 140px; height: 38px; justify-content: center;"
+                  onclick="AdminApp.hardDeleteUserFromModal()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                  </svg>
+                  Google Play Purge
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- MODAL FOOTER -->
+      <div class="user-modal-footer">
+        <button class="btn btn-secondary" onclick="AdminApp.closeUserIntelligenceModal()">Close Dashboard</button>
+        <button class="btn btn-primary" onclick="AdminApp.refreshCurrentUserModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          Refresh Live Data
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Master Administration Client Controller -->
-  <script src="/admin/js/admin.js?v=5.0.0"></script>
+  <script src="/admin/js/admin.js?v=5.5.0"></script>
 </body>
+
 </html>

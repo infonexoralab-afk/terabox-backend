@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="cloudBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0052D4"/>
+      <stop offset="0.5" stop-color="#2D68FF"/>
+      <stop offset="1" stop-color="#4B93FF"/>
+    </linearGradient>
+    <filter id="cloudShadow" x="-2" y="-1" width="68" height="68" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#0052D4" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#cloudBg)" filter="url(#cloudShadow)"/>
+  <!-- Ambient glow circle -->
+  <circle cx="50" cy="14" r="16" fill="#FFFFFF" fill-opacity="0.12"/>
+  <!-- Crisp Bold Cloud Vector -->
+  <path d="M44.5 44H20.5C16.3579 44 13 40.6421 13 36.5C13 32.6108 15.9622 29.4137 19.7618 29.0416C21.0371 22.756 26.5684 18 33.2 18C40.6006 18 46.7327 23.7548 47.1654 31.0664C50.9859 31.7828 54 35.1326 54 39.2C54 43.6183 50.4183 47.2 46 47.2H20.5" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Center Storage Upload Arrow -->
+  <path d="M33.2 29V41M27.5 34.5L33.2 29L38.9 34.5" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
