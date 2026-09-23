@@ -852,6 +852,57 @@
               </button>
             </div>
 
+            <!-- VIP MEMBERSHIP & UPGRADE SYSTEM MASTER CONTROLLER -->
+            <div class="card" style="border: 1.5px solid #FDE68A; background: #FFFDF5; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.05);">
+              <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <h3 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #92400E;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #D97706;"></span>
+                    👑 VIP Membership &amp; Upgrade System Master Control
+                  </h3>
+                  <p style="font-size: 12px; color: #78350F; margin: 2px 0 0 0;">
+                    Instantly enable/disable in-app VIP upgrades. When OFF, all VIP clicks trigger the scheduled maintenance notice.
+                  </p>
+                </div>
+                <span id="config-vip-status-badge"
+                  style="background: #ECFDF5; color: #065F46; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                  VIP UPGRADES ACTIVE
+                </span>
+              </div>
+
+              <div style="background: #FFFFFF; padding: 14px; border-radius: 10px; border: 1px solid #FCD34D; margin-bottom: 14px;">
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                  <input type="checkbox" id="config-vip-enabled-toggle" onchange="AdminApp.onVipToggleChange()"
+                    style="width: 22px; height: 22px; accent-color: #D97706;" />
+                  <div>
+                    <span style="font-weight: 800; font-size: 14px; color: #1E293B;">VIP Upgrades &amp; Purchases Active</span>
+                    <p style="font-size: 11.5px; color: #64748B; margin: 2px 0 0 0;">
+                      When disabled (OFF), all VIP buttons show a sleek maintenance notice across the app and block purchase processing.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 14px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 12px; font-weight: 700; color: #451A03;">Maintenance Notice Title</label>
+                  <input type="text" id="config-vip-maint-title" class="form-input"
+                    value="VIP Membership Under Maintenance" placeholder="e.g. VIP Membership Under Maintenance" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" style="font-size: 12px; font-weight: 700; color: #451A03;">Maintenance Notice Message</label>
+                  <textarea id="config-vip-maint-message" class="form-input" rows="2"
+                    placeholder="VIP membership upgrades and payment gateways are temporarily undergoing scheduled maintenance. Please check back shortly."></textarea>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" onclick="AdminApp.saveRemoteConfig()"
+                style="background: #D97706; border-color: #D97706; width: 100%; padding: 11px; font-size: 13.5px; font-weight: 700;">
+                💾 Save &amp; Broadcast VIP Settings
+              </button>
+            </div>
+
             <!-- GOOGLE MOBILES ADS (ADMOB) & REWARDED AD GATES MONETIZATION ENGINE -->
             <div class="card" style="border: 1.5px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
               <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
@@ -967,7 +1018,7 @@
                 <div class="form-group">
                   <label class="form-label" style="font-size: 12px; font-weight: 600;">Google AdMob App ID</label>
                   <input type="text" id="config-admob-app-id" class="form-input"
-                    placeholder="ca-app-pub-3940256099942544~3347511713"
+                    placeholder="ca-app-pub-4299851171687727~9894513295"
                     style="font-family: monospace; font-size: 12px;" />
                 </div>
 
@@ -975,13 +1026,13 @@
                   <div class="form-group">
                     <label class="form-label" style="font-size: 12px; font-weight: 600;">Rewarded Video Unit ID</label>
                     <input type="text" id="config-admob-rewarded-unit" class="form-input"
-                      placeholder="ca-app-pub-3940256099942544/5224354917"
+                      placeholder="ca-app-pub-4299851171687727/2661136517"
                       style="font-family: monospace; font-size: 11.5px;" />
                   </div>
                   <div class="form-group">
                     <label class="form-label" style="font-size: 12px; font-weight: 600;">Interstitial Unit ID</label>
                     <input type="text" id="config-admob-interstitial-unit" class="form-input"
-                      placeholder="ca-app-pub-3940256099942544/1033173712"
+                      placeholder="ca-app-pub-4299851171687727/5365164781"
                       style="font-family: monospace; font-size: 11.5px;" />
                   </div>
                 </div>
@@ -990,13 +1041,13 @@
                   <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label" style="font-size: 12px; font-weight: 600;">Adaptive Banner Unit ID</label>
                     <input type="text" id="config-admob-banner-unit" class="form-input"
-                      placeholder="ca-app-pub-3940256099942544/6300978111"
+                      placeholder="ca-app-pub-4299851171687727/5151568484"
                       style="font-family: monospace; font-size: 11.5px;" />
                   </div>
                   <div class="form-group" style="margin-bottom: 0;">
                     <label class="form-label" style="font-size: 12px; font-weight: 600;">App Open Unit ID</label>
                     <input type="text" id="config-admob-app-open-unit" class="form-input"
-                      placeholder="ca-app-pub-3940256099942544/9257390301"
+                      placeholder="ca-app-pub-4299851171687727/7675544061"
                       style="font-family: monospace; font-size: 11.5px;" />
                   </div>
                 </div>

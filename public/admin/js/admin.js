@@ -2321,6 +2321,19 @@ const AdminApp = {
     const minWd = document.getElementById('config-min-withdrawal');
     if (minWd) minWd.value = cfg.min_withdrawal_usd !== undefined ? cfg.min_withdrawal_usd : 10.0;
 
+    // VIP Membership & Upgrade System bindings
+    const vipToggle = document.getElementById('config-vip-enabled-toggle');
+    if (vipToggle) {
+      vipToggle.checked = cfg.vip_upgrade_enabled !== false;
+      this.onVipToggleChange();
+    }
+
+    const vipMaintTitle = document.getElementById('config-vip-maint-title');
+    if (vipMaintTitle) vipMaintTitle.value = cfg.vip_maintenance_title || 'VIP Membership Under Maintenance';
+
+    const vipMaintMsg = document.getElementById('config-vip-maint-message');
+    if (vipMaintMsg) vipMaintMsg.value = cfg.vip_maintenance_message || 'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.';
+
     // Google Mobile Ads (AdMob) Monetization Engine bindings
     const adsToggle = document.getElementById('config-ads-enabled-toggle');
     if (adsToggle) {
@@ -2334,19 +2347,19 @@ const AdminApp = {
     }
 
     const admobAppId = document.getElementById('config-admob-app-id');
-    if (admobAppId) admobAppId.value = cfg.admob_app_id || 'ca-app-pub-3940256099942544~3347511713';
+    if (admobAppId) admobAppId.value = cfg.admob_app_id || 'ca-app-pub-4299851171687727~9894513295';
 
     const rewardedUnit = document.getElementById('config-admob-rewarded-unit');
-    if (rewardedUnit) rewardedUnit.value = cfg.admob_rewarded_ad_unit_id || 'ca-app-pub-3940256099942544/5224354917';
+    if (rewardedUnit) rewardedUnit.value = cfg.admob_rewarded_ad_unit_id || 'ca-app-pub-4299851171687727/2661136517';
 
     const interstitialUnit = document.getElementById('config-admob-interstitial-unit');
-    if (interstitialUnit) interstitialUnit.value = cfg.admob_interstitial_ad_unit_id || 'ca-app-pub-3940256099942544/1033173712';
+    if (interstitialUnit) interstitialUnit.value = cfg.admob_interstitial_ad_unit_id || 'ca-app-pub-4299851171687727/5365164781';
 
     const bannerUnit = document.getElementById('config-admob-banner-unit');
-    if (bannerUnit) bannerUnit.value = cfg.admob_banner_ad_unit_id || 'ca-app-pub-3940256099942544/6300978111';
+    if (bannerUnit) bannerUnit.value = cfg.admob_banner_ad_unit_id || 'ca-app-pub-4299851171687727/5151568484';
 
     const appOpenUnit = document.getElementById('config-admob-app-open-unit');
-    if (appOpenUnit) appOpenUnit.value = cfg.admob_app_open_ad_unit_id || 'ca-app-pub-3940256099942544/9257390301';
+    if (appOpenUnit) appOpenUnit.value = cfg.admob_app_open_ad_unit_id || 'ca-app-pub-4299851171687727/7675544061';
 
     const offlineCount = document.getElementById('config-offline-ad-count');
     if (offlineCount) offlineCount.value = cfg.offline_download_ad_count !== undefined ? cfg.offline_download_ad_count : 2;
@@ -2368,6 +2381,22 @@ const AdminApp = {
 
     const appOpenCooldown = document.getElementById('config-app-open-cooldown');
     if (appOpenCooldown) appOpenCooldown.value = cfg.app_open_cooldown_seconds !== undefined ? cfg.app_open_cooldown_seconds : 14400;
+  },
+
+  onVipToggleChange() {
+    const vipToggle = document.getElementById('config-vip-enabled-toggle');
+    const badge = document.getElementById('config-vip-status-badge');
+    if (!vipToggle || !badge) return;
+
+    if (vipToggle.checked) {
+      badge.textContent = 'VIP UPGRADES ACTIVE';
+      badge.style.background = '#ECFDF5';
+      badge.style.color = '#065F46';
+    } else {
+      badge.textContent = 'UNDER MAINTENANCE';
+      badge.style.background = '#FEF3C7';
+      badge.style.color = '#92400E';
+    }
   },
 
   onAdsToggleChange() {
@@ -2392,6 +2421,10 @@ const AdminApp = {
     const latestVerInput = document.getElementById('config-latest-version');
     const minWdInput = document.getElementById('config-min-withdrawal');
 
+    const vipToggle = document.getElementById('config-vip-enabled-toggle');
+    const vipMaintTitle = document.getElementById('config-vip-maint-title');
+    const vipMaintMsg = document.getElementById('config-vip-maint-message');
+
     const adsToggle = document.getElementById('config-ads-enabled-toggle');
     const prerollToggle = document.getElementById('config-preroll-ads-toggle');
     const admobAppId = document.getElementById('config-admob-app-id');
@@ -2413,14 +2446,18 @@ const AdminApp = {
       force_update_min_version: minVerInput ? minVerInput.value.trim() : '1.0.0',
       force_update_latest_version: latestVerInput ? latestVerInput.value.trim() : '1.2.0',
       min_withdrawal_usd: !isNaN(rawMinWd) && rawMinWd >= 0 ? rawMinWd : 1.0,
+      // VIP Membership Updates
+      vip_upgrade_enabled: vipToggle ? vipToggle.checked : true,
+      vip_maintenance_title: vipMaintTitle ? vipMaintTitle.value.trim() : 'VIP Membership Under Maintenance',
+      vip_maintenance_message: vipMaintMsg ? vipMaintMsg.value.trim() : 'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
       // Ad Monetization Updates
       ads_enabled: adsToggle ? adsToggle.checked : true,
       shared_video_preroll_ad_enabled: prerollToggle ? prerollToggle.checked : true,
-      admob_app_id: admobAppId ? admobAppId.value.trim() : 'ca-app-pub-3940256099942544~3347511713',
-      admob_rewarded_ad_unit_id: rewardedUnit ? rewardedUnit.value.trim() : 'ca-app-pub-3940256099942544/5224354917',
-      admob_interstitial_ad_unit_id: interstitialUnit ? interstitialUnit.value.trim() : 'ca-app-pub-3940256099942544/1033173712',
-      admob_banner_ad_unit_id: bannerUnit ? bannerUnit.value.trim() : 'ca-app-pub-3940256099942544/6300978111',
-      admob_app_open_ad_unit_id: appOpenUnit ? appOpenUnit.value.trim() : 'ca-app-pub-3940256099942544/9257390301',
+      admob_app_id: admobAppId ? admobAppId.value.trim() : 'ca-app-pub-4299851171687727~9894513295',
+      admob_rewarded_ad_unit_id: rewardedUnit ? rewardedUnit.value.trim() : 'ca-app-pub-4299851171687727/2661136517',
+      admob_interstitial_ad_unit_id: interstitialUnit ? interstitialUnit.value.trim() : 'ca-app-pub-4299851171687727/5365164781',
+      admob_banner_ad_unit_id: bannerUnit ? bannerUnit.value.trim() : 'ca-app-pub-4299851171687727/5151568484',
+      admob_app_open_ad_unit_id: appOpenUnit ? appOpenUnit.value.trim() : 'ca-app-pub-4299851171687727/7675544061',
       offline_download_ad_count: offlineCount ? parseInt(offlineCount.value, 10) ?? 2 : 2,
       upload_ad_count: uploadCount ? parseInt(uploadCount.value, 10) ?? 2 : 2,
       video_stream_ad_count: streamCount ? parseInt(streamCount.value, 10) ?? 1 : 1,

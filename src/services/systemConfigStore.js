@@ -43,10 +43,10 @@ const DEFAULT_SYSTEM_CONFIG = {
   ads_enabled: true, // Master Switch: If false, disables all ads across entire app
   shared_video_preroll_ad_enabled: true, // Show Pre-Roll video ad before shared video streams
   admob_app_id: 'ca-app-pub-4299851171687727~9894513295', // AdMob App ID
-  admob_banner_ad_unit_id: 'ca-app-pub-3940256099942544/6300978111',
-  admob_interstitial_ad_unit_id: 'ca-app-pub-3940256099942544/1033173712',
-  admob_rewarded_ad_unit_id: 'ca-app-pub-3940256099942544/5224354917',
-  admob_app_open_ad_unit_id: 'ca-app-pub-3940256099942544/9257390301',
+  admob_banner_ad_unit_id: 'ca-app-pub-4299851171687727/5151568484',
+  admob_interstitial_ad_unit_id: 'ca-app-pub-4299851171687727/5365164781',
+  admob_rewarded_ad_unit_id: 'ca-app-pub-4299851171687727/2661136517',
+  admob_app_open_ad_unit_id: 'ca-app-pub-4299851171687727/7675544061',
   offline_download_ad_count: 2, // Free users must watch N rewarded ads for offline download (0 = disabled)
   upload_ad_count: 2, // Free users must watch N rewarded ads before uploading files (0 = disabled)
   video_stream_ad_count: 1, // Free users must watch N rewarded ads before streaming cloud videos (0 = disabled)
@@ -142,10 +142,10 @@ class SystemConfigStore {
       ads_enabled: this.config.ads_enabled === true || this.config.ads_enabled === 'true' || this.config.ads_enabled === 1 || this.config.ads_enabled === '1',
       shared_video_preroll_ad_enabled: this.config.shared_video_preroll_ad_enabled === true || this.config.shared_video_preroll_ad_enabled === 'true' || this.config.shared_video_preroll_ad_enabled === 1 || this.config.shared_video_preroll_ad_enabled === '1',
       admob_app_id: this.config.admob_app_id || 'ca-app-pub-4299851171687727~9894513295',
-      admob_banner_ad_unit_id: this.config.admob_banner_ad_unit_id || 'ca-app-pub-3940256099942544/6300978111',
-      admob_interstitial_ad_unit_id: this.config.admob_interstitial_ad_unit_id || 'ca-app-pub-3940256099942544/1033173712',
-      admob_rewarded_ad_unit_id: this.config.admob_rewarded_ad_unit_id || 'ca-app-pub-3940256099942544/5224354917',
-      admob_app_open_ad_unit_id: this.config.admob_app_open_ad_unit_id || 'ca-app-pub-3940256099942544/9257390301',
+      admob_banner_ad_unit_id: this.config.admob_banner_ad_unit_id || 'ca-app-pub-4299851171687727/5151568484',
+      admob_interstitial_ad_unit_id: this.config.admob_interstitial_ad_unit_id || 'ca-app-pub-4299851171687727/5365164781',
+      admob_rewarded_ad_unit_id: this.config.admob_rewarded_ad_unit_id || 'ca-app-pub-4299851171687727/2661136517',
+      admob_app_open_ad_unit_id: this.config.admob_app_open_ad_unit_id || 'ca-app-pub-4299851171687727/7675544061',
       offline_download_ad_count: parseInt(this.config.offline_download_ad_count, 10) ?? 2,
       upload_ad_count: parseInt(this.config.upload_ad_count, 10) ?? 2,
       video_stream_ad_count: parseInt(this.config.video_stream_ad_count, 10) ?? 1,
