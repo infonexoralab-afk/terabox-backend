@@ -42,7 +42,7 @@ const DEFAULT_SYSTEM_CONFIG = {
   // Google Mobile Ads (AdMob) Monetization Engine & Remote Switches
   ads_enabled: true, // Master Switch: If false, disables all ads across entire app
   shared_video_preroll_ad_enabled: true, // Show Pre-Roll video ad before shared video streams
-  admob_app_id: 'ca-app-pub-3940256099942544~3347511713', // AdMob App ID
+  admob_app_id: 'ca-app-pub-4299851171687727~9894513295', // AdMob App ID
   admob_banner_ad_unit_id: 'ca-app-pub-3940256099942544/6300978111',
   admob_interstitial_ad_unit_id: 'ca-app-pub-3940256099942544/1033173712',
   admob_rewarded_ad_unit_id: 'ca-app-pub-3940256099942544/5224354917',
@@ -54,6 +54,12 @@ const DEFAULT_SYSTEM_CONFIG = {
   turbo_transfer_ad_count: 1, // Free users must watch N rewarded ads for turbo transfer speed boost (0 = disabled)
   interstitial_capping_seconds: 180, // Cooldown between interstitial ads (3 mins)
   app_open_cooldown_seconds: 14400, // Cooldown between app open ads (4 hours)
+
+  // VIP Membership Upgrade Master Switch & Maintenance Notice
+  vip_upgrade_enabled: true, // Master Switch: If false, VIP upgrade is under maintenance
+  vip_maintenance_title: 'VIP Membership Under Maintenance',
+  vip_maintenance_message:
+    'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
 
   // System Metadata
   updated_at: new Date().toISOString(),
@@ -126,10 +132,16 @@ class SystemConfigStore {
       force_update_min_version: this.config.force_update_min_version,
       force_update_latest_version: this.config.force_update_latest_version,
       play_store_url: this.config.play_store_url,
+      // VIP Membership Upgrade Master Config
+      vip_upgrade_enabled: this.config.vip_upgrade_enabled === true || this.config.vip_upgrade_enabled === 'true' || this.config.vip_upgrade_enabled === 1 || this.config.vip_upgrade_enabled === '1',
+      vip_maintenance_title: this.config.vip_maintenance_title || 'VIP Membership Under Maintenance',
+      vip_maintenance_message:
+        this.config.vip_maintenance_message ||
+        'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
       // Google Mobile Ads (AdMob) Public Config
-      ads_enabled: this.config.ads_enabled !== false,
-      shared_video_preroll_ad_enabled: this.config.shared_video_preroll_ad_enabled !== false,
-      admob_app_id: this.config.admob_app_id || 'ca-app-pub-3940256099942544~3347511713',
+      ads_enabled: this.config.ads_enabled === true || this.config.ads_enabled === 'true' || this.config.ads_enabled === 1 || this.config.ads_enabled === '1',
+      shared_video_preroll_ad_enabled: this.config.shared_video_preroll_ad_enabled === true || this.config.shared_video_preroll_ad_enabled === 'true' || this.config.shared_video_preroll_ad_enabled === 1 || this.config.shared_video_preroll_ad_enabled === '1',
+      admob_app_id: this.config.admob_app_id || 'ca-app-pub-4299851171687727~9894513295',
       admob_banner_ad_unit_id: this.config.admob_banner_ad_unit_id || 'ca-app-pub-3940256099942544/6300978111',
       admob_interstitial_ad_unit_id: this.config.admob_interstitial_ad_unit_id || 'ca-app-pub-3940256099942544/1033173712',
       admob_rewarded_ad_unit_id: this.config.admob_rewarded_ad_unit_id || 'ca-app-pub-3940256099942544/5224354917',
@@ -148,6 +160,15 @@ class SystemConfigStore {
    * Update a single configuration parameter in real-time
    */
   update(key, value, adminId = 'adm_master_root_01', ip = '127.0.0.1') {
+    if (
+      key === 'webmaster_program_enabled' ||
+      key === 'maintenance_mode_enabled' ||
+      key === 'ads_enabled' ||
+      key === 'shared_video_preroll_ad_enabled' ||
+      key === 'vip_upgrade_enabled'
+    ) {
+      value = value === true || value === 'true' || value === 1 || value === '1';
+    }
     const previous = this.config[key];
     this.config[key] = value;
     this.config.updated_at = new Date().toISOString();
@@ -193,7 +214,8 @@ class SystemConfigStore {
         key === 'webmaster_program_enabled' ||
         key === 'maintenance_mode_enabled' ||
         key === 'ads_enabled' ||
-        key === 'shared_video_preroll_ad_enabled'
+        key === 'shared_video_preroll_ad_enabled' ||
+        key === 'vip_upgrade_enabled'
       ) {
         value = rawValue === true || rawValue === 'true' || rawValue === 1 || rawValue === '1';
       }

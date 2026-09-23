@@ -549,6 +549,13 @@ if (process.env.VERCEL !== '1') {
   notificationService.on('NOTIFICATION_BROADCAST', (data) => {
     broadcastWsEvent({ type: 'SYSTEM_NOTIFICATION_BROADCAST', data });
   });
+  systemConfigStore.registerChangeListener((changeEvent) => {
+    broadcastWsEvent({
+      type: 'CONFIG_UPDATE',
+      change: changeEvent,
+      config: systemConfigStore.getPublicConfig(),
+    });
+  });
 
   server.listen(env.port, async () => {
     console.log(`[AirBox Server] Running on http://localhost:${env.port}`);
