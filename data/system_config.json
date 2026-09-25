@@ -24,6 +24,7 @@
   "vip_upgrade_enabled": false,
   "vip_maintenance_title": "VIP Membership Under Maintenance",
   "vip_maintenance_message": "VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.",
+  "email_auth_enabled": true,
   "ads_enabled": false,
   "shared_video_preroll_ad_enabled": false,
   "admob_app_id": "ca-app-pub-4299851171687727~9894513295",

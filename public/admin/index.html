@@ -853,15 +853,20 @@
             </div>
 
             <!-- VIP MEMBERSHIP & UPGRADE SYSTEM MASTER CONTROLLER -->
-            <div class="card" style="border: 1.5px solid #FDE68A; background: #FFFDF5; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.05);">
-              <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div class="card"
+              style="border: 1.5px solid #FDE68A; background: #FFFDF5; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.05);">
+              <div class="card-header"
+                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                 <div>
-                  <h3 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #92400E;">
-                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #D97706;"></span>
+                  <h3 class="card-title"
+                    style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #92400E;">
+                    <span
+                      style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #D97706;"></span>
                     👑 VIP Membership &amp; Upgrade System Master Control
                   </h3>
                   <p style="font-size: 12px; color: #78350F; margin: 2px 0 0 0;">
-                    Instantly enable/disable in-app VIP upgrades. When OFF, all VIP clicks trigger the scheduled maintenance notice.
+                    Instantly enable/disable in-app VIP upgrades. When OFF, all VIP clicks trigger the scheduled
+                    maintenance notice.
                   </p>
                 </div>
                 <span id="config-vip-status-badge"
@@ -870,14 +875,17 @@
                 </span>
               </div>
 
-              <div style="background: #FFFFFF; padding: 14px; border-radius: 10px; border: 1px solid #FCD34D; margin-bottom: 14px;">
+              <div
+                style="background: #FFFFFF; padding: 14px; border-radius: 10px; border: 1px solid #FCD34D; margin-bottom: 14px;">
                 <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
                   <input type="checkbox" id="config-vip-enabled-toggle" onchange="AdminApp.onVipToggleChange()"
                     style="width: 22px; height: 22px; accent-color: #D97706;" />
                   <div>
-                    <span style="font-weight: 800; font-size: 14px; color: #1E293B;">VIP Upgrades &amp; Purchases Active</span>
+                    <span style="font-weight: 800; font-size: 14px; color: #1E293B;">VIP Upgrades &amp; Purchases
+                      Active</span>
                     <p style="font-size: 11.5px; color: #64748B; margin: 2px 0 0 0;">
-                      When disabled (OFF), all VIP buttons show a sleek maintenance notice across the app and block purchase processing.
+                      When disabled (OFF), all VIP buttons show a sleek maintenance notice across the app and block
+                      purchase processing.
                     </p>
                   </div>
                 </label>
@@ -885,13 +893,15 @@
 
               <div style="display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 14px;">
                 <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" style="font-size: 12px; font-weight: 700; color: #451A03;">Maintenance Notice Title</label>
+                  <label class="form-label" style="font-size: 12px; font-weight: 700; color: #451A03;">Maintenance
+                    Notice Title</label>
                   <input type="text" id="config-vip-maint-title" class="form-input"
                     value="VIP Membership Under Maintenance" placeholder="e.g. VIP Membership Under Maintenance" />
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" style="font-size: 12px; font-weight: 700; color: #451A03;">Maintenance Notice Message</label>
+                  <label class="form-label" style="font-size: 12px; font-weight: 700; color: #451A03;">Maintenance
+                    Notice Message</label>
                   <textarea id="config-vip-maint-message" class="form-input" rows="2"
                     placeholder="VIP membership upgrades and payment gateways are temporarily undergoing scheduled maintenance. Please check back shortly."></textarea>
                 </div>
@@ -903,9 +913,54 @@
               </button>
             </div>
 
+            <!-- EMAIL / PASSWORD AUTHENTICATION & MANUAL SIGNUP MASTER CONTROLLER -->
+            <div class="card"
+              style="border: 1.5px solid #BFDBFE; background: #F8FAFC; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);">
+              <div class="card-header"
+                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <h3 class="card-title"
+                    style="display: flex; align-items: center; gap: 8px; font-size: 15px; color: #1E40AF;">
+                    <span
+                      style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #2563EB;"></span>
+                    ✉️ Email &amp; Password Login / Signup Master Control
+                  </h3>
+                  <p style="font-size: 12px; color: #1E3A8A; margin: 2px 0 0 0;">
+                    Enable or disable manual Email/Password login and signup in the mobile app. When OFF, the email option is completely hidden and the app only shows 'Continue with Google'.
+                  </p>
+                </div>
+                <span id="config-email-auth-status-badge"
+                  style="background: #ECFDF5; color: #065F46; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                  EMAIL LOGIN ACTIVE
+                </span>
+              </div>
+
+              <div
+                style="background: #FFFFFF; padding: 14px; border-radius: 10px; border: 1px solid #DBEAFE; margin-bottom: 14px;">
+                <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                  <input type="checkbox" id="config-email-auth-toggle" onchange="AdminApp.onEmailAuthToggleChange()"
+                    style="width: 22px; height: 22px; accent-color: #2563EB;" />
+                  <div>
+                    <span style="font-weight: 800; font-size: 14px; color: #1E3A8A;">
+                      Enable Manual Email / Password Login &amp; Signup Option
+                    </span>
+                    <p style="font-size: 11.5px; color: #475569; margin: 2px 0 0 0;">
+                      When enabled, users and reviewers can log in with any random email/password or create accounts manually. When OFF, this option is hidden from the login screen.
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              <button class="btn btn-primary" onclick="AdminApp.saveRemoteConfig()"
+                style="background: #2563EB; border-color: #2563EB; width: 100%; padding: 11px; font-size: 13.5px; font-weight: 700;">
+                💾 Save &amp; Broadcast Email Auth Settings
+              </button>
+            </div>
+
             <!-- GOOGLE MOBILES ADS (ADMOB) & REWARDED AD GATES MONETIZATION ENGINE -->
             <div class="card" style="border: 1.5px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
-              <div class="card-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <div class="card-header"
+                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                 <div>
                   <h3 class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px;">
                     <span
@@ -930,7 +985,8 @@
                       style="width: 20px; height: 20px; accent-color: #10B981;" />
                     <div>
                       <span style="font-weight: 700; font-size: 13px; color: #1E293B;">Global Ads Master Switch</span>
-                      <p style="font-size: 11px; color: #64748B; margin: 1px 0 0 0;">If OFF, disables all ads across entire app.</p>
+                      <p style="font-size: 11px; color: #64748B; margin: 1px 0 0 0;">If OFF, disables all ads across
+                        entire app.</p>
                     </div>
                   </label>
                 </div>
@@ -941,16 +997,19 @@
                       style="width: 20px; height: 20px; accent-color: #2563EB;" />
                     <div>
                       <span style="font-weight: 700; font-size: 13px; color: #1E293B;">Shared Video Pre-Roll Ads</span>
-                      <p style="font-size: 11px; color: #64748B; margin: 1px 0 0 0;">Plays sponsor video ad before shared stream.</p>
+                      <p style="font-size: 11px; color: #64748B; margin: 1px 0 0 0;">Plays sponsor video ad before
+                        shared stream.</p>
                     </div>
                   </label>
                 </div>
               </div>
 
               <!-- SECTION 2: REWARDED AD GATES (ACTION COUNTS) -->
-              <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+              <div
+                style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                  <div style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">
+                  <div
+                    style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">
                     🎯 Rewarded Video Ad Counts per User Action
                   </div>
                   <span style="font-size: 11px; font-weight: 600; color: #64748B;">0 = Free Bypass (No Ads)</span>
@@ -958,37 +1017,42 @@
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
                   <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Offline Download</label>
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Offline
+                      Download</label>
                     <input type="number" id="config-offline-ad-count" class="form-input" min="0" max="10" value="2"
                       style="font-size: 13px; font-weight: 700;" />
                     <span style="font-size: 10.5px; color: #64748B;">Watch N ads to save</span>
                   </div>
 
                   <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Cloud File Upload</label>
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Cloud File
+                      Upload</label>
                     <input type="number" id="config-upload-ad-count" class="form-input" min="0" max="10" value="2"
                       style="font-size: 13px; font-weight: 700;" />
                     <span style="font-size: 10.5px; color: #64748B;">Watch N ads to upload</span>
                   </div>
 
                   <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Video Stream Play</label>
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Video Stream
+                      Play</label>
                     <input type="number" id="config-stream-ad-count" class="form-input" min="0" max="10" value="1"
                       style="font-size: 13px; font-weight: 700;" />
                     <span style="font-size: 10.5px; color: #64748B;">Watch N ads to play</span>
                   </div>
 
                   <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Save to Cloud</label>
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Save to
+                      Cloud</label>
                     <input type="number" id="config-cloud-save-ad-count" class="form-input" min="0" max="10" value="1"
                       style="font-size: 13px; font-weight: 700;" />
                     <span style="font-size: 10.5px; color: #64748B;">Watch N ads on save</span>
                   </div>
 
                   <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Turbo Transfer</label>
-                    <input type="number" id="config-turbo-transfer-ad-count" class="form-input" min="0" max="10" value="1"
-                      style="font-size: 13px; font-weight: 700;" />
+                    <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #334155;">Turbo
+                      Transfer</label>
+                    <input type="number" id="config-turbo-transfer-ad-count" class="form-input" min="0" max="10"
+                      value="1" style="font-size: 13px; font-weight: 700;" />
                     <span style="font-size: 10.5px; color: #64748B;">Watch N ads for boost</span>
                   </div>
                 </div>
@@ -997,21 +1061,29 @@
               <!-- SECTION 3: FREQUENCY CAPPING & TIMING -->
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                 <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" style="font-size: 12px; font-weight: 700;">Interstitial Cooldown (Seconds)</label>
-                  <input type="number" id="config-interstitial-cooldown" class="form-input" min="10" max="1800" value="180" />
-                  <span style="font-size: 11px; color: #64748B;">Minimum wait time between full-screen interstitials (e.g. 180s = 3m)</span>
+                  <label class="form-label" style="font-size: 12px; font-weight: 700;">Interstitial Cooldown
+                    (Seconds)</label>
+                  <input type="number" id="config-interstitial-cooldown" class="form-input" min="10" max="1800"
+                    value="180" />
+                  <span style="font-size: 11px; color: #64748B;">Minimum wait time between full-screen interstitials
+                    (e.g. 180s = 3m)</span>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label" style="font-size: 12px; font-weight: 700;">App Open Ad Cooldown (Seconds)</label>
-                  <input type="number" id="config-app-open-cooldown" class="form-input" min="60" max="86400" value="14400" />
-                  <span style="font-size: 11px; color: #64748B;">Minimum wait time between cold launch open ads (e.g. 14400s = 4 hours)</span>
+                  <label class="form-label" style="font-size: 12px; font-weight: 700;">App Open Ad Cooldown
+                    (Seconds)</label>
+                  <input type="number" id="config-app-open-cooldown" class="form-input" min="60" max="86400"
+                    value="14400" />
+                  <span style="font-size: 11px; color: #64748B;">Minimum wait time between cold launch open ads (e.g.
+                    14400s = 4 hours)</span>
                 </div>
               </div>
 
               <!-- SECTION 4: ADMOB LIVE UNIT IDS -->
-              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
-                <div style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
+              <div
+                style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                <div
+                  style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">
                   🔑 Live Google AdMob Ad Unit Identifiers
                 </div>
 

@@ -676,6 +676,23 @@ router.post('/auth/login-email', (req, res) => {
   }
 });
 
+// 8B. Direct Signup with Email + Password
+router.post('/auth/signup-email', (req, res) => {
+  try {
+    const { email, password, displayName } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required.' });
+    }
+    const result = authService.registerDirect(email, password, displayName);
+    if (!result.success) {
+      return res.status(400).json({ error: result.error });
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // 9. Permanent Account & Data Deletion
 router.delete('/auth/delete-account', async (req, res) => {
   try {
@@ -1529,10 +1546,54 @@ router.get(['/webmaster/status', '/webmaster/program-status'], (req, res) => {
     title: cfg.webmaster_disabled_title,
     subtitle: cfg.webmaster_disabled_subtitle,
     message: cfg.webmaster_disabled_message,
-    cpmRateUsd: cfg.global_cpm_rate_usd,
-    cpaRewardUsd: cfg.cpa_reward_per_install_usd,
-    minWithdrawalUsd: cfg.min_withdrawal_usd,
   });
+});
+
+// VIP Membership Master Status Endpoint for Mobile App & Web Clients
+router.get(['/vip/status', '/user/vip/status'], (req, res) => {
+  const cfg = systemConfigStore.getPublicConfig();
+  res.json({
+    success: true,
+    enabled: cfg.vip_upgrade_enabled !== false,
+    title: cfg.vip_maintenance_title || 'VIP Membership Under Maintenance',
+    message:
+      cfg.vip_maintenance_message ||
+      'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
+  });
+});
+
+// VIP Activation Route with Maintenance Guard
+router.post('/user/vip/activate', (req, res) => {
+  const isVipEnabled = systemConfigStore.get('vip_upgrade_enabled', true);
+  if (!isVipEnabled) {
+    return res.status(503).json({
+      success: false,
+      isMaintenance: true,
+      error: systemConfigStore.get('vip_maintenance_title', 'VIP Membership Under Maintenance'),
+      message: systemConfigStore.get(
+        'vip_maintenance_message',
+        'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.'
+      ),
+    });
+  }
+
+  const { userId, isVip, storageBytes, durationDays, planId } = req.body;
+  const targetUserId = userId || req.headers['x-user-id'] || req.headers['x-user-email'];
+  if (!targetUserId) {
+    return res.status(400).json({ success: false, error: 'User ID required' });
+  }
+
+  const updated = authService.updateUserVip(targetUserId, isVip !== false, {
+    storageBytes,
+    durationDays,
+    planId,
+  });
+
+  if (!updated) {
+    return res.status(404).json({ success: false, error: 'User not found' });
+  }
+
+  res.json({ success: true, user: updated });
 });
 
 // ═══════════════════════════════════════════════

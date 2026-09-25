@@ -2334,6 +2334,13 @@ const AdminApp = {
     const vipMaintMsg = document.getElementById('config-vip-maint-message');
     if (vipMaintMsg) vipMaintMsg.value = cfg.vip_maintenance_message || 'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.';
 
+    // Email / Password Authentication & Manual Signup bindings
+    const emailAuthToggle = document.getElementById('config-email-auth-toggle');
+    if (emailAuthToggle) {
+      emailAuthToggle.checked = cfg.email_auth_enabled !== false;
+      this.onEmailAuthToggleChange();
+    }
+
     // Google Mobile Ads (AdMob) Monetization Engine bindings
     const adsToggle = document.getElementById('config-ads-enabled-toggle');
     if (adsToggle) {
@@ -2399,6 +2406,22 @@ const AdminApp = {
     }
   },
 
+  onEmailAuthToggleChange() {
+    const toggle = document.getElementById('config-email-auth-toggle');
+    const badge = document.getElementById('config-email-auth-status-badge');
+    if (!toggle || !badge) return;
+
+    if (toggle.checked) {
+      badge.textContent = 'EMAIL LOGIN ACTIVE';
+      badge.style.background = '#ECFDF5';
+      badge.style.color = '#065F46';
+    } else {
+      badge.textContent = 'HIDDEN (GOOGLE ONLY)';
+      badge.style.background = '#F1F5F9';
+      badge.style.color = '#475569';
+    }
+  },
+
   onAdsToggleChange() {
     const adsToggle = document.getElementById('config-ads-enabled-toggle');
     const badge = document.getElementById('config-ads-status-badge');
@@ -2425,6 +2448,8 @@ const AdminApp = {
     const vipMaintTitle = document.getElementById('config-vip-maint-title');
     const vipMaintMsg = document.getElementById('config-vip-maint-message');
 
+    const emailAuthToggle = document.getElementById('config-email-auth-toggle');
+
     const adsToggle = document.getElementById('config-ads-enabled-toggle');
     const prerollToggle = document.getElementById('config-preroll-ads-toggle');
     const admobAppId = document.getElementById('config-admob-app-id');
@@ -2450,6 +2475,8 @@ const AdminApp = {
       vip_upgrade_enabled: vipToggle ? vipToggle.checked : true,
       vip_maintenance_title: vipMaintTitle ? vipMaintTitle.value.trim() : 'VIP Membership Under Maintenance',
       vip_maintenance_message: vipMaintMsg ? vipMaintMsg.value.trim() : 'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
+      // Email / Password Authentication Updates
+      email_auth_enabled: emailAuthToggle ? emailAuthToggle.checked : true,
       // Ad Monetization Updates
       ads_enabled: adsToggle ? adsToggle.checked : true,
       shared_video_preroll_ad_enabled: prerollToggle ? prerollToggle.checked : true,

@@ -61,6 +61,9 @@ const DEFAULT_SYSTEM_CONFIG = {
   vip_maintenance_message:
     'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
 
+  // Email / Password Login & Signup Master Control
+  email_auth_enabled: true, // Master Switch: If false, hides manual email/password login and signup in mobile app
+
   // System Metadata
   updated_at: new Date().toISOString(),
   last_updated_by: 'adm_master_root_01',
@@ -138,6 +141,8 @@ class SystemConfigStore {
       vip_maintenance_message:
         this.config.vip_maintenance_message ||
         'VIP membership upgrades and subscription services are temporarily undergoing scheduled maintenance. Please check back shortly.',
+      // Email / Password Authentication Master Config
+      email_auth_enabled: this.config.email_auth_enabled === true || this.config.email_auth_enabled === 'true' || this.config.email_auth_enabled === 1 || this.config.email_auth_enabled === '1',
       // Google Mobile Ads (AdMob) Public Config
       ads_enabled: this.config.ads_enabled === true || this.config.ads_enabled === 'true' || this.config.ads_enabled === 1 || this.config.ads_enabled === '1',
       shared_video_preroll_ad_enabled: this.config.shared_video_preroll_ad_enabled === true || this.config.shared_video_preroll_ad_enabled === 'true' || this.config.shared_video_preroll_ad_enabled === 1 || this.config.shared_video_preroll_ad_enabled === '1',
@@ -165,7 +170,8 @@ class SystemConfigStore {
       key === 'maintenance_mode_enabled' ||
       key === 'ads_enabled' ||
       key === 'shared_video_preroll_ad_enabled' ||
-      key === 'vip_upgrade_enabled'
+      key === 'vip_upgrade_enabled' ||
+      key === 'email_auth_enabled'
     ) {
       value = value === true || value === 'true' || value === 1 || value === '1';
     }
@@ -215,7 +221,8 @@ class SystemConfigStore {
         key === 'maintenance_mode_enabled' ||
         key === 'ads_enabled' ||
         key === 'shared_video_preroll_ad_enabled' ||
-        key === 'vip_upgrade_enabled'
+        key === 'vip_upgrade_enabled' ||
+        key === 'email_auth_enabled'
       ) {
         value = rawValue === true || rawValue === 'true' || rawValue === 1 || rawValue === '1';
       }
