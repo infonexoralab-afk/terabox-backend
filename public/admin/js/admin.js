@@ -2338,7 +2338,7 @@ const AdminApp = {
     const emailAuthToggle = document.getElementById('config-email-auth-toggle');
     if (emailAuthToggle) {
       emailAuthToggle.checked = cfg.email_auth_enabled !== false;
-      this.onEmailAuthToggleChange();
+      this.updateEmailAuthBadge(emailAuthToggle.checked);
     }
 
     // Google Mobile Ads (AdMob) Monetization Engine bindings
@@ -2406,19 +2406,46 @@ const AdminApp = {
     }
   },
 
-  onEmailAuthToggleChange() {
-    const toggle = document.getElementById('config-email-auth-toggle');
+  updateEmailAuthBadge(isEnabled) {
     const badge = document.getElementById('config-email-auth-status-badge');
-    if (!toggle || !badge) return;
-
-    if (toggle.checked) {
+    if (!badge) return;
+    if (isEnabled) {
       badge.textContent = 'EMAIL LOGIN ACTIVE';
       badge.style.background = '#ECFDF5';
       badge.style.color = '#065F46';
     } else {
       badge.textContent = 'HIDDEN (GOOGLE ONLY)';
-      badge.style.background = '#F1F5F9';
-      badge.style.color = '#475569';
+      badge.style.background = '#FEE2E2';
+      badge.style.color = '#991B1B';
+    }
+  },
+
+  async onEmailAuthToggleChange() {
+    const toggle = document.getElementById('config-email-auth-toggle');
+    if (!toggle) return;
+
+    const isEnabled = toggle.checked;
+    this.updateEmailAuthBadge(isEnabled);
+
+    try {
+      const res = await this.api('/config/email-auth', {
+        method: 'PUT',
+        body: JSON.stringify({ enabled: isEnabled }),
+      });
+      if (res && res.success) {
+        if (this.state && this.state.config) {
+          this.state.config.email_auth_enabled = isEnabled;
+        }
+        if (isEnabled) {
+          this.showToast('✅ Email/Password Login & Signup option ENABLED in real-time');
+        } else {
+          this.showToast('🔒 Email Login & Signup DISABLED & HIDDEN from mobile app in real-time');
+        }
+      }
+    } catch (err) {
+      alert(`Failed to update email auth status: ${err.message}`);
+      toggle.checked = !isEnabled;
+      this.onEmailAuthToggleChange();
     }
   },
 

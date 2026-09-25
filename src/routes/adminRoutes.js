@@ -1875,6 +1875,13 @@ router.put('/config', (req, res) => {
   res.json({ success: true, config: updated });
 });
 
+router.put('/config/email-auth', (req, res) => {
+  const { enabled } = req.body;
+  const isEnabled = enabled === true || enabled === 'true' || enabled === 1 || enabled === '1';
+  const updated = systemConfigStore.update('email_auth_enabled', isEnabled, req.admin.adminId, req.socket.remoteAddress);
+  res.json({ success: true, email_auth_enabled: isEnabled, config: updated });
+});
+
 router.put('/config/bulk', (req, res) => {
   const updates = req.body;
   const updated = systemConfigStore.updateBatch(updates, req.admin.adminId, req.socket.remoteAddress);
