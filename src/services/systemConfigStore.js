@@ -41,6 +41,10 @@ const DEFAULT_SYSTEM_CONFIG = {
 
   // Google Mobile Ads (AdMob) Monetization Engine & Remote Switches
   ads_enabled: true, // Master Switch: If false, disables all ads across entire app
+  app_open_ads_enabled: true, // Individual Switch: App Open Ads
+  rewarded_ads_enabled: true, // Individual Switch: Rewarded Video Ads
+  interstitial_ads_enabled: true, // Individual Switch: Interstitial Ads
+  banner_ads_enabled: true, // Individual Switch: Adaptive Banner Ads
   shared_video_preroll_ad_enabled: true, // Show Pre-Roll video ad before shared video streams
   admob_app_id: 'ca-app-pub-4299851171687727~9894513295', // AdMob App ID
   admob_banner_ad_unit_id: 'ca-app-pub-4299851171687727/5151568484',
@@ -145,6 +149,10 @@ class SystemConfigStore {
       email_auth_enabled: this.config.email_auth_enabled === true || this.config.email_auth_enabled === 'true' || this.config.email_auth_enabled === 1 || this.config.email_auth_enabled === '1',
       // Google Mobile Ads (AdMob) Public Config
       ads_enabled: this.config.ads_enabled === true || this.config.ads_enabled === 'true' || this.config.ads_enabled === 1 || this.config.ads_enabled === '1',
+      app_open_ads_enabled: this.config.app_open_ads_enabled === true || this.config.app_open_ads_enabled === 'true' || this.config.app_open_ads_enabled === 1 || this.config.app_open_ads_enabled === '1',
+      rewarded_ads_enabled: this.config.rewarded_ads_enabled === true || this.config.rewarded_ads_enabled === 'true' || this.config.rewarded_ads_enabled === 1 || this.config.rewarded_ads_enabled === '1',
+      interstitial_ads_enabled: this.config.interstitial_ads_enabled === true || this.config.interstitial_ads_enabled === 'true' || this.config.interstitial_ads_enabled === 1 || this.config.interstitial_ads_enabled === '1',
+      banner_ads_enabled: this.config.banner_ads_enabled === true || this.config.banner_ads_enabled === 'true' || this.config.banner_ads_enabled === 1 || this.config.banner_ads_enabled === '1',
       shared_video_preroll_ad_enabled: this.config.shared_video_preroll_ad_enabled === true || this.config.shared_video_preroll_ad_enabled === 'true' || this.config.shared_video_preroll_ad_enabled === 1 || this.config.shared_video_preroll_ad_enabled === '1',
       admob_app_id: this.config.admob_app_id || 'ca-app-pub-4299851171687727~9894513295',
       admob_banner_ad_unit_id: this.config.admob_banner_ad_unit_id || 'ca-app-pub-4299851171687727/5151568484',
@@ -169,6 +177,10 @@ class SystemConfigStore {
       key === 'webmaster_program_enabled' ||
       key === 'maintenance_mode_enabled' ||
       key === 'ads_enabled' ||
+      key === 'app_open_ads_enabled' ||
+      key === 'rewarded_ads_enabled' ||
+      key === 'interstitial_ads_enabled' ||
+      key === 'banner_ads_enabled' ||
       key === 'shared_video_preroll_ad_enabled' ||
       key === 'vip_upgrade_enabled' ||
       key === 'email_auth_enabled'
@@ -220,6 +232,10 @@ class SystemConfigStore {
         key === 'webmaster_program_enabled' ||
         key === 'maintenance_mode_enabled' ||
         key === 'ads_enabled' ||
+        key === 'app_open_ads_enabled' ||
+        key === 'rewarded_ads_enabled' ||
+        key === 'interstitial_ads_enabled' ||
+        key === 'banner_ads_enabled' ||
         key === 'shared_video_preroll_ad_enabled' ||
         key === 'vip_upgrade_enabled' ||
         key === 'email_auth_enabled'

@@ -106,6 +106,15 @@
           <span>Users & Quotas</span>
         </a>
 
+        <a href="#" class="nav-item" data-tab="user-files">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+            <polygon points="10 9 10 15 15 12" />
+          </svg>
+          <span>User Files & Videos</span>
+        </a>
+
         <div class="nav-section-label">MONETIZATION & GROWTH</div>
 
         <a href="#" class="nav-item" data-tab="webmasters">
@@ -382,6 +391,120 @@
                   <tr>
                     <td colspan="7" style="text-align:center;padding:24px;">Loading user records & live calculations...
                     </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- =========================================================
+             TAB 2B: USER FILES & VIDEOS MANAGEMENT
+             ========================================================= -->
+        <section id="tab-user-files" class="tab-view" style="display: none;">
+          <div class="page-title-row">
+            <div>
+              <h1 class="page-title">User Files &amp; Uploaded Videos</h1>
+              <p class="page-subtitle">Inspect, stream, and manage cloud files and videos uploaded across user accounts</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="btn btn-secondary btn-sm" onclick="AdminApp.loadUserFilesSection()" style="display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.19"/></svg>
+                Refresh Data
+              </button>
+            </div>
+          </div>
+
+          <!-- USER SELECTOR TOOLBAR & KPI SUMMARY -->
+          <div class="card" style="margin-top: 18px; padding: 18px 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+              <!-- USER SELECTOR DROPDOWN -->
+              <div style="flex: 1; min-width: 280px; max-width: 480px;">
+                <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                  👤 Select User Account
+                </label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <select id="user-files-user-select" class="form-input" style="font-weight: 600; font-size: 13px;" onchange="AdminApp.onUserFilesSelectUser(this.value)">
+                    <option value="ALL">🌐 All Users (Global Feed)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- FILTER PILLS: ALL, VIDEOS, PHOTOS, DOCS -->
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0;">
+                  📁 Media Type Filter
+                </label>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="user-files-type-pills">
+                  <button type="button" class="btn-sm btn-primary" data-filetype="ALL" onclick="AdminApp.setUserFilesFilter('ALL')" style="padding: 6px 12px; font-weight: 700;">All Files</button>
+                  <button type="button" class="btn-sm btn-secondary" data-filetype="VIDEO" onclick="AdminApp.setUserFilesFilter('VIDEO')" style="padding: 6px 12px; font-weight: 600;">🎥 Videos Only</button>
+                  <button type="button" class="btn-sm btn-secondary" data-filetype="IMAGE" onclick="AdminApp.setUserFilesFilter('IMAGE')" style="padding: 6px 12px; font-weight: 600;">🖼️ Photos Only</button>
+                  <button type="button" class="btn-sm btn-secondary" data-filetype="DOC" onclick="AdminApp.setUserFilesFilter('DOC')" style="padding: 6px 12px; font-weight: 600;">📄 Documents</button>
+                </div>
+              </div>
+
+              <!-- SEARCH INPUT -->
+              <div style="min-width: 220px; flex: 1; max-width: 320px;">
+                <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                  🔍 Search by File Name
+                </label>
+                <input type="text" id="user-files-search-input" class="form-input" placeholder="Type to filter..." oninput="AdminApp.onUserFilesSearch(this.value)" style="font-size: 13px;" />
+              </div>
+            </div>
+
+            <!-- SCOPE KPI SUMMARY STATS -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+              <div style="background: var(--bg-surface-hover); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Selected Account</div>
+                <div id="uf-kpi-account-name" style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">All Users</div>
+                <div id="uf-kpi-account-email" style="font-size: 11px; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Global Repository</div>
+              </div>
+
+              <div style="background: var(--bg-surface-hover); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Uploaded Files</div>
+                <div id="uf-kpi-total-files" class="mono-text" style="font-size: 18px; font-weight: 800; color: var(--primary); margin-top: 2px;">0</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Unique Cloud Nodes</div>
+              </div>
+
+              <div style="background: var(--bg-surface-hover); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Uploaded Videos</div>
+                <div id="uf-kpi-total-videos" class="mono-text" style="font-size: 18px; font-weight: 800; color: #7C3AED; margin-top: 2px;">0</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Streamable Video Files</div>
+              </div>
+
+              <div style="background: var(--bg-surface-hover); padding: 12px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Storage Used</div>
+                <div id="uf-kpi-storage-used" class="mono-text" style="font-size: 18px; font-weight: 800; color: #059669; margin-top: 2px;">0 MB</div>
+                <div id="uf-kpi-storage-subtext" style="font-size: 11px; color: var(--text-muted);">Cloudflare R2 Bucket</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FILES DATA TABLE -->
+          <div class="card" style="margin-top: 18px; padding: 0;">
+            <div class="card-header" style="padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 class="card-title" style="margin: 0; font-size: 14.5px;">User Files &amp; Media Assets</h3>
+                <span id="uf-table-count-badge" class="badge badge-info" style="font-size: 11px;">0 Files</span>
+              </div>
+              <div id="uf-filter-active-label" style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Showing: All Files</div>
+            </div>
+
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="min-width: 220px;">File Name &amp; Extension</th>
+                    <th style="min-width: 170px;">Uploader Account</th>
+                    <th style="min-width: 100px;">File Size</th>
+                    <th style="min-width: 130px;">Upload Date</th>
+                    <th style="min-width: 130px;">Public Share Link</th>
+                    <th style="min-width: 140px; text-align: right;">Stream &amp; Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="user-files-table-body">
+                  <tr>
+                    <td colspan="6" style="text-align:center;padding:32px;">Loading user files &amp; media assets...</td>
                   </tr>
                 </tbody>
               </table>
@@ -978,7 +1101,7 @@
               </div>
 
               <!-- SECTION 1: MASTER SWITCHES -->
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
                 <div style="background: #F8FAFC; padding: 12px 14px; border-radius: 8px; border: 1px solid #E2E8F0;">
                   <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="config-ads-enabled-toggle" onchange="AdminApp.onAdsToggleChange()"
@@ -1001,6 +1124,83 @@
                         shared stream.</p>
                     </div>
                   </label>
+                </div>
+              </div>
+
+              <!-- INDIVIDUAL AD FORMAT CONTROLS (INDEPENDENT ON/OFF SWITCHES) -->
+              <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 6px;">
+                  <div>
+                    <div style="font-size: 12px; font-weight: 800; color: #0F172A; text-transform: uppercase; letter-spacing: 0.5px;">
+                      🎛️ Individual Ad Format Controls
+                    </div>
+                    <p style="font-size: 11.5px; color: #64748B; margin: 2px 0 0 0;">
+                      Enable or disable specific ad formats independently. When disabled, only that format is turned off in the mobile app.
+                    </p>
+                  </div>
+                  <span style="font-size: 11px; font-weight: 700; color: #2563EB; background: #EFF6FF; padding: 3px 8px; border-radius: 6px;">Remote Synchronized</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+                  <!-- APP OPEN ADS -->
+                  <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="config-app-open-ads-toggle" onchange="AdminApp.onAdFormatToggleChange('app-open')"
+                          style="width: 18px; height: 18px; accent-color: #10B981;" />
+                        <span style="font-weight: 700; font-size: 12.5px; color: #1E293B;">App Open Ads</span>
+                      </label>
+                      <span id="badge-app-open-ads" class="badge badge-success" style="font-size: 9.5px; padding: 2px 6px;">ENABLED</span>
+                    </div>
+                    <p style="font-size: 11px; color: #64748B; margin: 0; line-height: 1.35;">
+                      Full-screen ad on app launch and foreground resume.
+                    </p>
+                  </div>
+
+                  <!-- REWARDED VIDEO ADS -->
+                  <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="config-rewarded-ads-toggle" onchange="AdminApp.onAdFormatToggleChange('rewarded')"
+                          style="width: 18px; height: 18px; accent-color: #10B981;" />
+                        <span style="font-weight: 700; font-size: 12.5px; color: #1E293B;">Rewarded Video Ads</span>
+                      </label>
+                      <span id="badge-rewarded-ads" class="badge badge-success" style="font-size: 9.5px; padding: 2px 6px;">ENABLED</span>
+                    </div>
+                    <p style="font-size: 11px; color: #64748B; margin: 0; line-height: 1.35;">
+                      Video gates for offline downloads, upload unlocks &amp; turbo transfers.
+                    </p>
+                  </div>
+
+                  <!-- INTERSTITIAL ADS -->
+                  <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="config-interstitial-ads-toggle" onchange="AdminApp.onAdFormatToggleChange('interstitial')"
+                          style="width: 18px; height: 18px; accent-color: #10B981;" />
+                        <span style="font-weight: 700; font-size: 12.5px; color: #1E293B;">Interstitial Ads</span>
+                      </label>
+                      <span id="badge-interstitial-ads" class="badge badge-success" style="font-size: 9.5px; padding: 2px 6px;">ENABLED</span>
+                    </div>
+                    <p style="font-size: 11px; color: #64748B; margin: 0; line-height: 1.35;">
+                      Between-screen full-display ads subject to cooldown timer.
+                    </p>
+                  </div>
+
+                  <!-- ADAPTIVE BANNER ADS -->
+                  <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" id="config-banner-ads-toggle" onchange="AdminApp.onAdFormatToggleChange('banner')"
+                          style="width: 18px; height: 18px; accent-color: #10B981;" />
+                        <span style="font-weight: 700; font-size: 12.5px; color: #1E293B;">Adaptive Banner Ads</span>
+                      </label>
+                      <span id="badge-banner-ads" class="badge badge-success" style="font-size: 9.5px; padding: 2px 6px;">ENABLED</span>
+                    </div>
+                    <p style="font-size: 11px; color: #64748B; margin: 0; line-height: 1.35;">
+                      Sticky banner display ads at the bottom of application views.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -2027,33 +2227,92 @@
             </div>
           </div>
 
-          <!-- REFERRED USERS LIST TABLE -->
+          <!-- REFERRAL NETWORK SUMMARY KPIS -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 14px;">
+            <div style="background: var(--bg-surface-hover); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Referrals</div>
+              <div id="uim-ref-kpi-total" class="mono-text" style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-top: 2px;">0</div>
+              <div style="font-size: 10px; color: var(--text-muted);">Deduplicated Users</div>
+            </div>
+            <div style="background: var(--bg-surface-hover); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(16, 185, 129, 0.25);">
+              <div style="font-size: 10.5px; font-weight: 700; color: #059669; text-transform: uppercase;">Verified (Qualified)</div>
+              <div id="uim-ref-kpi-verified" class="mono-text" style="font-size: 16px; font-weight: 800; color: #059669; margin-top: 2px;">0</div>
+              <div id="uim-ref-kpi-verified-earnings" style="font-size: 10px; color: #059669; font-weight: 600;">$0.00 Credited</div>
+            </div>
+            <div style="background: var(--bg-surface-hover); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(245, 158, 11, 0.25);">
+              <div style="font-size: 10.5px; font-weight: 700; color: #D97706; text-transform: uppercase;">Unverified (Pending)</div>
+              <div id="uim-ref-kpi-unverified" class="mono-text" style="font-size: 16px; font-weight: 800; color: #D97706; margin-top: 2px;">0</div>
+              <div id="uim-ref-kpi-unverified-potential" style="font-size: 10px; color: #D97706; font-weight: 600;">$0.00 Potential</div>
+            </div>
+            <div style="background: var(--bg-surface-hover); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Conversion Rate</div>
+              <div id="uim-ref-kpi-rate" class="mono-text" style="font-size: 16px; font-weight: 800; color: var(--primary); margin-top: 2px;">0%</div>
+              <div style="font-size: 10px; color: var(--text-muted);">Verified / Total</div>
+            </div>
+          </div>
+
+          <!-- SECTION 1: VERIFIED REFERRALS -->
           <div style="margin-top: 18px;">
-            <div
-              style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
-              <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0;">
-                Users Referred by this Creator
-              </h4>
-              <span id="uim-referred-summary-pill" class="badge badge-success" style="font-size: 11px;">0 Total
-                Qualified</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10B981;"></span>
+                <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0;">
+                  Verified Referrals (Milestone Qualified)
+                </h4>
+              </div>
+              <span id="uim-verified-count-badge" class="badge badge-success" style="font-size: 11px;">0 Verified</span>
             </div>
 
-            <div class="uim-table-scroll" style="max-height: 280px; overflow-y: auto;">
-              <table class="data-table" style="margin: 0; min-width: 620px;">
+            <div class="uim-table-scroll" style="max-height: 240px; overflow-y: auto;">
+              <table class="data-table" style="margin: 0; min-width: 660px;">
                 <thead>
                   <tr>
                     <th>Referred User Profile</th>
                     <th>Joined Date</th>
-                    <th>Milestone Status</th>
+                    <th>Milestone Verification</th>
                     <th>CPA Bounty</th>
+                    <th>Downstream Network</th>
                     <th>Status</th>
-                    <th>IP / Device</th>
+                    <th>Device / IP</th>
                   </tr>
                 </thead>
-                <tbody id="uim-referred-users-tbody">
+                <tbody id="uim-verified-referrals-tbody">
                   <tr>
-                    <td colspan="6" style="text-align:center;padding:20px;">No referred users found for this account.
-                    </td>
+                    <td colspan="7" style="text-align:center;padding:18px;color:var(--text-muted);">No verified referrals yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SECTION 2: UNVERIFIED REFERRALS -->
+          <div style="margin-top: 18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #F59E0B;"></span>
+                <h4 style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin: 0;">
+                  Unverified Referrals (Pending Milestone Verification)
+                </h4>
+              </div>
+              <span id="uim-unverified-count-badge" class="badge badge-warning" style="font-size: 11px;">0 Pending</span>
+            </div>
+
+            <div class="uim-table-scroll" style="max-height: 240px; overflow-y: auto;">
+              <table class="data-table" style="margin: 0; min-width: 660px;">
+                <thead>
+                  <tr>
+                    <th>Referred User Profile</th>
+                    <th>Joined Date</th>
+                    <th>Pending Condition</th>
+                    <th>Potential Bounty</th>
+                    <th>Downstream Network</th>
+                    <th>Verification Status</th>
+                    <th>Device / IP</th>
+                  </tr>
+                </thead>
+                <tbody id="uim-unverified-referrals-tbody">
+                  <tr>
+                    <td colspan="7" style="text-align:center;padding:18px;color:var(--text-muted);">No pending unverified referrals.</td>
                   </tr>
                 </tbody>
               </table>

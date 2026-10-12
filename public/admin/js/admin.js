@@ -401,6 +401,9 @@ const AdminApp = {
       case 'users':
         this.loadUsers();
         break;
+      case 'user-files':
+        this.loadUserFilesSection();
+        break;
       case 'webmasters':
         this.loadWebmasters();
         break;
@@ -586,6 +589,10 @@ const AdminApp = {
               <button class="btn-sm btn-primary" onclick="AdminApp.openUserIntelligenceModal('${u.id}')" title="Deep User Intelligence & Calculations" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11.5px; font-weight: 700;">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 Inspect
+              </button>
+              <button class="btn-sm btn-secondary" onclick="AdminApp.viewUserFiles('${u.id}')" title="Manage User Uploaded Files & Videos" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; font-size: 11.5px; font-weight: 600;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polygon points="10 9 10 15 15 12"/></svg>
+                Files
               </button>
               <button class="btn-sm btn-secondary" onclick="AdminApp.openQuotaModal('${u.id}', ${quotaBytes})" title="Set Storage Quota" style="padding: 4px 7px; font-size: 11.5px;">
                 Quota
@@ -779,46 +786,126 @@ const AdminApp = {
     const parentBadgeCont = document.getElementById('uim-parent-badge-container');
 
     if (parentRef) {
-      parentInfo.innerHTML = `Referred by: <strong style="color:var(--primary); font-family:var(--font-mono);">${this.escapeHtml(parentRef.referralCode)}</strong> &bull; ${this.escapeHtml(parentRef.webmasterName)} (<span class="mono-text">${this.escapeHtml(parentRef.webmasterEmail || 'No Email')}</span>)<br/><span style="font-size:11px; color:var(--text-muted);">Attributed on: ${new Date(parentRef.joinedAt).toLocaleString()} &bull; Reward: $${(parentRef.rewardUsd || 0.05).toFixed(2)}</span>`;
+      parentInfo.innerHTML = `Referred by: <strong style="color:var(--primary); font-family:var(--font-mono);">${this.escapeHtml(parentRef.referralCode || 'REF')}</strong> &bull; ${this.escapeHtml(parentRef.webmasterName || 'Parent Referrer')} (<span class="mono-text">${this.escapeHtml(parentRef.webmasterEmail || parentRef.webmasterUserId || 'No Email')}</span>)<br/><span style="font-size:11px; color:var(--text-muted);">Attributed on: ${parentRef.joinedAt ? new Date(parentRef.joinedAt).toLocaleString() : 'N/A'} &bull; Reward: $${(parentRef.rewardUsd || 0.05).toFixed(2)}</span>`;
       parentBadgeCont.innerHTML = `<span class="badge badge-success">QUALIFIED REFERRAL</span>`;
     } else {
       parentInfo.textContent = 'Organic Direct Signup (No referral link used during account creation)';
       parentBadgeCont.innerHTML = `<span class="badge badge-info">DIRECT ORGANIC</span>`;
     }
 
-    document.getElementById('uim-referred-summary-pill').textContent = `${refStats.qualified || 0} Qualified / ${refStats.total || 0} Total`;
+    // Set Summary KPI Cards
+    const totalRefs = refStats.total || 0;
+    const verifiedRefs = r.verifiedReferrals || (r.referredUsers || []).filter(x => x.isVerified || x.status === 'QUALIFIED');
+    const unverifiedRefs = r.unverifiedReferrals || (r.referredUsers || []).filter(x => x.isPending || x.status === 'PENDING');
+    const verifiedCount = refStats.verifiedCount !== undefined ? refStats.verifiedCount : verifiedRefs.length;
+    const unverifiedCount = refStats.unverifiedCount !== undefined ? refStats.unverifiedCount : unverifiedRefs.length;
+    const earnedUsd = refStats.totalEarnedUsd !== undefined ? refStats.totalEarnedUsd : (verifiedCount * 0.05);
+    const potentialUsd = refStats.potentialPendingUsd !== undefined ? refStats.potentialPendingUsd : (unverifiedCount * 0.05);
+    const convRate = totalRefs > 0 ? Math.round((verifiedCount / totalRefs) * 100) : 0;
 
-    const refUsersTbody = document.getElementById('uim-referred-users-tbody');
-    const refUsersList = r.referredUsers || [];
-    if (refUsersTbody) {
-      if (refUsersList.length === 0) {
-        refUsersTbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-muted);">No users have joined using this creator referral link yet.</td></tr>';
+    const kpiTotalEl = document.getElementById('uim-ref-kpi-total');
+    if (kpiTotalEl) kpiTotalEl.textContent = totalRefs;
+
+    const kpiVerEl = document.getElementById('uim-ref-kpi-verified');
+    if (kpiVerEl) kpiVerEl.textContent = verifiedCount;
+
+    const kpiVerEarnEl = document.getElementById('uim-ref-kpi-verified-earnings');
+    if (kpiVerEarnEl) kpiVerEarnEl.textContent = `$${earnedUsd.toFixed(2)} Credited`;
+
+    const kpiUnverEl = document.getElementById('uim-ref-kpi-unverified');
+    if (kpiUnverEl) kpiUnverEl.textContent = unverifiedCount;
+
+    const kpiUnverPotEl = document.getElementById('uim-ref-kpi-unverified-potential');
+    if (kpiUnverPotEl) kpiUnverPotEl.textContent = `$${potentialUsd.toFixed(2)} Potential`;
+
+    const kpiRateEl = document.getElementById('uim-ref-kpi-rate');
+    if (kpiRateEl) kpiRateEl.textContent = `${convRate}%`;
+
+    const verBadge = document.getElementById('uim-verified-count-badge');
+    if (verBadge) verBadge.textContent = `${verifiedCount} Verified`;
+
+    const unverBadge = document.getElementById('uim-unverified-count-badge');
+    if (unverBadge) unverBadge.textContent = `${unverifiedCount} Pending`;
+
+    // 1. Render Verified Referrals Table
+    const verTbody = document.getElementById('uim-verified-referrals-tbody');
+    if (verTbody) {
+      if (verifiedRefs.length === 0) {
+        verTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:22px;color:var(--text-muted);">No verified referrals recorded for this account.</td></tr>';
       } else {
-        refUsersTbody.innerHTML = refUsersList.map(ru => {
-          let statusChip = '<span class="badge badge-success">QUALIFIED</span>';
-          if (ru.status === 'PENDING') statusChip = '<span class="badge badge-warning">PENDING</span>';
-          if (ru.status === 'REJECTED') statusChip = `<span class="badge badge-danger" title="${this.escapeHtml(ru.rejectionReason || 'Rejected')}">REJECTED</span>`;
+        verTbody.innerHTML = verifiedRefs.map(ru => {
+          const downstreamInfo = ru.subReferralsCount > 0
+            ? `<div style="font-weight:700; color:#7C3AED; font-size:11.5px;">Refers ${ru.subReferralsCount} downstream</div>${ru.subReferralsQualifiedCount > 0 ? `<div style="font-size:10px; color:#059669; font-weight:600;">(${ru.subReferralsQualifiedCount} qualified)</div>` : ''}`
+            : '<span style="color:var(--text-muted); font-size:11px;">Direct terminal user</span>';
 
           return `
             <tr>
               <td>
                 <strong style="color:var(--text-primary); font-size:12.5px;">${this.escapeHtml(ru.referredUserName || 'AirBox User')}</strong><br/>
                 <span style="color:var(--text-muted); font-size:11px;">${this.escapeHtml(ru.referredUserEmail || ru.referredUserId)}</span>
+                <div style="font-size:10px; color:var(--text-muted); margin-top:1px;">ID: <span class="mono-text">${this.escapeHtml(ru.referredUserId || 'N/A')}</span></div>
               </td>
               <td>
                 <span class="mono-text" style="font-size:11.5px;">${ru.createdAt ? new Date(ru.createdAt).toLocaleDateString() : 'N/A'}</span>
               </td>
               <td>
-                <span class="badge badge-info" style="font-size:10px;">${this.escapeHtml(ru.milestone || 'USER_REGISTRATION')}</span>
+                <span class="badge badge-success" style="font-size:10px; padding:2px 6px;">${this.escapeHtml(ru.milestone || '100s Video Watched + 2 Active Days')}</span>
               </td>
               <td>
                 <strong style="color:#059669; font-family:var(--font-mono); font-size:12.5px;">+$${(ru.rewardAmountUsd || 0.05).toFixed(2)}</strong>
               </td>
               <td>
-                ${statusChip}
+                ${downstreamInfo}
+              </td>
+              <td>
+                <span class="badge badge-success">QUALIFIED</span>
               </td>
               <td>
                 <span class="mono-text" style="font-size:11px; color:var(--text-muted);">${this.escapeHtml(ru.clientIp || '127.0.0.1')}</span>
+                <div style="font-size:10px; color:var(--text-muted);">${this.escapeHtml(ru.deviceType || 'Mobile Device')}</div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+
+    // 2. Render Unverified Referrals Table
+    const unverTbody = document.getElementById('uim-unverified-referrals-tbody');
+    if (unverTbody) {
+      if (unverifiedRefs.length === 0) {
+        unverTbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:22px;color:var(--text-muted);">No pending unverified referrals.</td></tr>';
+      } else {
+        unverTbody.innerHTML = unverifiedRefs.map(ru => {
+          const downstreamInfo = ru.subReferralsCount > 0
+            ? `<div style="font-weight:700; color:#7C3AED; font-size:11.5px;">Refers ${ru.subReferralsCount} downstream</div>`
+            : '<span style="color:var(--text-muted); font-size:11px;">Direct terminal user</span>';
+
+          return `
+            <tr>
+              <td>
+                <strong style="color:var(--text-primary); font-size:12.5px;">${this.escapeHtml(ru.referredUserName || 'AirBox User')}</strong><br/>
+                <span style="color:var(--text-muted); font-size:11px;">${this.escapeHtml(ru.referredUserEmail || ru.referredUserId)}</span>
+                <div style="font-size:10px; color:var(--text-muted); margin-top:1px;">ID: <span class="mono-text">${this.escapeHtml(ru.referredUserId || 'N/A')}</span></div>
+              </td>
+              <td>
+                <span class="mono-text" style="font-size:11.5px;">${ru.createdAt ? new Date(ru.createdAt).toLocaleDateString() : 'N/A'}</span>
+              </td>
+              <td>
+                <span class="badge badge-warning" style="font-size:10px; padding:2px 6px;">${this.escapeHtml(ru.milestone || 'Pending Milestone (100s Watch)')}</span>
+              </td>
+              <td>
+                <strong style="color:#D97706; font-family:var(--font-mono); font-size:12.5px;">$${(ru.rewardAmountUsd || 0.05).toFixed(2)}</strong>
+              </td>
+              <td>
+                ${downstreamInfo}
+              </td>
+              <td>
+                <span class="badge badge-warning">PENDING</span>
+              </td>
+              <td>
+                <span class="mono-text" style="font-size:11px; color:var(--text-muted);">${this.escapeHtml(ru.clientIp || '127.0.0.1')}</span>
+                <div style="font-size:10px; color:var(--text-muted);">${this.escapeHtml(ru.deviceType || 'Mobile Device')}</div>
               </td>
             </tr>
           `;
@@ -2353,6 +2440,21 @@ const AdminApp = {
       prerollToggle.checked = cfg.shared_video_preroll_ad_enabled !== false;
     }
 
+    // Individual Ad Format Controls
+    const appOpenToggle = document.getElementById('config-app-open-ads-toggle');
+    if (appOpenToggle) appOpenToggle.checked = cfg.app_open_ads_enabled !== false;
+
+    const rewardedToggle = document.getElementById('config-rewarded-ads-toggle');
+    if (rewardedToggle) rewardedToggle.checked = cfg.rewarded_ads_enabled !== false;
+
+    const interstitialToggle = document.getElementById('config-interstitial-ads-toggle');
+    if (interstitialToggle) interstitialToggle.checked = cfg.interstitial_ads_enabled !== false;
+
+    const bannerToggle = document.getElementById('config-banner-ads-toggle');
+    if (bannerToggle) bannerToggle.checked = cfg.banner_ads_enabled !== false;
+
+    this.updateAdFormatBadges();
+
     const admobAppId = document.getElementById('config-admob-app-id');
     if (admobAppId) admobAppId.value = cfg.admob_app_id || 'ca-app-pub-4299851171687727~9894513295';
 
@@ -2465,6 +2567,30 @@ const AdminApp = {
     }
   },
 
+  onAdFormatToggleChange(format) {
+    const toggle = document.getElementById(`config-${format}-ads-toggle`);
+    const badge = document.getElementById(`badge-${format}-ads`);
+    if (!toggle || !badge) return;
+
+    if (toggle.checked) {
+      badge.textContent = 'ENABLED';
+      badge.className = 'badge badge-success';
+      badge.style.background = '#ECFDF5';
+      badge.style.color = '#065F46';
+    } else {
+      badge.textContent = 'DISABLED';
+      badge.className = 'badge badge-danger';
+      badge.style.background = '#FEE2E2';
+      badge.style.color = '#991B1B';
+    }
+  },
+
+  updateAdFormatBadges() {
+    ['app-open', 'rewarded', 'interstitial', 'banner'].forEach(f => {
+      this.onAdFormatToggleChange(f);
+    });
+  },
+
   async saveRemoteConfig() {
     const maintToggle = document.getElementById('config-maintenance-toggle');
     const minVerInput = document.getElementById('config-min-version');
@@ -2479,6 +2605,11 @@ const AdminApp = {
 
     const adsToggle = document.getElementById('config-ads-enabled-toggle');
     const prerollToggle = document.getElementById('config-preroll-ads-toggle');
+    const appOpenToggle = document.getElementById('config-app-open-ads-toggle');
+    const rewardedToggle = document.getElementById('config-rewarded-ads-toggle');
+    const interstitialToggle = document.getElementById('config-interstitial-ads-toggle');
+    const bannerToggle = document.getElementById('config-banner-ads-toggle');
+
     const admobAppId = document.getElementById('config-admob-app-id');
     const rewardedUnit = document.getElementById('config-admob-rewarded-unit');
     const interstitialUnit = document.getElementById('config-admob-interstitial-unit');
@@ -2507,6 +2638,10 @@ const AdminApp = {
       // Ad Monetization Updates
       ads_enabled: adsToggle ? adsToggle.checked : true,
       shared_video_preroll_ad_enabled: prerollToggle ? prerollToggle.checked : true,
+      app_open_ads_enabled: appOpenToggle ? appOpenToggle.checked : true,
+      rewarded_ads_enabled: rewardedToggle ? rewardedToggle.checked : true,
+      interstitial_ads_enabled: interstitialToggle ? interstitialToggle.checked : true,
+      banner_ads_enabled: bannerToggle ? bannerToggle.checked : true,
       admob_app_id: admobAppId ? admobAppId.value.trim() : 'ca-app-pub-4299851171687727~9894513295',
       admob_rewarded_ad_unit_id: rewardedUnit ? rewardedUnit.value.trim() : 'ca-app-pub-4299851171687727/2661136517',
       admob_interstitial_ad_unit_id: interstitialUnit ? interstitialUnit.value.trim() : 'ca-app-pub-4299851171687727/5365164781',
@@ -2835,6 +2970,286 @@ const AdminApp = {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
+  },
+
+  // -------------------------------------------------------------
+  // TAB: USER FILES & VIDEOS MANAGEMENT CONTROLLER
+  // -------------------------------------------------------------
+  _userFilesState: {
+    users: [],
+    selectedUserId: '',
+    activeTypeFilter: 'ALL',
+    searchQuery: '',
+    allLoadedFiles: [],
+    stats: {},
+  },
+
+  async loadUserFilesSection() {
+    try {
+      const data = await this.api('/user-files/overview');
+      if (!data || !data.success) throw new Error(data?.error || 'Failed to load user files overview');
+
+      this._userFilesState.users = data.users || [];
+      this._userFilesState.stats = data.stats || {};
+
+      // Populate user selector dropdown
+      const selectEl = document.getElementById('user-files-user-select');
+      if (selectEl) {
+        const currentVal = this._userFilesState.selectedUserId || '';
+        selectEl.innerHTML = '<option value="">-- All Users (Global File Repository) --</option>' +
+          this._userFilesState.users.map(u => `
+            <option value="${this.escapeHtml(u.id)}" ${u.id === currentVal ? 'selected' : ''}>
+              ${this.escapeHtml(u.displayName || 'User')} (${this.escapeHtml(u.email || u.id)}) - ${u.filesCount} files (${u.videosCount} vids)
+            </option>
+          `).join('');
+
+        if (currentVal) {
+          selectEl.value = currentVal;
+        }
+      }
+
+      await this.refreshUserFilesData();
+    } catch (err) {
+      console.error('[UserFiles] Load error:', err);
+      this.showToast(`Error loading user files: ${err.message}`);
+    }
+  },
+
+  async refreshUserFilesData() {
+    const userId = this._userFilesState.selectedUserId;
+    const filter = this._userFilesState.activeTypeFilter;
+    const search = this._userFilesState.searchQuery;
+
+    const tbody = document.getElementById('user-files-table-body');
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;">Loading user files &amp; media assets...</td></tr>';
+    }
+
+    try {
+      let endpoint = '';
+      if (userId) {
+        endpoint = `/users/${encodeURIComponent(userId)}/files?type=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}`;
+      } else {
+        endpoint = `/user-files/all?type=${encodeURIComponent(filter)}&search=${encodeURIComponent(search)}`;
+      }
+
+      const res = await this.api(endpoint);
+      if (!res || !res.success) throw new Error(res?.error || 'Failed to fetch files');
+
+      const files = res.files || [];
+      this._userFilesState.allLoadedFiles = files;
+
+      this.updateUserFilesKPIs(res);
+      this.renderUserFilesTable(files);
+    } catch (err) {
+      console.error('[UserFiles] Fetch error:', err);
+      if (tbody) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--status-danger);">Failed to load files: ${this.escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+  },
+
+  updateUserFilesKPIs(res) {
+    const userId = this._userFilesState.selectedUserId;
+    const accountNameEl = document.getElementById('uf-kpi-account-name');
+    const accountEmailEl = document.getElementById('uf-kpi-account-email');
+    const totalFilesEl = document.getElementById('uf-kpi-total-files');
+    const totalVideosEl = document.getElementById('uf-kpi-total-videos');
+    const storageUsedEl = document.getElementById('uf-kpi-storage-used');
+    const storageSubtextEl = document.getElementById('uf-kpi-storage-subtext');
+    const countBadge = document.getElementById('uf-table-count-badge');
+
+    if (userId && res.user) {
+      const u = res.user;
+      if (accountNameEl) accountNameEl.textContent = u.displayName || 'AirBox User';
+      if (accountEmailEl) accountEmailEl.textContent = u.email || u.id;
+
+      const userSummary = this._userFilesState.users.find(x => x.id === userId);
+      const totalFiles = userSummary ? userSummary.filesCount : (res.total || 0);
+      const totalVideos = userSummary ? userSummary.videosCount : 0;
+      const storageBytes = userSummary ? userSummary.usedStorageBytes : 0;
+
+      if (totalFilesEl) totalFilesEl.textContent = totalFiles;
+      if (totalVideosEl) totalVideosEl.textContent = totalVideos;
+      if (storageUsedEl) storageUsedEl.textContent = this.formatBytes(storageBytes);
+      if (storageSubtextEl) storageSubtextEl.textContent = 'User Dedicated Storage';
+    } else {
+      const stats = this._userFilesState.stats || {};
+      if (accountNameEl) accountNameEl.textContent = 'All Users';
+      if (accountEmailEl) accountEmailEl.textContent = `${stats.totalUsersWithFiles || 0} Accounts with Files`;
+      if (totalFilesEl) totalFilesEl.textContent = stats.totalFiles || 0;
+      if (totalVideosEl) totalVideosEl.textContent = stats.totalVideos || 0;
+      if (storageUsedEl) storageUsedEl.textContent = this.formatBytes(stats.totalStorageBytes || 0);
+      if (storageSubtextEl) storageSubtextEl.textContent = 'Cloudflare R2 Bucket';
+    }
+
+    if (countBadge) {
+      countBadge.textContent = `${res.total !== undefined ? res.total : (res.files || []).length} Files`;
+    }
+  },
+
+  onUserFilesSelectUser(userId) {
+    this._userFilesState.selectedUserId = (userId || '').trim();
+    this.refreshUserFilesData();
+  },
+
+  setUserFilesFilter(filterType) {
+    this._userFilesState.activeTypeFilter = filterType || 'ALL';
+
+    ['ALL', 'VIDEO', 'IMAGE', 'DOC'].forEach(f => {
+      const btn = document.getElementById(`filter-uf-${f.toLowerCase()}`);
+      if (btn) {
+        if (f === this._userFilesState.activeTypeFilter) {
+          btn.classList.add('active');
+          btn.style.background = '#FFFFFF';
+          btn.style.color = 'var(--text-primary)';
+          btn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+        } else {
+          btn.classList.remove('active');
+          btn.style.background = 'transparent';
+          btn.style.color = 'var(--text-secondary)';
+          btn.style.boxShadow = 'none';
+        }
+      }
+    });
+
+    const activeLabel = document.getElementById('uf-filter-active-label');
+    if (activeLabel) {
+      const names = { ALL: 'All Files', VIDEO: 'Videos Only', IMAGE: 'Photos Only', DOC: 'Documents & Archives' };
+      activeLabel.textContent = `Showing: ${names[filterType] || filterType}`;
+    }
+
+    this.refreshUserFilesData();
+  },
+
+  onUserFilesSearch(query) {
+    this._userFilesState.searchQuery = (query || '').trim();
+    clearTimeout(this._ufSearchTimer);
+    this._ufSearchTimer = setTimeout(() => {
+      this.refreshUserFilesData();
+    }, 250);
+  },
+
+  renderUserFilesTable(files) {
+    const tbody = document.getElementById('user-files-table-body');
+    if (!tbody) return;
+
+    if (!files || files.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center;padding:36px;color:var(--text-secondary);">
+            <div style="font-weight:700;font-size:14px;">No files found matching criteria</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Try selecting another user or changing filter options.</div>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = files.map(f => {
+      const isVideo = !!f.isVideo;
+      const isImage = !!f.isImage;
+
+      let typeBadge = '<span class="badge badge-secondary" style="font-size:10px;">FILE</span>';
+      if (isVideo) {
+        typeBadge = '<span class="badge badge-warning" style="background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE;font-size:10px;">VIDEO</span>';
+      } else if (isImage) {
+        typeBadge = '<span class="badge badge-info" style="font-size:10px;">IMAGE</span>';
+      }
+
+      const shareCell = f.isPublicShared
+        ? `<div style="display:flex;flex-direction:column;gap:3px;">
+            <a href="${this.escapeHtml(f.shareUrl)}" target="_blank" style="color:var(--primary);font-weight:700;font-size:11.5px;text-decoration:underline;display:inline-flex;align-items:center;gap:3px;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              ${this.escapeHtml(f.shareCode || 'Shared')}
+            </a>
+            <span style="font-size:10.5px;color:var(--text-muted);">${(f.viewsCount || 0).toLocaleString()} views</span>
+           </div>`
+        : '<span class="badge badge-secondary" style="font-size:10px;">PRIVATE</span>';
+
+      const previewBtn = isVideo && (f.streamUrl || f.downloadUrl)
+        ? `<button class="btn-sm btn-primary" onclick="AdminApp.previewUserVideo('${encodeURIComponent(f.streamUrl || f.downloadUrl)}', '${encodeURIComponent(f.name)}', '${encodeURIComponent(f.uploader?.displayName || 'User')}', ${f.sizeBytes || 0})" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;font-size:11px;font-weight:700;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Play Video
+           </button>`
+        : '';
+
+      const downloadBtn = f.downloadUrl
+        ? `<a href="${encodeURI(f.downloadUrl)}" target="_blank" download class="btn-sm btn-secondary" style="display:inline-flex;align-items:center;gap:3px;padding:3px 8px;font-size:11px;text-decoration:none;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Download
+           </a>`
+        : '';
+
+      return `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div>${typeBadge}</div>
+              <div style="max-width:260px;overflow:hidden;">
+                <div style="font-weight:700;color:var(--text-primary);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${this.escapeHtml(f.name)}">
+                  ${this.escapeHtml(f.name)}
+                </div>
+                <div style="font-size:10.5px;color:var(--text-muted);margin-top:1px;" class="mono-text">
+                  .${this.escapeHtml(f.extension || 'bin')} &bull; ID: ${this.escapeHtml((f.id || '').substring(0, 16))}...
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="width:24px;height:24px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;flex-shrink:0;">
+                ${this.escapeHtml((f.uploader?.displayName || f.uploader?.email || 'U').charAt(0).toUpperCase())}
+              </div>
+              <div style="overflow:hidden;max-width:160px;">
+                <div style="font-weight:700;font-size:12px;color:var(--text-primary);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">
+                  ${this.escapeHtml(f.uploader?.displayName || 'AirBox User')}
+                </div>
+                <div style="font-size:10.5px;color:var(--text-muted);text-overflow:ellipsis;overflow:hidden;white-space:nowrap;">
+                  ${this.escapeHtml(f.uploader?.email || f.uploader?.id || '')}
+                </div>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="mono-text" style="font-weight:700;font-size:12px;color:var(--text-primary);">
+              ${this.escapeHtml(f.formattedSize || '0 B')}
+            </span>
+          </td>
+
+          <td>
+            <span class="mono-text" style="font-size:11.5px;color:var(--text-secondary);">
+              ${f.createdAt ? new Date(f.createdAt).toLocaleDateString() : 'N/A'}
+            </span>
+          </td>
+
+          <td>
+            ${shareCell}
+          </td>
+
+          <td style="text-align:right;">
+            <div style="display:inline-flex;gap:4px;align-items:center;justify-content:flex-end;">
+              ${previewBtn}
+              ${downloadBtn}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  viewUserFiles(userId) {
+    this._userFilesState.selectedUserId = userId;
+    this.switchTab('user-files');
+  },
+
+  previewUserVideo(encodedStreamUrl, encodedFileName, encodedUploader, sizeBytes) {
+    const streamUrl = decodeURIComponent(encodedStreamUrl || '');
+    const fileName = decodeURIComponent(encodedFileName || 'Video');
+    const uploader = decodeURIComponent(encodedUploader || 'User');
+    this.previewVideo(streamUrl, fileName, 'N/A', uploader, sizeBytes || 0);
   },
 
   // -------------------------------------------------------------

@@ -12,6 +12,7 @@ const webmasterService = require('../services/webmasterService');
 const referralService = require('../services/referralService');
 const r2StorageService = require('../services/r2StorageService');
 const shareService = require('../services/shareService');
+const nodeService = require('../services/nodeService');
 const fraudDetectionService = require('../services/fraudDetectionService');
 const notificationService = require('../services/notificationService');
 
@@ -300,36 +301,96 @@ router.get('/users/:id/details', (req, res) => {
     }
 
     // 2. All people referred by THIS user (Referral Network Tree)
-    const referredUsersList = allReferrals.filter(r =>
+    // Anti-duplication filter: Ensure unique user attribution per child
+    const rawReferredList = allReferrals.filter(r =>
       (r.webmasterUserId && r.webmasterUserId === user.id) ||
       (refCode && r.webmasterRefCode === refCode) ||
       (cleanEmail && r.webmasterEmail && r.webmasterEmail.toLowerCase() === cleanEmail)
-    ).map(r => {
+    );
+
+    const dedupMap = new Map();
+    for (const r of rawReferredList) {
+      const dedupKey = (r.referredUserId && r.referredUserId !== 'N/A')
+        ? r.referredUserId
+        : (r.referredUserEmail && r.referredUserEmail !== 'N/A'
+            ? r.referredUserEmail.toLowerCase()
+            : (r.id || JSON.stringify(r)));
+
+      if (!dedupMap.has(dedupKey)) {
+        dedupMap.set(dedupKey, r);
+      } else {
+        // If duplicate entry exists, prioritize QUALIFIED over PENDING
+        const existing = dedupMap.get(dedupKey);
+        if (r.status === 'QUALIFIED' && existing.status !== 'QUALIFIED') {
+          dedupMap.set(dedupKey, r);
+        }
+      }
+    }
+
+    const uniqueReferrals = Array.from(dedupMap.values());
+
+    const processedReferrals = uniqueReferrals.map(r => {
       let childUser = null;
       try {
         childUser = r.referredUserId ? authService.getUser(r.referredUserId) : null;
+        if (!childUser && r.referredUserEmail) {
+          childUser = authService.getUser(r.referredUserEmail);
+        }
       } catch (_) {}
+
+      const cleanChildEmail = childUser?.email || r.referredUserEmail || 'N/A';
+      const cleanChildId = childUser?.id || r.referredUserId || 'N/A';
+
+      // Downstream referral relationships: check who THIS referred user went on to refer
+      let childWebmaster = null;
+      try {
+        childWebmaster = webmasterService.getProfile(cleanChildId) || (cleanChildEmail !== 'N/A' ? webmasterService.getProfile(cleanChildEmail) : null);
+      } catch (_) {}
+      const childRefCode = childWebmaster?.referralCode || '';
+      const childDownstream = allReferrals.filter(cr =>
+        (cr.webmasterUserId && cr.webmasterUserId === cleanChildId) ||
+        (childRefCode && cr.webmasterRefCode === childRefCode)
+      );
+
+      const status = (r.status || 'QUALIFIED').toUpperCase();
+      const isQualified = status === 'QUALIFIED';
+      const isPending = status === 'PENDING';
+
       return {
         id: r.id || 'ref_' + Date.now(),
-        referredUserId: r.referredUserId || 'N/A',
-        referredUserName: childUser?.displayName || r.referredUserName || 'New User',
-        referredUserEmail: childUser?.email || r.referredUserEmail || 'N/A',
-        status: r.status || 'QUALIFIED',
-        milestone: r.qualificationMilestone || (r.milestoneDetails?.type || 'USER_REGISTRATION'),
+        referredUserId: cleanChildId,
+        referredUserName: childUser?.displayName || r.referredUserName || 'AirBox User',
+        referredUserEmail: cleanChildEmail,
+        status: status,
+        isVerified: isQualified,
+        isPending: isPending,
+        milestone: r.qualificationMilestone || (r.milestoneDetails?.type || (isQualified ? '100s Video Watched + 2 Active Days (Verified)' : 'Pending Milestone (100s Watch)')),
         rewardAmountUsd: r.rewardAmountUsd !== undefined ? Number(r.rewardAmountUsd) : 0.05,
-        createdAt: r.createdAt || new Date().toISOString(),
-        qualifiedAt: r.qualifiedAt || null,
+        createdAt: r.createdAt || childUser?.createdAt || new Date().toISOString(),
+        qualifiedAt: r.qualifiedAt || (isQualified ? (r.createdAt || null) : null),
         clientIp: r.clientIp || '127.0.0.1',
+        deviceType: r.deviceFingerprint ? 'Mobile Hardware Registered' : 'Web/Cloud',
         rejectionReason: r.rejectionReason || null,
+        userStatus: childUser?.status || 'ACTIVE',
+        userJoinedAt: childUser?.createdAt || r.createdAt || null,
+        subReferralsCount: childDownstream.length,
+        subReferralsQualifiedCount: childDownstream.filter(cr => cr.status === 'QUALIFIED').length,
       };
     });
 
+    const verifiedReferrals = processedReferrals.filter(r => r.isVerified);
+    const unverifiedReferrals = processedReferrals.filter(r => r.isPending);
+    const rejectedReferrals = processedReferrals.filter(r => !r.isVerified && !r.isPending);
+
     const referralStats = {
-      total: referredUsersList.length,
-      qualified: referredUsersList.filter(r => r.status === 'QUALIFIED').length,
-      pending: referredUsersList.filter(r => r.status === 'PENDING').length,
-      rejected: referredUsersList.filter(r => r.status === 'REJECTED').length,
-      totalEarnedUsd: Math.round(referredUsersList.filter(r => r.status === 'QUALIFIED').reduce((s, r) => s + (Number(r.rewardAmountUsd) || 0.05), 0) * 10000) / 10000,
+      total: processedReferrals.length,
+      qualified: verifiedReferrals.length,
+      verifiedCount: verifiedReferrals.length,
+      pending: unverifiedReferrals.length,
+      unverifiedCount: unverifiedReferrals.length,
+      rejected: rejectedReferrals.length,
+      totalEarnedUsd: Math.round(verifiedReferrals.reduce((s, r) => s + (Number(r.rewardAmountUsd) || 0.05), 0) * 10000) / 10000,
+      potentialPendingUsd: Math.round(unverifiedReferrals.reduce((s, r) => s + (Number(r.rewardAmountUsd) || 0.05), 0) * 10000) / 10000,
     };
 
     // 3. Financial Breakdown & Calculations
@@ -408,7 +469,10 @@ router.get('/users/:id/details', (req, res) => {
         isEnrolled: !!(webmaster && webmaster.referralCode),
         referredBy,
         stats: referralStats,
-        referredUsers: referredUsersList,
+        referredUsers: processedReferrals,
+        verifiedReferrals,
+        unverifiedReferrals,
+        rejectedReferrals,
       },
       storage: {
         totalSpaceBytes,
@@ -421,6 +485,307 @@ router.get('/users/:id/details', (req, res) => {
   } catch (err) {
     console.error('[AdminRoutes] Error in /users/:id/details:', err);
     res.status(500).json({ success: false, error: err.message || 'Internal server error while compiling user intelligence' });
+  }
+});
+
+// -------------------------------------------------------------
+// USER FILES & VIDEOS MANAGEMENT ENDPOINTS
+// -------------------------------------------------------------
+
+/**
+ * Get user files overview: list of users with file counts and storage stats
+ */
+router.get('/user-files/overview', (req, res) => {
+  try {
+    const allUsers = authService.getAllUsersList();
+    const VIDEO_EXTS = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'flv', 'ts', 'm4v', '3gp', 'wmv'];
+
+    let globalTotalFiles = 0;
+    let globalTotalVideos = 0;
+    let globalTotalStorageBytes = 0;
+
+    const userSummaries = allUsers.map(u => {
+      const uNodes = nodeService.getUserNodes(u.id, u.email);
+      const files = uNodes.filter(n => !n.isDirectory && !n.isTrash);
+      const videos = files.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return VIDEO_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('video/'));
+      });
+      const totalBytes = files.reduce((sum, f) => sum + (Number(f.sizeBytes) || 0), 0);
+
+      globalTotalFiles += files.length;
+      globalTotalVideos += videos.length;
+      globalTotalStorageBytes += totalBytes;
+
+      return {
+        id: u.id,
+        displayName: u.displayName || 'AirBox User',
+        email: u.email || '',
+        phone: u.phone || '',
+        avatar: (u.displayName || u.email || 'U').charAt(0).toUpperCase(),
+        status: u.status || 'ACTIVE',
+        isVip: !!u.isVip,
+        filesCount: files.length,
+        videosCount: videos.length,
+        usedStorageBytes: totalBytes,
+        usedStorageMb: Number((totalBytes / (1024 * 1024)).toFixed(2)),
+        usedStorageGb: Number((totalBytes / (1024 * 1024 * 1024)).toFixed(2)),
+        totalQuotaBytes: u.totalSpaceBytes || 1099511627776,
+        createdAt: u.createdAt || null,
+      };
+    });
+
+    // Sort by filesCount desc, then usedStorageBytes desc
+    userSummaries.sort((a, b) => b.filesCount - a.filesCount || b.usedStorageBytes - a.usedStorageBytes);
+
+    res.json({
+      success: true,
+      stats: {
+        totalUsersWithFiles: userSummaries.filter(u => u.filesCount > 0).length,
+        totalFiles: globalTotalFiles,
+        totalVideos: globalTotalVideos,
+        totalStorageBytes: globalTotalStorageBytes,
+        totalStorageGb: Number((globalTotalStorageBytes / (1024 * 1024 * 1024)).toFixed(2)),
+      },
+      users: userSummaries,
+    });
+  } catch (err) {
+    console.error('[AdminRoutes] Error in /user-files/overview:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Get all files and videos uploaded by a specific user
+ */
+router.get('/users/:id/files', (req, res) => {
+  try {
+    const user = authService.getUser(req.params.id);
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+
+    const { type = 'ALL', search = '', page = 1, limit = 100 } = req.query;
+    const uNodes = nodeService.getUserNodes(user.id, user.email);
+    const allShares = Array.from(shareService.shares.values());
+
+    const VIDEO_EXTS = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'flv', 'ts', 'm4v', '3gp', 'wmv'];
+    const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    const DOC_EXTS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip', 'rar', 'apk'];
+
+    let fileList = uNodes.filter(n => !n.isDirectory && !n.isTrash);
+
+    // Filter by type
+    if (type === 'VIDEO') {
+      fileList = fileList.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return VIDEO_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('video/'));
+      });
+    } else if (type === 'IMAGE') {
+      fileList = fileList.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return IMAGE_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('image/'));
+      });
+    } else if (type === 'DOC') {
+      fileList = fileList.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return DOC_EXTS.includes(ext) || (f.mimeType && !f.mimeType.startsWith('video/') && !f.mimeType.startsWith('image/'));
+      });
+    }
+
+    // Filter by search query
+    if (search) {
+      const q = search.toLowerCase().trim();
+      fileList = fileList.filter(f => (f.name || '').toLowerCase().includes(q));
+    }
+
+    const total = fileList.length;
+    const p = Math.max(1, parseInt(page) || 1);
+    const lim = Math.max(1, Math.min(parseInt(limit) || 100, 200));
+    const paginated = fileList.slice((p - 1) * lim, p * lim);
+
+    const enrichedFiles = paginated.map(f => {
+      const ext = (f.name || '').split('.').pop().toLowerCase();
+      const isVideo = VIDEO_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('video/'));
+      const isImage = IMAGE_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('image/'));
+
+      // Check if this file has a public share
+      const share = allShares.find(s =>
+        (s.fileId && s.fileId === f.id) ||
+        (s.code && (s.name === f.name || s.fileName === f.name) && (s.userId === user.id || s.creatorUserId === user.id))
+      );
+
+      const sizeBytes = Number(f.sizeBytes) || 0;
+      let formattedSize = '0 B';
+      if (sizeBytes >= 1024 ** 3) {
+        formattedSize = (sizeBytes / (1024 ** 3)).toFixed(2) + ' GB';
+      } else if (sizeBytes >= 1024 ** 2) {
+        formattedSize = (sizeBytes / (1024 ** 2)).toFixed(2) + ' MB';
+      } else if (sizeBytes >= 1024) {
+        formattedSize = (sizeBytes / 1024).toFixed(1) + ' KB';
+      } else if (sizeBytes > 0) {
+        formattedSize = sizeBytes + ' B';
+      }
+
+      return {
+        id: f.id,
+        name: f.name || 'Untitled File',
+        extension: ext,
+        sizeBytes,
+        formattedSize,
+        mimeType: f.mimeType || 'application/octet-stream',
+        isVideo,
+        isImage,
+        createdAt: f.createdAt || f.updatedAt || new Date().toISOString(),
+        downloadUrl: f.downloadUrl || '',
+        streamUrl: f.streamUrl || f.downloadUrl || '',
+        thumbnailUrl: f.thumbnailUrl || '',
+        isPublicShared: !!share,
+        shareCode: share?.code || null,
+        shareUrl: share?.code ? `https://airbox.one/s/${share.code}` : null,
+        viewsCount: share?.viewsCount || 0,
+        uploader: {
+          id: user.id,
+          displayName: user.displayName || 'AirBox User',
+          email: user.email || '',
+        },
+      };
+    });
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        displayName: user.displayName || 'AirBox User',
+        email: user.email || '',
+        totalFiles: uNodes.filter(n => !n.isDirectory && !n.isTrash).length,
+      },
+      total,
+      page: p,
+      limit: lim,
+      files: enrichedFiles,
+    });
+  } catch (err) {
+    console.error('[AdminRoutes] Error in /users/:id/files:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Get all files across all users with uploader identification
+ */
+router.get('/user-files/all', (req, res) => {
+  try {
+    const { type = 'ALL', search = '', page = 1, limit = 100 } = req.query;
+    const allUsers = authService.getAllUsersList();
+    const userMap = new Map();
+    allUsers.forEach(u => {
+      userMap.set(u.id, u);
+      if (u.email) userMap.set(u.email.toLowerCase(), u);
+    });
+
+    const VIDEO_EXTS = ['mp4', 'mkv', 'avi', 'mov', 'webm', 'flv', 'ts', 'm4v', '3gp', 'wmv'];
+    const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'];
+    const DOC_EXTS = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv', 'zip', 'rar', 'apk'];
+
+    const allShares = Array.from(shareService.shares.values());
+    const allNodes = Array.from(nodeService.nodes.values()).filter(n => !n.isDirectory && !n.isTrash);
+
+    let fileList = allNodes;
+
+    // Filter by type
+    if (type === 'VIDEO') {
+      fileList = fileList.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return VIDEO_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('video/'));
+      });
+    } else if (type === 'IMAGE') {
+      fileList = fileList.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return IMAGE_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('image/'));
+      });
+    } else if (type === 'DOC') {
+      fileList = fileList.filter(f => {
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return DOC_EXTS.includes(ext) || (f.mimeType && !f.mimeType.startsWith('video/') && !f.mimeType.startsWith('image/'));
+      });
+    }
+
+    // Filter by search
+    if (search) {
+      const q = search.toLowerCase().trim();
+      fileList = fileList.filter(f =>
+        (f.name || '').toLowerCase().includes(q) ||
+        (f.ownerId || '').toLowerCase().includes(q) ||
+        (f.userEmail || '').toLowerCase().includes(q)
+      );
+    }
+
+    // Sort newest first
+    fileList.sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0));
+
+    const total = fileList.length;
+    const p = Math.max(1, parseInt(page) || 1);
+    const lim = Math.max(1, Math.min(parseInt(limit) || 100, 200));
+    const paginated = fileList.slice((p - 1) * lim, p * lim);
+
+    const enrichedFiles = paginated.map(f => {
+      const ext = (f.name || '').split('.').pop().toLowerCase();
+      const isVideo = VIDEO_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('video/'));
+      const isImage = IMAGE_EXTS.includes(ext) || (f.mimeType && f.mimeType.startsWith('image/'));
+
+      const ownerUser = userMap.get(f.ownerId) || (f.userEmail ? userMap.get(f.userEmail.toLowerCase()) : null);
+
+      const share = allShares.find(s =>
+        (s.fileId && s.fileId === f.id) ||
+        (s.code && (s.name === f.name || s.fileName === f.name))
+      );
+
+      const sizeBytes = Number(f.sizeBytes) || 0;
+      let formattedSize = '0 B';
+      if (sizeBytes >= 1024 ** 3) {
+        formattedSize = (sizeBytes / (1024 ** 3)).toFixed(2) + ' GB';
+      } else if (sizeBytes >= 1024 ** 2) {
+        formattedSize = (sizeBytes / (1024 ** 2)).toFixed(2) + ' MB';
+      } else if (sizeBytes >= 1024) {
+        formattedSize = (sizeBytes / 1024).toFixed(1) + ' KB';
+      } else if (sizeBytes > 0) {
+        formattedSize = sizeBytes + ' B';
+      }
+
+      return {
+        id: f.id,
+        name: f.name || 'Untitled File',
+        extension: ext,
+        sizeBytes,
+        formattedSize,
+        mimeType: f.mimeType || 'application/octet-stream',
+        isVideo,
+        isImage,
+        createdAt: f.createdAt || f.updatedAt || new Date().toISOString(),
+        downloadUrl: f.downloadUrl || '',
+        streamUrl: f.streamUrl || f.downloadUrl || '',
+        thumbnailUrl: f.thumbnailUrl || '',
+        isPublicShared: !!share,
+        shareCode: share?.code || null,
+        shareUrl: share?.code ? `https://airbox.one/s/${share.code}` : null,
+        viewsCount: share?.viewsCount || 0,
+        uploader: {
+          id: ownerUser?.id || f.ownerId || 'N/A',
+          displayName: ownerUser?.displayName || f.userEmail || 'AirBox User',
+          email: ownerUser?.email || f.userEmail || '',
+        },
+      };
+    });
+
+    res.json({
+      success: true,
+      total,
+      page: p,
+      limit: lim,
+      files: enrichedFiles,
+    });
+  } catch (err) {
+    console.error('[AdminRoutes] Error in /user-files/all:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
